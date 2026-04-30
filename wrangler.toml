@@ -1,0 +1,7 @@
+# Cloudflare Pages config. Deploy with:
+#   npx wrangler pages deploy dist
+# Or wire the GitHub repo to a Cloudflare Pages project with build command
+# `npm run build` and output directory `dist` — this file is then optional.
+name = "whattowearforweather"
+compatibility_date = "2025-01-01"
+pages_build_output_dir = "dist"
