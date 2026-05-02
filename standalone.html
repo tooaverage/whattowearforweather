@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0b1220" />
+<title>What to wear — Vancouver</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100%; background: #020617; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 28rem; margin: 0 auto; padding: 1rem 1rem 2.5rem; display: flex; flex-direction: column; gap: 1rem; }
+  .hero { border-radius: 1.5rem; padding: 1.5rem; color: #020617; box-shadow: 0 10px 25px rgba(0,0,0,.25); }
+  .hero.hot { background: linear-gradient(135deg, #fb923c, #f43f5e); }
+  .hero.warm { background: linear-gradient(135deg, #fcd34d, #fb923c); }
+  .hero.mild { background: linear-gradient(135deg, #6ee7b7, #10b981); }
+  .hero.cool { background: linear-gradient(135deg, #7dd3fc, #0ea5e9); }
+  .hero.cold { background: linear-gradient(135deg, #a5b4fc, #6366f1); }
+  .hero.very_cold { background: linear-gradient(135deg, #818cf8, #7c3aed); }
+  .hero.freezing { background: linear-gradient(135deg, #cbd5e1, #475569); color: #f1f5f9; }
+  .hero-head { display: flex; justify-content: space-between; align-items: baseline; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; opacity: .8; font-weight: 600; }
+  .hero-temp { display: flex; align-items: flex-end; gap: 1rem; margin-top: .5rem; }
+  .hero-num { font-size: 4.5rem; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums; }
+  .hero-icon { font-size: 1.5rem; }
+  .hero-cond { font-size: .9rem; font-weight: 500; }
+  .facts { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-top: 1rem; }
+  .fact { display: flex; justify-content: space-between; padding: .5rem .75rem; border-radius: .75rem; background: rgba(0,0,0,.1); font-size: .85rem; }
+  .fact span:last-child { font-weight: 500; font-variant-numeric: tabular-nums; }
+  .panel { border-radius: 1rem; padding: 1rem; background: rgba(15,23,42,.7); border: 1px solid rgba(255,255,255,.05); }
+  .panel h2 { margin: 0 0 .75rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; }
+  .bring { background: rgba(252,211,77,.08); border-color: rgba(252,211,77,.2); }
+  .bring h2 { color: #fcd34d; }
+  .bring p { margin: 0; color: #fef3c7; font-size: .9rem; }
+  .outfit-row { display: flex; justify-content: space-between; align-items: baseline; padding: .6rem 0; font-size: .9rem; border-bottom: 1px solid rgba(255,255,255,.05); }
+  .outfit-row:last-child { border-bottom: none; }
+  .outfit-row .lbl { color: #94a3b8; }
+  .outfit-row .val { color: #f1f5f9; font-weight: 500; text-align: right; }
+  .pills { display: flex; flex-wrap: wrap; gap: .375rem; margin-top: .75rem; }
+  .pills .lbl { font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; width: 100%; margin-bottom: .25rem; font-weight: 500; }
+  .pill { background: #1e293b; color: #e2e8f0; padding: .25rem .625rem; border-radius: 999px; font-size: .75rem; font-weight: 500; }
+  .arc { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .25rem; margin: 0; padding-left: 0; list-style: none; }
+  .arc-h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .75rem; }
+  .arc-range { font-size: .75rem; color: #94a3b8; }
+  .arc li { flex: 0 0 3rem; display: flex; flex-direction: column; align-items: center; gap: .25rem; padding: .5rem .25rem; border-radius: .75rem; background: rgba(30,41,59,.4); font-size: .75rem; }
+  .arc-time { color: #cbd5e1; font-size: .7rem; }
+  .arc-icon { font-size: 1rem; line-height: 1; }
+  .arc-bar-wrap { position: relative; height: 3rem; width: .375rem; border-radius: 999px; background: rgba(51,65,85,.7); }
+  .arc-bar { position: absolute; bottom: 0; width: 100%; border-radius: 999px; background: linear-gradient(to top, #38bdf8, #6ee7b7); }
+  .arc-temp { color: #f1f5f9; font-weight: 500; font-variant-numeric: tabular-nums; }
+  .arc-rain { color: #7dd3fc; font-size: .65rem; font-variant-numeric: tabular-nums; }
+  details summary { font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::after { content: "+"; color: #64748b; }
+  details[open] summary::after { content: "−"; }
+  details ul { margin: .75rem 0 0; padding-left: 1.25rem; color: #cbd5e1; font-size: .85rem; }
+  details li { margin-bottom: .375rem; }
+  .src { margin: .75rem 0 0; font-size: .65rem; color: #64748b; }
+  .footer { text-align: center; font-size: .65rem; color: #64748b; padding-top: .5rem; }
+  .err { background: rgba(244,63,94,.1); border-color: rgba(244,63,94,.3); color: #fecaca; }
+  .err strong { color: #fca5a5; display: block; margin-bottom: .25rem; }
+  .loading { padding: 5rem 0; text-align: center; color: #94a3b8; font-size: .9rem; }
+</style>
+</head>
+<body>
+<main id="root"><div class="loading">Checking the sky…</div></main>
+<script>
+"use strict";
+
+const CFG = {
+  windLayerKph: 16, windChillTempC: 10, windChillMinWindKph: 4.8, heatIndexTempC: 26.7,
+  rainShellProbabilityPct: 40, rainShellTotalMm: 1.0, umbrellaProbabilityPct: 10,
+  uvProtectionIndex: 3, uvSunscreenIndex: 6, bringLayerSpreadC: 5,
+  bands: [
+    { band: "hot", min: 27 }, { band: "warm", min: 20 }, { band: "mild", min: 14 },
+    { band: "cool", min: 8 }, { band: "cold", min: 2 }, { band: "very_cold", min: -5 },
+    { band: "freezing", min: -Infinity },
+  ],
+  baselineOffset: 0,
+  activityOffset: 1.5,
+};
+
+const C2F = c => c * 9 / 5 + 32, F2C = f => (f - 32) * 5 / 9;
+const KPH2MPH = k => k * 0.621371, KPH2MS = k => k / 3.6;
+
+function heatIndexC(tempC, rh) {
+  const T = C2F(tempC);
+  const simple = 0.5 * (T + 61 + (T - 68) * 1.2 + rh * 0.094);
+  const avg = (simple + T) / 2;
+  if (avg < 80) return F2C(avg);
+  let HI = -42.379 + 2.04901523*T + 10.14333127*rh
+    - 0.22475541*T*rh - 0.00683783*T*T - 0.05481717*rh*rh
+    + 0.00122874*T*T*rh + 0.00085282*T*rh*rh - 0.00000199*T*T*rh*rh;
+  if (rh < 13 && T >= 80 && T <= 112)
+    HI -= ((13 - rh) / 4) * Math.sqrt((17 - Math.abs(T - 95)) / 17);
+  if (rh > 85 && T >= 80 && T <= 87)
+    HI += ((rh - 85) / 10) * ((87 - T) / 5);
+  return F2C(HI);
+}
+
+function windChillC(tempC, kph) {
+  if (tempC > CFG.windChillTempC || kph <= CFG.windChillMinWindKph) return tempC;
+  const T = C2F(tempC), V = KPH2MPH(kph), V16 = Math.pow(V, 0.16);
+  return F2C(35.74 + 0.6215*T - 35.75*V16 + 0.4275*T*V16);
+}
+
+function bomAT(tempC, rh, kph) {
+  const ws = KPH2MS(kph);
+  const e = (rh / 100) * 6.105 * Math.exp((17.27 * tempC) / (237.7 + tempC));
+  return tempC + 0.33 * e - 0.70 * ws - 4.00;
+}
+
+function apparentC(tempC, rh, kph) {
+  if (tempC <= CFG.windChillTempC && kph > CFG.windChillMinWindKph) return windChillC(tempC, kph);
+  if (tempC >= CFG.heatIndexTempC) return heatIndexC(tempC, rh);
+  return bomAT(tempC, rh, kph);
+}
+
+function pickBand(c) { for (const b of CFG.bands) if (c >= b.min) return b.band; return "freezing"; }
+function bandIdx(b) { return CFG.bands.findIndex(x => x.band === b); }
+
+const RECIPES = {
+  hot:        { base: "breathable t-shirt", mid: null, outer: null, bottom: "shorts or light skirt", footwear: "sneakers or sandals", acc: [] },
+  warm:       { base: "t-shirt", mid: null, outer: null, bottom: "shorts or light pants", footwear: "sneakers", acc: [] },
+  mild:       { base: "long-sleeve tee or thin henley", mid: null, outer: null, bottom: "pants", footwear: "sneakers", acc: [] },
+  cool:       { base: "long-sleeve tee", mid: "light sweater or fleece", outer: null, bottom: "pants", footwear: "closed shoes", acc: [] },
+  cold:       { base: "thermal long-sleeve", mid: "sweater or fleece", outer: "insulated jacket", bottom: "pants", footwear: "closed shoes", acc: [] },
+  very_cold:  { base: "thermal base layer", mid: "mid-weight fleece or wool", outer: "insulated winter jacket", bottom: "lined or thermal pants", footwear: "insulated boots", acc: ["warm hat", "gloves"] },
+  freezing:   { base: "heavy thermal base", mid: "down or heavy fleece", outer: "parka", bottom: "thermal pants under outer pants", footwear: "insulated waterproof boots", acc: ["warm hat", "insulated gloves", "scarf or neck gaiter"] },
+};
+
+function summarizeArc(next) {
+  const apps = next.map(p => apparentC(p.tempC, p.rh, p.kph));
+  const minA = Math.min(...apps), maxA = Math.max(...apps);
+  return {
+    min: minA, max: maxA, spread: maxA - minA,
+    cross: pickBand(minA) !== pickBand(maxA),
+    totalMm: next.reduce((s, p) => s + p.precipMm, 0),
+    maxProb: next.reduce((m, p) => Math.max(m, p.precipProb || 0), 0),
+    maxUv: next.reduce((m, p) => Math.max(m, p.uv), 0),
+    maxKph: next.reduce((m, p) => Math.max(m, p.kph), 0),
+  };
+}
+
+function recommend(input) {
+  const c = input.current;
+  const aNow = apparentC(c.tempC, c.rh, c.kph);
+  const eNow = aNow + CFG.baselineOffset + CFG.activityOffset;
+  const band = pickBand(eNow);
+  const arc = summarizeArc(input.next12h);
+  const r = RECIPES[band];
+  const rationale = [];
+  rationale.push(`Apparent temp now: ${aNow.toFixed(1)}°C (air ${c.tempC.toFixed(1)}°C, ${Math.round(c.rh)}% RH, wind ${Math.round(c.kph)} km/h).`);
+  if (CFG.activityOffset !== 0) rationale.push(`Engine-effective: ${eNow.toFixed(1)}°C after walking-commute offset (+${CFG.activityOffset}°C).`);
+  rationale.push(`Selected band: ${band.replace("_", " ")}.`);
+
+  let outer = r.outer, footwear = r.footwear, acc = [...r.acc];
+
+  if (arc.maxKph >= CFG.windLayerKph && !outer) {
+    outer = "wind-resistant shell";
+    rationale.push(`Sustained wind reaches ${Math.round(arc.maxKph)} km/h — wind shell to manage convective cooling.`);
+  }
+
+  const rainLikely = arc.maxProb >= CFG.rainShellProbabilityPct || arc.totalMm >= CFG.rainShellTotalMm;
+  if (rainLikely) {
+    outer = outer ? `${outer} (waterproof)` : "waterproof rain shell";
+    if (arc.totalMm >= 4) footwear = `waterproof ${footwear}`;
+    rationale.push(`Rain likely (max ${Math.round(arc.maxProb)}% chance, ${arc.totalMm.toFixed(1)} mm over 12h) — wear a waterproof shell.`);
+  } else if (arc.maxProb >= CFG.umbrellaProbabilityPct) {
+    acc.push("compact umbrella");
+    rationale.push(`Light chance of rain (${Math.round(arc.maxProb)}%) — toss an umbrella in your bag.`);
+  }
+
+  if (arc.maxUv >= CFG.uvProtectionIndex) {
+    if (!acc.includes("sunglasses")) acc.push("sunglasses");
+    if (arc.maxUv >= CFG.uvProtectionIndex + 1 && !acc.some(a => a.includes("hat"))) acc.push("brimmed hat");
+    rationale.push(`UV peaks at ${arc.maxUv.toFixed(1)} (≥ ${CFG.uvProtectionIndex}, WHO sun-protection threshold).`);
+    if (arc.maxUv >= CFG.uvSunscreenIndex) {
+      acc.push("sunscreen");
+      rationale.push(`UV ≥ ${CFG.uvSunscreenIndex} — apply SPF.`);
+    }
+  }
+
+  let bring = null;
+  const minB = pickBand(arc.min), maxB = pickBand(arc.max), nowB = pickBand(eNow);
+  const colder = bandIdx(minB) > bandIdx(nowB), warmer = bandIdx(maxB) < bandIdx(nowB);
+  const fmt = c => `${Math.round(c)}°C`;
+  if (arc.cross && colder) bring = `Apparent temp drops from ${fmt(arc.max)} to ${fmt(arc.min)} during the window — bring an extra layer to put on.`;
+  else if (arc.cross && warmer) bring = `Starts at ${fmt(arc.min)} but reaches ${fmt(arc.max)} later — wear something you can shed.`;
+  else if (arc.spread >= CFG.bringLayerSpreadC) bring = `Apparent temp swings ${arc.spread.toFixed(0)}°C across the window (${fmt(arc.min)}–${fmt(arc.max)}) — bring a layer you can adjust.`;
+
+  return { aNow, band, layers: { ...r, outer, footwear, acc }, bring, rationale, arc };
+}
+
+const VANCOUVER = { lat: 49.2497, lon: -123.1193, tz: "America/Vancouver", name: "Vancouver, BC" };
+
+async function fetchWeather() {
+  const params = new URLSearchParams({
+    latitude: VANCOUVER.lat, longitude: VANCOUVER.lon, timezone: VANCOUVER.tz,
+    current: "temperature_2m,relative_humidity_2m,is_day,precipitation,snowfall,weather_code,cloud_cover,wind_speed_10m,wind_gusts_10m,uv_index",
+    hourly: "temperature_2m,relative_humidity_2m,precipitation_probability,precipitation,snowfall,weather_code,cloud_cover,wind_speed_10m,wind_gusts_10m,uv_index,is_day",
+    wind_speed_unit: "kmh", temperature_unit: "celsius", precipitation_unit: "mm", forecast_days: "2",
+  });
+  const r = await fetch("https://api.open-meteo.com/v1/forecast?" + params);
+  if (!r.ok) throw new Error(`Open-Meteo ${r.status}`);
+  const d = await r.json();
+  const c = d.current, h = d.hourly;
+  const now = Date.now();
+  let start = 0;
+  for (let i = 0; i < h.time.length; i++) if (new Date(h.time[i]).getTime() <= now) start = i; else break;
+  const next12h = [];
+  for (let i = start; i < start + 12 && i < h.time.length; i++) {
+    next12h.push({
+      time: h.time[i], tempC: h.temperature_2m[i], rh: h.relative_humidity_2m[i],
+      kph: h.wind_speed_10m[i], precipMm: h.precipitation[i], precipProb: h.precipitation_probability[i],
+      uv: h.uv_index[i], code: h.weather_code[i], isDay: h.is_day[i] === 1,
+    });
+  }
+  return {
+    current: {
+      time: c.time, tempC: c.temperature_2m, rh: c.relative_humidity_2m,
+      kph: c.wind_speed_10m, gust: c.wind_gusts_10m, uv: c.uv_index,
+      code: c.weather_code, isDay: c.is_day === 1,
+    },
+    next12h,
+  };
+}
+
+const WMO = {
+  0: ["Clear", "☀️"], 1: ["Mostly clear", "🌤️"], 2: ["Partly cloudy", "⛅"], 3: ["Overcast", "☁️"],
+  45: ["Fog", "🌫️"], 48: ["Fog", "🌫️"], 51: ["Light drizzle", "🌦️"], 53: ["Drizzle", "🌦️"], 55: ["Heavy drizzle", "🌧️"],
+  61: ["Light rain", "🌦️"], 63: ["Rain", "🌧️"], 65: ["Heavy rain", "🌧️"],
+  71: ["Light snow", "🌨️"], 73: ["Snow", "❄️"], 75: ["Heavy snow", "❄️"],
+  80: ["Showers", "🌦️"], 81: ["Showers", "🌧️"], 82: ["Heavy showers", "🌧️"],
+  95: ["Thunderstorm", "⛈️"], 96: ["Thunderstorm", "⛈️"], 99: ["Thunderstorm", "⛈️"],
+};
+const BAND_LABEL = { hot: "Hot", warm: "Warm", mild: "Mild", cool: "Cool", cold: "Cold", very_cold: "Very cold", freezing: "Freezing" };
+
+const fmt = c => `${Math.round(c)}°`;
+const wmo = code => WMO[code] || ["—", "🌤️"];
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const hr = (iso) => new Date(iso).toLocaleTimeString([], { hour: "numeric", timeZone: VANCOUVER.tz });
+
+function render(weather, rec) {
+  const c = weather.current;
+  const [cLabel, cIcon] = wmo(c.code);
+  const root = document.getElementById("root");
+  const facts = [
+    ["Feels like", fmt(rec.aNow)],
+    ["Humidity", Math.round(c.rh) + "%"],
+    ["Wind", Math.round(c.kph) + " km/h"],
+    ["UV", c.uv.toFixed(1)],
+  ];
+  const layerRows = [
+    ["Base", rec.layers.base], ["Mid", rec.layers.mid], ["Outer", rec.layers.outer],
+    ["Bottom", rec.layers.bottom], ["Footwear", rec.layers.footwear],
+  ].filter(([, v]) => v).map(([l, v]) => `<div class="outfit-row"><span class="lbl">${l}</span><span class="val">${esc(v)}</span></div>`).join("");
+  const accs = rec.layers.acc.length
+    ? `<div class="pills"><span class="lbl">Plus</span>${rec.layers.acc.map(a => `<span class="pill">${esc(a)}</span>`).join("")}</div>` : "";
+  const arcMin = Math.min(...weather.next12h.map(p => p.tempC));
+  const arcMax = Math.max(...weather.next12h.map(p => p.tempC));
+  const range = Math.max(arcMax - arcMin, 1);
+  const arcItems = weather.next12h.map(p => {
+    const [, ic] = wmo(p.code);
+    const h = 25 + ((p.tempC - arcMin) / range) * 60;
+    const rain = (p.precipProb || 0) >= 30;
+    return `<li><span class="arc-time">${esc(hr(p.time))}</span><span class="arc-icon">${ic}</span><div class="arc-bar-wrap"><div class="arc-bar" style="height:${h}%"></div></div><span class="arc-temp">${fmt(p.tempC)}</span>${rain ? `<span class="arc-rain">${Math.round(p.precipProb)}%</span>` : ""}</li>`;
+  }).join("");
+
+  root.innerHTML = `
+    <section class="hero ${rec.band}">
+      <div class="hero-head"><span>${esc(VANCOUVER.name)}</span><span>${BAND_LABEL[rec.band]}</span></div>
+      <div class="hero-temp">
+        <div class="hero-num">${fmt(c.tempC)}</div>
+        <div><div class="hero-icon">${cIcon}</div><div class="hero-cond">${esc(cLabel)}</div></div>
+      </div>
+      <div class="facts">${facts.map(([l, v]) => `<div class="fact"><span>${l}</span><span>${esc(v)}</span></div>`).join("")}</div>
+    </section>
+    ${rec.bring ? `<section class="panel bring"><h2>Bring with you</h2><p>${esc(rec.bring)}</p></section>` : ""}
+    <section class="panel"><h2>Wear</h2>${layerRows}${accs}</section>
+    <section class="panel">
+      <div class="arc-h"><h2 style="margin:0">Next 12 hours</h2><span class="arc-range">${fmt(arcMin)} – ${fmt(arcMax)}</span></div>
+      <ul class="arc">${arcItems}</ul>
+    </section>
+    <section class="panel">
+      <details><summary>Why this</summary><ul>${rec.rationale.map(r => `<li>${esc(r)}</li>`).join("")}</ul></details>
+      <p class="src">Data: Open-Meteo · Engine: rules-based</p>
+    </section>
+    <div class="footer">Vancouver, BC · v1</div>
+  `;
+}
+
+function renderError(msg) {
+  document.getElementById("root").innerHTML =
+    `<section class="panel err"><strong>Couldn't load the forecast</strong>${esc(msg)}</section>`;
+}
+
+(async () => {
+  try {
+    const w = await fetchWeather();
+    const rec = recommend({ current: { tempC: w.current.tempC, rh: w.current.rh, kph: w.current.kph }, next12h: w.next12h });
+    render(w, rec);
+  } catch (e) {
+    renderError(e && e.message || String(e));
+  }
+})();
+</script>
+</body>
+</html>
