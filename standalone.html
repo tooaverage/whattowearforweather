@@ -44,7 +44,7 @@
   .rain-pill[data-level="wet"] { background: rgba(96,165,250,.18); color: #93c5fd; }
   .strip-wrap { padding: 1.1rem 0 .5rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; margin: 0 -.25rem; }
   .strip-wrap::-webkit-scrollbar { display: none; }
-  .hour-graph { position: relative; height: 9rem; }
+  .hour-graph { position: relative; height: 11rem; }
   .hg-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .hg-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; stroke: #fb923c; vector-effect: non-scaling-stroke; }
   .hour-cell { position: absolute; top: 0; bottom: 0; width: 3rem; margin-left: -1.5rem; scroll-snap-align: center; background: transparent; border: 1px solid transparent; border-radius: .65rem; padding: 0; color: inherit; cursor: pointer; transition: background .15s, border-color .15s; font-family: inherit; z-index: 1; }
@@ -87,7 +87,7 @@
   .tl-text strong { color: #f8fafc; font-weight: 600; }
   .day-graph-list { overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; margin: 0 -1.1rem; padding: 0 1.1rem; }
   .day-graph-list::-webkit-scrollbar { display: none; }
-  .day-graph { position: relative; height: 9.5rem; }
+  .day-graph { position: relative; height: 12rem; }
   .dg-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .dg-line { fill: none; stroke-width: 2; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
   .dg-line-hi { stroke: #fb923c; }
@@ -863,7 +863,7 @@ function renderTodayLine(today) {
 function renderHourStrip(today, selectedIdx, nowIdx) {
   const cells = today.cells;
   const range = Math.max(today.cellsHi - today.cellsLo, 1);
-  const yOf = t => 30 + (1 - (t - today.cellsLo) / range) * 38;
+  const yOf = t => 28 + (1 - (t - today.cellsLo) / range) * 47;
   const xOf = i => ((i + 0.5) / cells.length) * 100;
   const colRem = 3;
   const path = "M" + cells.map((c, i) => `${xOf(i).toFixed(2)},${yOf(c.tempC).toFixed(2)}`).join(" L");
@@ -909,7 +909,7 @@ function renderDayGraph(days, colRem) {
   const tMin = Math.min(...allTemps);
   const tMax = Math.max(...allTemps);
   const tRange = Math.max(tMax - tMin, 1);
-  const yTop = 38, yBot = 70;
+  const yTop = 32, yBot = 75;
   const yOf = t => yBot - ((t - tMin) / tRange) * (yBot - yTop);
   const xOf = i => ((i + 0.5) / cols) * 100;
   const hiPath = "M" + days.map((d, i) => `${xOf(i).toFixed(2)},${yOf(d.hi).toFixed(2)}`).join(" L");
@@ -982,7 +982,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v23-when</div>
+      <div class="footer">${esc(LOCATION.name)} . v24-tall</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1005,7 +1005,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v23-when</div>
+    <div class="footer">${esc(LOCATION.name)} . v24-tall</div>
   `;
 
   // Scroll selected cell into center of strip.
