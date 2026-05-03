@@ -13,13 +13,7 @@
   html, body { margin: 0; padding: 0; min-height: 100%; background: #020617; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
   main { max-width: 28rem; margin: 0 auto; padding: 1rem 1rem 2.5rem; display: flex; flex-direction: column; gap: 1rem; }
   .hero { border-radius: 1.5rem; padding: 1.25rem 1.5rem 1.25rem; color: #020617; box-shadow: 0 10px 25px rgba(0,0,0,.25); }
-  .hero.hot { background: linear-gradient(135deg, #fb923c, #f43f5e); }
-  .hero.warm { background: linear-gradient(135deg, #fcd34d, #fb923c); }
-  .hero.mild { background: linear-gradient(135deg, #6ee7b7, #10b981); }
-  .hero.cool { background: linear-gradient(135deg, #7dd3fc, #0ea5e9); }
-  .hero.cold { background: linear-gradient(135deg, #a5b4fc, #6366f1); }
-  .hero.very_cold { background: linear-gradient(135deg, #818cf8, #7c3aed); }
-  .hero.freezing { background: linear-gradient(135deg, #cbd5e1, #475569); color: #f1f5f9; }
+  .hero.cold-text { color: #f1f5f9; }
   .hero-head { display: flex; justify-content: space-between; align-items: baseline; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; opacity: .8; font-weight: 600; }
   .hero-glance { font-size: 2.4rem; font-weight: 600; line-height: 1.1; margin: .75rem 0 .5rem; letter-spacing: .02em; }
   .hero-strip { display: flex; gap: 1rem; align-items: baseline; font-size: .8rem; opacity: .85; flex-wrap: wrap; }
@@ -134,7 +128,7 @@ const effective = c => c + CFG.baselineOffset + CFG.activityOffset;
 // Plain-language garment recipes with emoji icons.
 const RECIPES = {
   hot: { base: { ic: "👕", v: "breathable t-shirt" }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts" }, footwear: { ic: "👟", v: "sneakers or sandals" }, acc: [] },
-  warm: { base: { ic: "👕", v: "t-shirt" }, mid: null, outer: null, bottom: { ic: "👖", v: "shorts or light pants" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
+  warm: { base: { ic: "👕", v: "t-shirt" }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts or light pants" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
   mild: { base: { ic: "👕", v: "thin long-sleeve shirt" }, mid: null, outer: null, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
   cool: { base: { ic: "👕", v: "long-sleeve shirt" }, mid: { ic: "🧥", v: "light sweater or fleece" }, outer: null, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "closed shoes" }, acc: [] },
   cold: { base: { ic: "👕", v: "long-sleeve thermal top" }, mid: { ic: "🧥", v: "sweater or fleece" }, outer: { ic: "🧥", v: "insulated jacket" }, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "closed shoes" }, acc: [] },
@@ -220,9 +214,15 @@ function recommend(input) {
 // reading. Anchored to specific times, so it answers "when do I need to do X?"
 function buildTimeline(weather) {
   const events = [];
+  // Anchor the timeline to waking hours (6 AM–10 PM local). The 12h window
+  // can cross midnight when you check in the evening, but layer-shifts at
+  // 2 AM aren't actionable advice — kill them at the source.
   const hours = weather.next12h.map(p => {
     const a = apparentC(p.tempC, p.rh, p.kph);
     return { t: p.time, tempC: p.tempC, apparent: a, eff: effective(a), band: pickBand(effective(a)), uv: p.uv, precipProb: p.precipProb, precipMm: p.precipMm, kph: p.kph };
+  }).filter(h => {
+    const hr = localHourOf(h.t);
+    return hr >= 6 && hr <= 22;
   });
   if (hours.length === 0) return events;
 
@@ -342,18 +342,20 @@ function buildDailySummaries(allHours) {
     if (hours.length === 0) continue;
     const temps = hours.map(p => p.tempC);
     const hi = Math.max(...temps), lo = Math.min(...temps);
-    // Pick midday (12-14h local) for the outfit glance.
-    const midday = hours.find(p => {
-      const h = new Date(p.time).toLocaleString("en-US", { timeZone: VANCOUVER.tz, hour: "2-digit", hour12: false });
-      return h.startsWith("12") || h.startsWith("13") || h.startsWith("14");
-    }) || hours[Math.floor(hours.length / 2)];
-    const a = apparentC(midday.tempC, midday.rh, midday.kph);
-    const band = pickBand(effective(a));
+    // Pick the WARMEST DAYTIME apparent temp for the outfit band — that's
+    // what people actually dress for. Using midday alone misses Vancouver
+    // afternoons that peak at 3–4 PM and undershoots t-shirt/shorts days.
+    const dayHours = hours.filter(p => p.isDay);
+    const sourceHours = dayHours.length ? dayHours : hours;
+    let peakA = -Infinity, peakP = sourceHours[0];
+    for (const p of sourceHours) {
+      const a = apparentC(p.tempC, p.rh, p.kph);
+      if (a > peakA) { peakA = a; peakP = p; }
+    }
+    const band = pickBand(effective(peakA));
     const r = RECIPES[band];
     const icons = [r.outer, r.mid, r.base, r.bottom, r.footwear].filter(Boolean).map(l => l.ic).join(" ");
-    // Daytime weather code: pick the most "interesting" daytime one (highest
-    // numeric code = often more severe, since WMO codes climb with severity).
-    const dayHours = hours.filter(p => p.isDay);
+    // Daytime weather code: highest WMO code (most severe) wins.
     const code = dayHours.length ? Math.max(...dayHours.map(p => p.code)) : (hours[0].code || 0);
     out.push({ date, hi, lo, code, band, icons, jacket: !!r.outer });
   }
@@ -374,7 +376,48 @@ const BAND_LABEL = { hot: "Hot", warm: "Warm", mild: "Mild", cool: "Cool", cold:
 const fmt = c => `${Math.round(num(c))}°`;
 const wmo = code => WMO[code] || ["—", "🌤️"];
 const hour = (iso) => { try { return new Date(iso).toLocaleTimeString([], { hour: "numeric", timeZone: VANCOUVER.tz }); } catch { return ""; } };
+// Local hour as integer 0–23 in Vancouver tz, used to filter "Heads up" to
+// daylight (no more "add a layer at 4 AM" nonsense).
+const localHourOf = (iso) => {
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", { timeZone: VANCOUVER.tz, hour12: false, hour: "2-digit" }).formatToParts(new Date(iso));
+    return parseInt((parts.find(p => p.type === "hour") || { value: "0" }).value, 10);
+  } catch { return 0; }
+};
 // "Tomorrow" if it's tomorrow's date in Vancouver, otherwise short weekday.
+// Map apparent temperature to an HSL colour, interpolating across stops so
+// the hero gradient slides continuously from deep blue (cold) through cyan,
+// teal, green, yellow, orange and into red (hot). Picks a hue for ANY temp,
+// not a discrete band — so 14° and 19° look noticeably different.
+const TEMP_STOPS = [
+  { t: -15, h: 245, s: 65, l: 60 },  // indigo-blue
+  { t: 0,   h: 210, s: 75, l: 62 },  // sky blue
+  { t: 10,  h: 185, s: 60, l: 60 },  // teal
+  { t: 16,  h: 130, s: 50, l: 58 },  // green
+  { t: 22,  h: 50,  s: 80, l: 60 },  // yellow
+  { t: 28,  h: 22,  s: 85, l: 58 },  // orange
+  { t: 35,  h: 0,   s: 80, l: 55 },  // red
+];
+function tempHsl(c) {
+  if (!Number.isFinite(c)) c = 15;
+  if (c <= TEMP_STOPS[0].t) return { ...TEMP_STOPS[0] };
+  if (c >= TEMP_STOPS[TEMP_STOPS.length - 1].t) return { ...TEMP_STOPS[TEMP_STOPS.length - 1] };
+  for (let i = 0; i < TEMP_STOPS.length - 1; i++) {
+    const lo = TEMP_STOPS[i], hi = TEMP_STOPS[i + 1];
+    if (c >= lo.t && c <= hi.t) {
+      const f = (c - lo.t) / (hi.t - lo.t);
+      return { h: lo.h + (hi.h - lo.h) * f, s: lo.s + (hi.s - lo.s) * f, l: lo.l + (hi.l - lo.l) * f };
+    }
+  }
+  return { h: 200, s: 50, l: 55 };
+}
+function heroGradient(c) {
+  const { h, s, l } = tempHsl(c);
+  // Same hue, lighter top → darker bottom for depth.
+  const top = `hsl(${h.toFixed(0)}, ${Math.min(95, s + 5).toFixed(0)}%, ${Math.min(78, l + 10).toFixed(0)}%)`;
+  const bot = `hsl(${h.toFixed(0)}, ${s.toFixed(0)}%, ${Math.max(40, l - 12).toFixed(0)}%)`;
+  return `linear-gradient(135deg, ${top}, ${bot})`;
+}
 const dayLabel = (isoDate) => {
   try {
     const d = new Date(isoDate + "T12:00:00");
@@ -437,7 +480,7 @@ function render(weather, rec) {
     ? `<section class="panel"><h2>Coming up</h2>${dayRows}</section>` : "";
 
   root.innerHTML = `
-    <section class="hero ${esc(rec.band)}">
+    <section class="hero ${rec.aNow < 5 ? "cold-text" : ""}" style="background: ${heroGradient(rec.aNow)}">
       <div class="hero-head"><span>${esc(VANCOUVER.name)}</span><span>${esc(BAND_LABEL[rec.band] || "")}</span></div>
       <div class="hero-glance">${esc(heroIcons)}</div>
       <div class="hero-strip">
