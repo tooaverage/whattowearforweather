@@ -126,6 +126,31 @@
   .closet-name { flex: 1; }
   .closet-band { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: #cbd5e1; background: rgba(255,255,255,.06); padding: .15rem .45rem; border-radius: 999px; font-weight: 600; }
   .closet-cond { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: #93c5fd; background: rgba(96,165,250,.12); padding: .15rem .45rem; border-radius: 999px; font-weight: 600; }
+  .snap-link { background: transparent; border: none; color: #93c5fd; font-family: inherit; font-size: .8rem; font-weight: 600; cursor: pointer; padding: .25rem 0; flex-basis: 100%; text-align: left; margin-top: .35rem; text-decoration: underline; text-underline-offset: 3px; }
+  .snap-overlay { position: fixed; inset: 0; background: rgba(2,6,23,.92); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem 1rem; overflow-y: auto; }
+  .snap-card { background: #0f172a; border-radius: 1rem; padding: 1.25rem; width: 100%; max-width: 24rem; display: flex; flex-direction: column; gap: 1rem; border: 1px solid rgba(255,255,255,.08); }
+  .snap-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+  .snap-card h3 { margin: 0; font-size: 1.1rem; color: #f8fafc; line-height: 1.3; }
+  .snap-close { background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 0 .25rem; }
+  .snap-close:hover { color: #f1f5f9; }
+  .snap-weather { margin: 0; font-size: .85rem; color: #cbd5e1; line-height: 1.4; }
+  .snap-section { display: flex; flex-direction: column; gap: .5rem; }
+  .snap-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; font-weight: 600; }
+  .snap-chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .snap-chip { display: inline-flex; align-items: center; gap: .35rem; background: #1e293b; color: #cbd5e1; padding: .35rem .65rem .35rem .35rem; border-radius: 999px; font-size: .82rem; font-weight: 500; border: 1px solid transparent; cursor: pointer; font-family: inherit; }
+  .snap-chip svg { width: 1.4rem; height: 1.4rem; }
+  .snap-chip.on { background: #f1f5f9; color: #020617; border-color: #f1f5f9; font-weight: 600; }
+  .snap-empty { font-size: .8rem; color: #64748b; }
+  .snap-extra { background: #020617; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .55rem .75rem; color: #f1f5f9; font: inherit; -webkit-appearance: none; }
+  .snap-extra:focus { outline: none; border-color: rgba(255,255,255,.3); }
+  .snap-comfort { display: flex; gap: .35rem; }
+  .snap-comfort-btn { flex: 1; min-width: 0; background: #1e293b; color: #f8fafc; padding: .65rem .25rem; border-radius: .65rem; border: 1px solid #334155; cursor: pointer; font-family: inherit; font-size: .68rem; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: .25rem; line-height: 1.1; }
+  .snap-comfort-btn .em { font-size: 1.4rem; line-height: 1; }
+  .snap-comfort-btn .em svg { width: 1.6rem; height: 1.6rem; }
+  .snap-comfort-btn.on { background: #f1f5f9; color: #020617; border-color: #f1f5f9; }
+  .snap-save { background: #f1f5f9; color: #020617; border: none; padding: .7rem 1rem; border-radius: .65rem; font-family: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; }
+  .snap-save:disabled { opacity: .5; cursor: not-allowed; }
+  .snap-cancel { background: transparent; border: 1px solid rgba(255,255,255,.1); color: #cbd5e1; padding: .55rem 1rem; border-radius: .65rem; cursor: pointer; font-family: inherit; font-size: .85rem; }
   .closet-section { padding: .5rem 0; }
   .closet-section + .closet-section { border-top: 1px solid rgba(255,255,255,.04); }
   .closet-slot-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; font-weight: 600; margin-bottom: .4rem; }
@@ -799,6 +824,7 @@ function renderWear(rec) {
     `<button class="fb-btn" type="button" data-fb="cold"><span class="fb-emoji">${bigIcon("🥶")}</span><span>Too cold</span></button>` +
     `<button class="fb-btn" type="button" data-fb="right"><span class="fb-emoji">${bigIcon("👌")}</span><span>Just right</span></button>` +
     `<button class="fb-btn" type="button" data-fb="warm"><span class="fb-emoji">${bigIcon("🥵")}</span><span>Too warm</span></button>` +
+    `<button class="snap-link" type="button" data-snap-open>Log what I'm actually wearing →</button>` +
     `</div>`;
   return `<section id="wear" class="panel"><h2>Wear</h2>${layerRows}${accs}${fb}</section>`;
 }
@@ -925,6 +951,7 @@ function render(weather) {
   // Fall back when today has no remaining hours (late evening). Use current.
   if (!today) {
     const rec = recommend({ current: c, next12h: weather.next12h });
+    weather._lastRec = rec;
     root.innerHTML = `
       ${renderHero(rec, c, cLabel)}
       ${renderBring(rec)}
@@ -934,7 +961,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v20-form-fix</div>
+      <div class="footer">${esc(LOCATION.name)} . v21-snapshot</div>
     `;
     attachToggleHandler(root);
     return;
@@ -943,6 +970,7 @@ function render(weather) {
   const { selectedIdx, nowIdx } = pickInitialIdx(today);
   let currentIdx = selectedIdx;
   const rec = today.cells[currentIdx].rec;
+  weather._lastRec = rec;
 
   root.innerHTML = `
     ${renderHero(rec, today.cells[currentIdx], cLabel)}
@@ -956,7 +984,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v20-form-fix</div>
+    <div class="footer">${esc(LOCATION.name)} . v21-snapshot</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1020,6 +1048,7 @@ function attachGlobalHandlers(root) {
       return;
     }
     if (e.target.closest("[data-loc-open]")) { openLocationModal(); return; }
+    if (e.target.closest("[data-snap-open]")) { openSnapshotModal(); return; }
   });
   root.addEventListener("submit", e => {
     const form = e.target.closest("#closet-form");
@@ -1379,6 +1408,128 @@ function applySettings() {
   CFG.baselineOffset = (b ? b.offset : 0) + getLearned();
   CFG.activityOffset = a ? a.offset : 1.5;
 }
+function guessSlotFromName(name) {
+  const n = String(name || "").toLowerCase();
+  if (/jacket|coat|parka|hoodie|blazer|cardigan|shell|raincoat|anorak/.test(n)) return "outer";
+  if (/sweater|fleece|pullover|jumper/.test(n)) return "mid";
+  if (/shirt|tee|tank|polo|blouse|long\s*sleeve/.test(n)) return "base";
+  if (/pant|jean|short|skirt|legging|trouser|chino/.test(n)) return "bottom";
+  if (/shoe|sneaker|boot|sandal|heel|flat|trainer|loafer/.test(n)) return "footwear";
+  return "base";
+}
+
+function saveSnapshot(state) {
+  if (!LAST_WEATHER || !LAST_WEATHER.current) return;
+  const c = LAST_WEATHER.current;
+  const aNow = feels(c);
+  const conds = (LAST_WEATHER._lastRec && LAST_WEATHER._lastRec.conditions) || [];
+  const snap = {
+    ts: Date.now(),
+    airTemp: Math.round(c.tempC),
+    feels: Math.round(aNow),
+    conditions: conds,
+    location: LOCATION.name,
+    worn: Array.from(state.worn),
+    extra: (state.extra || "").trim(),
+    comfort: state.comfort,
+    note: (state.note || "").trim(),
+  };
+  try {
+    const raw = localStorage.getItem("wtwfw-snapshots");
+    const arr = raw ? JSON.parse(raw) : [];
+    arr.unshift(snap);
+    if (arr.length > 50) arr.length = 50;
+    localStorage.setItem("wtwfw-snapshots", JSON.stringify(arr));
+  } catch {}
+  const adj = -state.comfort * 0.75;
+  if (adj !== 0) setLearned(getLearned() + adj);
+  if (snap.extra) {
+    const slot = guessSlotFromName(snap.extra);
+    addClosetItem(slot, snap.extra, null, null, []);
+  }
+  applySettings();
+}
+
+function openSnapshotModal() {
+  if (document.querySelector(".snap-overlay")) return;
+  if (!LAST_WEATHER || !LAST_WEATHER.current) return;
+  const c = LAST_WEATHER.current;
+  const aNow = feels(c);
+  const closet = getCloset();
+  const allItems = Object.entries(closet).flatMap(([slot, items]) =>
+    items.map(it => ({ slot, name: it.name }))
+  );
+  const overlay = document.createElement("div");
+  overlay.className = "snap-overlay";
+  const itemChips = allItems.length
+    ? allItems.map(it => `<button type="button" class="snap-chip" data-name="${esc(it.name)}">${bigIcon(iconForName(it.name) || SLOT_ICON[it.slot] || "👕")}<span>${esc(it.name)}</span></button>`).join("")
+    : `<span class="snap-empty">Add some items in My closet first to pick from here.</span>`;
+  const comfortOpts = [
+    { v: -2, label: "Way too cold", ic: "🥶" },
+    { v: -1, label: "A bit cold", ic: "🧊" },
+    { v: 0, label: "Just right", ic: "👌" },
+    { v: 1, label: "A bit warm", ic: "🌤" },
+    { v: 2, label: "Way too warm", ic: "🥵" },
+  ];
+  const comfortBtns = comfortOpts.map(o =>
+    `<button type="button" class="snap-comfort-btn" data-v="${o.v}"><span class="em">${bigIcon(o.ic)}</span><span>${esc(o.label)}</span></button>`
+  ).join("");
+  overlay.innerHTML = `
+    <div class="snap-card" role="dialog" aria-label="Log what you're wearing">
+      <div class="snap-header">
+        <h3>What are you actually wearing?</h3>
+        <button type="button" class="snap-close" aria-label="Close">×</button>
+      </div>
+      <p class="snap-weather">${esc(LOCATION.name)}: ${fmt(c.tempC)}, feels ${fmt(aNow)}${conditionsLabel(LAST_WEATHER._lastRec)}</p>
+      <div class="snap-section">
+        <div class="snap-label">From your closet</div>
+        <div class="snap-chips">${itemChips}</div>
+      </div>
+      <div class="snap-section">
+        <div class="snap-label">Add anything else (e.g. Paul's sweater)</div>
+        <input type="text" class="snap-extra" placeholder="Item name" maxlength="60" />
+      </div>
+      <div class="snap-section">
+        <div class="snap-label">How does it feel?</div>
+        <div class="snap-comfort">${comfortBtns}</div>
+      </div>
+      <button type="button" class="snap-save" disabled>Save</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  const state = { worn: new Set(), extra: "", comfort: null };
+  const saveBtn = overlay.querySelector(".snap-save");
+  function refreshSave() { saveBtn.disabled = state.comfort === null; }
+  overlay.addEventListener("click", e => { if (e.target === overlay) overlay.remove(); });
+  overlay.querySelector(".snap-close").onclick = () => overlay.remove();
+  overlay.querySelectorAll(".snap-chip").forEach(btn => {
+    btn.onclick = () => {
+      const name = btn.dataset.name;
+      if (state.worn.has(name)) { state.worn.delete(name); btn.classList.remove("on"); }
+      else { state.worn.add(name); btn.classList.add("on"); }
+    };
+  });
+  overlay.querySelector(".snap-extra").addEventListener("input", e => { state.extra = e.target.value; });
+  overlay.querySelectorAll(".snap-comfort-btn").forEach(btn => {
+    btn.onclick = () => {
+      state.comfort = parseInt(btn.dataset.v, 10);
+      overlay.querySelectorAll(".snap-comfort-btn").forEach(b => b.classList.remove("on"));
+      btn.classList.add("on");
+      refreshSave();
+    };
+  });
+  saveBtn.onclick = () => {
+    saveSnapshot(state);
+    overlay.remove();
+    if (LAST_WEATHER) render(LAST_WEATHER);
+  };
+}
+
+function conditionsLabel(rec) {
+  if (!rec || !rec.conditions || !rec.conditions.length) return "";
+  const labels = rec.conditions.map(c => CONDITION_LABEL[c] || c).join(", ").toLowerCase();
+  return ` (${labels})`;
+}
+
 function recordFeedback(direction) {
   const step = 1.0;
   const delta = direction === "cold" ? -step : direction === "warm" ? step : 0;
