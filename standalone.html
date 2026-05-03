@@ -134,7 +134,7 @@ const effective = c => c + CFG.baselineOffset + CFG.activityOffset;
 
 const RECIPES = {
   hot: { base: { ic: "👕", v: "breathable t-shirt" }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts" }, footwear: { ic: "👟", v: "sneakers or sandals" }, acc: [] },
-  warm: { base: { ic: "👕", v: "t-shirt" }, mid: null, outer: null, bottom: { ic: "👖", v: "shorts or light pants" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
+  warm: { base: { ic: "👕", v: "t-shirt" }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts or light pants" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
   mild: { base: { ic: "👕", v: "thin long-sleeve shirt" }, mid: null, outer: null, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
   cool: { base: { ic: "👕", v: "long-sleeve shirt" }, mid: { ic: "🧥", v: "light sweater or fleece" }, outer: null, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "closed shoes" }, acc: [] },
   cold: { base: { ic: "👕", v: "long-sleeve thermal top" }, mid: { ic: "🧥", v: "sweater or fleece" }, outer: { ic: "🧥", v: "insulated jacket" }, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "closed shoes" }, acc: [] },
@@ -216,9 +216,15 @@ function recommend(input) {
 
 function buildTimeline(weather) {
   const events = [];
+  // Anchor the timeline to waking hours (6 AM–10 PM local). The 12h window
+  // can cross midnight when you check in the evening, but layer-shifts at
+  // 2 AM aren't actionable advice — kill them at the source.
   const hours = weather.next12h.map(p => {
     const a = apparentC(p.tempC, p.rh, p.kph);
     return { t: p.time, tempC: p.tempC, apparent: a, eff: effective(a), band: pickBand(effective(a)), uv: p.uv, precipProb: p.precipProb, precipMm: p.precipMm, kph: p.kph };
+  }).filter(h => {
+    const hr = localHourOf(h.t);
+    return hr >= 6 && hr <= 22;
   });
   if (hours.length === 0) return events;
 
@@ -325,15 +331,19 @@ function buildDailySummaries(allHours) {
     if (hours.length === 0) continue;
     const temps = hours.map(p => p.tempC);
     const hi = Math.max(...temps), lo = Math.min(...temps);
-    const midday = hours.find(p => {
-      const h = new Date(p.time).toLocaleString("en-US", { timeZone: VANCOUVER.tz, hour: "2-digit", hour12: false });
-      return h.startsWith("12") || h.startsWith("13") || h.startsWith("14");
-    }) || hours[Math.floor(hours.length / 2)];
-    const a = apparentC(midday.tempC, midday.rh, midday.kph);
-    const band = pickBand(effective(a));
+    // Use the WARMEST DAYTIME apparent temp for the outfit band — that's
+    // what people dress for. Midday-only undershoots Vancouver afternoons
+    // that peak at 3–4 PM and gives "shirt + pants" on actual t-shirt days.
+    const dayHours = hours.filter(p => p.isDay);
+    const sourceHours = dayHours.length ? dayHours : hours;
+    let peakA = -Infinity;
+    for (const p of sourceHours) {
+      const a = apparentC(p.tempC, p.rh, p.kph);
+      if (a > peakA) peakA = a;
+    }
+    const band = pickBand(effective(peakA));
     const r = RECIPES[band];
     const icons = [r.outer, r.mid, r.base, r.bottom, r.footwear].filter(Boolean).map(l => l.ic).join(" ");
-    const dayHours = hours.filter(p => p.isDay);
     const code = dayHours.length ? Math.max(...dayHours.map(p => p.code)) : (hours[0].code || 0);
     out.push({ date, hi, lo, code, band, icons, jacket: !!r.outer });
   }
@@ -353,6 +363,14 @@ const BAND_LABEL = { hot: "Hot", warm: "Warm", mild: "Mild", cool: "Cool", cold:
 const fmt = c => `${Math.round(num(c))}°`;
 const wmo = code => WMO[code] || ["—", "🌤️"];
 const hour = (iso) => { try { return new Date(iso).toLocaleTimeString([], { hour: "numeric", timeZone: VANCOUVER.tz }); } catch { return ""; } };
+// Local hour as integer 0–23 in Vancouver tz, used to filter "Heads up" to
+// daylight (no more "add a layer at 4 AM" nonsense).
+const localHourOf = (iso) => {
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", { timeZone: VANCOUVER.tz, hour12: false, hour: "2-digit" }).formatToParts(new Date(iso));
+    return parseInt((parts.find(p => p.type === "hour") || { value: "0" }).value, 10);
+  } catch { return 0; }
+};
 const dayLabel = (isoDate) => {
   try {
     const d = new Date(isoDate + "T12:00:00");
