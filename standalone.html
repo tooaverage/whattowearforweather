@@ -42,22 +42,20 @@
   .rain-pill { padding: .15rem .55rem; border-radius: 999px; background: rgba(148,163,184,.12); color: #cbd5e1; font-size: .8rem; }
   .rain-pill[data-level="maybe"] { background: rgba(252,211,77,.15); color: #fde68a; }
   .rain-pill[data-level="wet"] { background: rgba(96,165,250,.18); color: #93c5fd; }
-  .strip-wrap { padding: 1.1rem 0 1.5rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; margin: 0 -.25rem; }
+  .strip-wrap { padding: 1.1rem 0 .5rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; margin: 0 -.25rem; }
   .strip-wrap::-webkit-scrollbar { display: none; }
-  .hour-graph { position: relative; height: 9.5rem; }
+  .hour-graph { position: relative; height: 9rem; }
   .hg-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .hg-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; stroke: #fb923c; vector-effect: non-scaling-stroke; }
   .hour-cell { position: absolute; top: 0; bottom: 0; width: 3rem; margin-left: -1.5rem; scroll-snap-align: center; background: transparent; border: 1px solid transparent; border-radius: .65rem; padding: 0; color: inherit; cursor: pointer; transition: background .15s, border-color .15s; font-family: inherit; z-index: 1; }
   .hour-cell:active { background: rgba(15,23,42,.55); }
   .hour-cell[aria-pressed="true"] { border-color: rgba(255,255,255,.35); background: rgba(15,23,42,.85); box-shadow: 0 0 0 1px rgba(255,255,255,.05) inset; }
   .hour-cell.now::before { content: "now"; position: absolute; top: -.95rem; left: 50%; transform: translateX(-50%); font-size: .55rem; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; background: #020617; padding: 0 .3rem; }
-  .hc-time { position: absolute; top: .25rem; left: 0; right: 0; text-align: center; font-size: .65rem; letter-spacing: .04em; color: #94a3b8; font-variant-numeric: tabular-nums; pointer-events: none; }
+  .hc-time { position: absolute; bottom: .35rem; left: 0; right: 0; text-align: center; font-size: .7rem; letter-spacing: .04em; color: #94a3b8; font-variant-numeric: tabular-nums; pointer-events: none; }
   .hc-point { position: absolute; left: 50%; top: var(--y, 50%); transform: translate(-50%, calc(-100% - .15rem)); display: flex; flex-direction: column; align-items: center; gap: .1rem; pointer-events: none; }
   .hc-point .hc-temp { font-size: .75rem; line-height: 1; font-variant-numeric: tabular-nums; color: #f1f5f9; font-weight: 600; }
   .hc-point .hc-icon { font-size: 1.05rem; line-height: 0; display: flex; align-items: center; justify-content: center; }
   .hc-point .hc-icon svg { width: 1.7rem; height: 1.7rem; display: block; }
-  .hc-badge { position: absolute; bottom: -.7rem; left: 50%; transform: translateX(-50%); font-size: .8rem; background: #020617; padding: 0 .25rem; border-radius: .35rem; pointer-events: none; display: inline-flex; align-items: center; gap: .15rem; }
-  .hc-badge svg { width: 1.15rem; height: 1.15rem; }
   .panel { border-radius: 1rem; padding: 1rem 1.1rem; background: rgba(15,23,42,.7); border: 1px solid rgba(255,255,255,.05); }
   .panel h2 { margin: 0 0 .75rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; }
   .bring { background: rgba(252,211,77,.08); border-color: rgba(252,211,77,.2); }
@@ -796,7 +794,7 @@ function renderTodayLine(today) {
 function renderHourStrip(today, selectedIdx, nowIdx) {
   const cells = today.cells;
   const range = Math.max(today.hi - today.lo, 1);
-  const yOf = t => 42 + (1 - (t - today.lo) / range) * 36;
+  const yOf = t => 30 + (1 - (t - today.lo) / range) * 38;
   const xOf = i => ((i + 0.5) / cells.length) * 100;
   const colRem = 3;
   const path = "M" + cells.map((c, i) => `${xOf(i).toFixed(2)},${yOf(c.tempC).toFixed(2)}`).join(" L");
@@ -805,19 +803,11 @@ function renderHourStrip(today, selectedIdx, nowIdx) {
     const icon = BAND_ICON[cell.band] || "👕";
     const y = yOf(cell.tempC).toFixed(2);
     const x = xOf(i).toFixed(2);
-    let badge = "";
-    if (i > 0 && cells[i - 1].band !== cell.band) {
-      const fromI = bandIdx(cells[i - 1].band), toI = bandIdx(cell.band);
-      const r2 = RECIPES[cell.band];
-      const ricon = (r2.outer && r2.outer.ic) || (r2.mid && r2.mid.ic) || (r2.base && r2.base.ic) || "🧥";
-      badge = `<span class="hc-badge"><span>${toI > fromI ? "+" : "−"}</span>${bigIcon(ricon)}</span>`;
-    }
     const cls = ["hour-cell"];
     if (i === nowIdx) cls.push("now");
     return `<button class="${cls.join(" ")}" data-idx="${i}" aria-pressed="${i === selectedIdx ? "true" : "false"}" style="left: ${x}%; --y: ${y}%" aria-label="${esc(hour(cell.time))}, ${fmt(cell.tempC)}, ${esc(label)}">
       <span class="hc-time">${esc(hourShort(cell.time))}</span>
       <span class="hc-point"><span class="hc-temp">${fmt(cell.tempC)}</span><span class="hc-icon">${bigIcon(icon)}</span></span>
-      ${badge}
     </button>`;
   }).join("");
   return `<div class="strip-wrap"><div class="hour-graph" id="hour-strip" style="width: ${(cells.length * colRem).toFixed(2)}rem">
@@ -915,7 +905,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v16-headers</div>
+      <div class="footer">${esc(LOCATION.name)} . v17-time-bottom</div>
     `;
     attachToggleHandler(root);
     return;
@@ -937,7 +927,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v16-headers</div>
+    <div class="footer">${esc(LOCATION.name)} . v17-time-bottom</div>
   `;
 
   // Scroll selected cell into center of strip.
