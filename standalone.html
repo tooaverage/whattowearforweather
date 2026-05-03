@@ -91,6 +91,8 @@
   .dg-line-hi { stroke: #fb923c; }
   .dg-line-lo { stroke: #94a3b8; opacity: .55; stroke-dasharray: 4 4; }
   .dg-col { position: absolute; top: 0; bottom: 0; width: 0; scroll-snap-align: center; }
+  .dg-col.is-today::before { content: ""; position: absolute; left: -1.6rem; right: -1.6rem; top: .15rem; bottom: 1.4rem; background: rgba(252,211,77,.06); border: 1px solid rgba(252,211,77,.2); border-radius: .65rem; z-index: -1; pointer-events: none; }
+  .dg-col.is-today .dg-day { color: #fcd34d; }
   .dg-col > div { position: absolute; left: 0; white-space: nowrap; font-variant-numeric: tabular-nums; line-height: 1; }
   .dg-hi { font-size: .8rem; color: #f8fafc; font-weight: 600; transform: translate(-50%, calc(-100% - 2.45rem)); }
   .dg-icon { font-size: 1.25rem; transform: translate(-50%, calc(-100% - .1rem)); display: flex; align-items: center; }
@@ -893,11 +895,13 @@ function renderDayGraph(days, colRem) {
   const xOf = i => ((i + 0.5) / cols) * 100;
   const hiPath = "M" + days.map((d, i) => `${xOf(i).toFixed(2)},${yOf(d.hi).toFixed(2)}`).join(" L");
   const loPath = "M" + days.map((d, i) => `${xOf(i).toFixed(2)},${yOf(d.lo).toFixed(2)}`).join(" L");
+  const todayDate = todayDateLocal();
   const colsHtml = days.map((d, i) => {
     const icon = BAND_ICON[d.band] || "👕";
     const hiY = yOf(d.hi).toFixed(2);
     const loY = yOf(d.lo).toFixed(2);
-    return `<div class="dg-col" style="left: ${xOf(i).toFixed(2)}%">
+    const isToday = d.date === todayDate;
+    return `<div class="dg-col${isToday ? " is-today" : ""}" style="left: ${xOf(i).toFixed(2)}%">
       <div class="dg-hi" style="top: ${hiY}%">${fmt(d.hi)}</div>
       <div class="dg-icon" style="top: ${hiY}%">${bigIcon(icon)}</div>
       <div class="dg-lo" style="top: ${loY}%">${fmt(d.lo)}</div>
@@ -915,15 +919,13 @@ function renderDayGraph(days, colRem) {
 
 function renderComing(weather) {
   const days = buildDailySummaries(weather.allHours || []);
-  const todayDate = todayDateLocal();
-  const upcoming = days.filter(d => d.date !== todayDate);
-  if (!upcoming.length) return "";
+  if (!days.length) return "";
   const colRem = 3.6;
-  const hint = upcoming.length > 7 ? `<div class="day-hint">Swipe to see all ${upcoming.length} days ›</div>` : "";
+  const hint = days.length > 7 ? `<div class="day-hint">Swipe to see all ${days.length} days ›</div>` : "";
   return `<section class="panel">
     <h2>Daily forecast</h2>
     <div class="day-graph-list" id="day-list">
-      ${renderDayGraph(upcoming, colRem)}
+      ${renderDayGraph(days, colRem)}
     </div>
     ${hint}
   </section>`;
@@ -961,7 +963,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v21-snapshot</div>
+      <div class="footer">${esc(LOCATION.name)} . v22-today</div>
     `;
     attachToggleHandler(root);
     return;
@@ -984,7 +986,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v21-snapshot</div>
+    <div class="footer">${esc(LOCATION.name)} . v22-today</div>
   `;
 
   // Scroll selected cell into center of strip.
