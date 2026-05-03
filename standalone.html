@@ -8,7 +8,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://api.open-meteo.com; img-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://api.open-meteo.com https://geocoding-api.open-meteo.com; img-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" />
 <title>What to wear in Vancouver</title>
 <style>
   :root { color-scheme: dark; }
@@ -103,6 +103,22 @@
   .fb-btn:active { transform: scale(.97); }
   .fb-thanks { display: none; font-size: .75rem; color: #6ee7b7; margin-top: .5rem; }
   .feedback.thanks .fb-thanks { display: block; flex-basis: 100%; }
+  .loc-btn { background: rgba(0,0,0,.12); color: inherit; border: none; padding: .15rem .55rem; border-radius: 999px; font: inherit; font-weight: 600; cursor: pointer; letter-spacing: inherit; text-transform: inherit; }
+  .loc-btn:hover { background: rgba(0,0,0,.22); }
+  .loc-overlay { position: fixed; inset: 0; background: rgba(2,6,23,.85); z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 4rem 1rem 1rem; overflow-y: auto; }
+  .loc-card { background: #0f172a; border-radius: 1rem; padding: 1.25rem; width: 100%; max-width: 22rem; display: flex; flex-direction: column; gap: .5rem; border: 1px solid rgba(255,255,255,.08); }
+  .loc-card h3 { margin: 0 0 .25rem; font-size: 1rem; color: #f8fafc; }
+  .loc-here { background: #1e293b; color: #e2e8f0; padding: .75rem 1rem; border-radius: .65rem; border: none; cursor: pointer; font-family: inherit; font-size: .9rem; text-align: left; transition: background .15s; }
+  .loc-here:hover { background: #273449; }
+  .loc-here:disabled { opacity: .6; cursor: default; }
+  .loc-search { background: #020617; border: 1px solid rgba(255,255,255,.1); border-radius: .65rem; padding: .65rem .85rem; color: #f1f5f9; font-family: inherit; font-size: .9rem; -webkit-appearance: none; }
+  .loc-search:focus { outline: none; border-color: rgba(255,255,255,.3); }
+  .loc-results { list-style: none; margin: 0; padding: 0; max-height: 14rem; overflow-y: auto; display: flex; flex-direction: column; gap: .25rem; }
+  .loc-result { padding: .65rem .85rem; background: #1e293b; border-radius: .5rem; cursor: pointer; font-size: .85rem; color: #e2e8f0; border: none; text-align: left; font-family: inherit; }
+  .loc-result:hover { background: #273449; }
+  .loc-empty { color: #64748b; font-size: .8rem; text-align: center; padding: .5rem; }
+  .loc-close { background: transparent; border: 1px solid rgba(255,255,255,.1); color: #cbd5e1; padding: .5rem 1rem; border-radius: .65rem; cursor: pointer; font-family: inherit; font-size: .85rem; margin-top: .25rem; }
+  .loc-close:hover { background: rgba(255,255,255,.04); }
   .day-toggle { background: transparent; border: 1px solid rgba(255,255,255,.1); color: #cbd5e1; padding: .55rem 1rem; border-radius: .65rem; font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; cursor: pointer; margin-top: .85rem; width: 100%; font-weight: 600; font-family: inherit; }
   .day-toggle:hover { background: rgba(255,255,255,.04); }
   details summary { font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; padding: .55rem 0; align-items: center; }
@@ -183,6 +199,23 @@ function apparentC(tempC, rh, kph) {
   return bomAT(tempC, rh, kph);
 }
 
+// Open-Meteo's apparent temperature ignores radiant heat. In direct sun the
+// MRT is meaningfully higher than the air temp, so a clear UV-rich daytime
+// hour feels warmer than the formulas suggest. Overcast nudges the other way
+// because the sky no longer adds radiation. Numbers are conservative since
+// MRT proper requires globe-thermometer data we don't have.
+function cloudAdj(h) {
+  if (!h || !h.isDay) return 0;
+  const cloud = num(h.cloud, 50);
+  const uv = num(h.uv, 0);
+  if (cloud <= 25 && uv >= 4) return 1;
+  if (cloud >= 80) return -0.5;
+  return 0;
+}
+function feels(h) {
+  return apparentC(num(h.tempC), num(h.rh), num(h.kph)) + cloudAdj(h);
+}
+
 function pickBand(c) { for (const b of CFG.bands) if (c >= b.min) return b.band; return "freezing"; }
 function bandIdx(b) { return CFG.bands.findIndex(x => x.band === b); }
 const effective = c => c + CFG.baselineOffset + CFG.activityOffset;
@@ -203,7 +236,7 @@ function summarizeArc(next) {
   if (!next.length) return { min: 0, max: 0, spread: 0, cross: false, minTime: "", maxTime: "", totalMm: 0, maxProb: 0, maxUv: 0, maxKph: 0 };
   let minA = Infinity, maxA = -Infinity, minIdx = 0, maxIdx = 0;
   next.forEach((p, i) => {
-    const a = apparentC(p.tempC, p.rh, p.kph);
+    const a = feels(p);
     if (a < minA) { minA = a; minIdx = i; }
     if (a > maxA) { maxA = a; maxIdx = i; }
   });
@@ -220,7 +253,7 @@ function summarizeArc(next) {
 
 function recommend(input) {
   const c = input.current;
-  const aNow = apparentC(c.tempC, c.rh, c.kph);
+  const aNow = feels(c);
   const eNow = effective(aNow);
   const band = pickBand(eNow);
   const arc = summarizeArc(input.next12h);
@@ -235,6 +268,9 @@ function recommend(input) {
   if (learned) adj.push(`learned ${learned > 0 ? "+" : ""}${learned.toFixed(1)}°`);
   if (CFG.activityOffset) adj.push(`activity +${CFG.activityOffset.toFixed(1)}°`);
   rationale.push(`Engine-effective: ${eNow.toFixed(1)}°${adj.length ? ` (${adj.join(", ")})` : ""}.`);
+  const cAdj = cloudAdj(c);
+  if (cAdj > 0) rationale.push(`Clear sun adds about +${cAdj.toFixed(1)}° to perceived temp.`);
+  else if (cAdj < 0) rationale.push(`Overcast trims about ${cAdj.toFixed(1)}° from perceived temp.`);
   rationale.push(`Selected band: ${band.replace("_", " ")}.`);
 
   const acc = r.acc.map(a => ({ ...a }));
@@ -282,7 +318,7 @@ function buildTimeline(weather) {
   const events = [];
   // Filter to waking hours (6 AM to 10 PM local) so we do not narrate sleep.
   const hours = weather.next12h.map(p => {
-    const a = apparentC(p.tempC, p.rh, p.kph);
+    const a = feels(p);
     return { t: p.time, tempC: p.tempC, apparent: a, eff: effective(a), band: pickBand(effective(a)), uv: p.uv, precipProb: p.precipProb, precipMm: p.precipMm, kph: p.kph };
   }).filter(h => {
     const hr = localHourOf(h.t);
@@ -331,11 +367,26 @@ function buildTimeline(weather) {
     .sort((a, b) => new Date(a.t) - new Date(b.t));
 }
 
-const VANCOUVER = { lat: 49.2497, lon: -123.1193, tz: "America/Vancouver", name: "Vancouver, BC" };
+const LOCATION_DEFAULT = { lat: 49.2497, lon: -123.1193, tz: "America/Vancouver", name: "Vancouver, BC" };
+let LOCATION = { ...LOCATION_DEFAULT };
+function loadLocation() {
+  try {
+    const s = localStorage.getItem("wtwfw-location");
+    if (s) {
+      const obj = JSON.parse(s);
+      if (obj && Number.isFinite(obj.lat) && Number.isFinite(obj.lon) && obj.name) {
+        LOCATION = { lat: obj.lat, lon: obj.lon, tz: obj.tz || "auto", name: String(obj.name) };
+      }
+    }
+  } catch {}
+}
+function saveLocation() {
+  try { localStorage.setItem("wtwfw-location", JSON.stringify(LOCATION)); } catch {}
+}
 
 async function fetchWeather() {
   const params = new URLSearchParams({
-    latitude: VANCOUVER.lat, longitude: VANCOUVER.lon, timezone: VANCOUVER.tz,
+    latitude: LOCATION.lat, longitude: LOCATION.lon, timezone: LOCATION.tz,
     current: "temperature_2m,relative_humidity_2m,is_day,precipitation,snowfall,weather_code,cloud_cover,wind_speed_10m,wind_gusts_10m,uv_index",
     hourly: "temperature_2m,relative_humidity_2m,precipitation_probability,precipitation,snowfall,weather_code,cloud_cover,wind_speed_10m,wind_gusts_10m,uv_index,is_day",
     wind_speed_unit: "kmh", temperature_unit: "celsius", precipitation_unit: "mm", forecast_days: "16",
@@ -357,6 +408,7 @@ async function fetchWeather() {
       precipMm: Math.max(0, num(h.precipitation && h.precipitation[i])),
       precipProb: clamp(num(h.precipitation_probability && h.precipitation_probability[i]), 0, 100),
       uv: Math.max(0, num(h.uv_index && h.uv_index[i])),
+      cloud: clamp(num(h.cloud_cover && h.cloud_cover[i]), 0, 100),
       code: num(h.weather_code && h.weather_code[i]),
       isDay: (h.is_day && h.is_day[i]) === 1,
     });
@@ -373,6 +425,7 @@ async function fetchWeather() {
       rh: clamp(num(c.relative_humidity_2m), 0, 100),
       kph: Math.max(0, num(c.wind_speed_10m)),
       uv: Math.max(0, num(c.uv_index)),
+      cloud: clamp(num(c.cloud_cover), 0, 100),
       code: num(c.weather_code),
       isDay: c.is_day === 1,
     },
@@ -399,7 +452,7 @@ function buildDailySummaries(allHours) {
     const sourceHours = dayHours.length ? dayHours : hours;
     let peakA = -Infinity;
     for (const p of sourceHours) {
-      const a = apparentC(p.tempC, p.rh, p.kph);
+      const a = feels(p);
       if (a > peakA) peakA = a;
     }
     const band = pickBand(effective(peakA));
@@ -427,12 +480,11 @@ function buildTodayCells(weather) {
   }
   const cells = idxs.map(i => {
     const h = allHours[i];
-    const a = apparentC(h.tempC, h.rh, h.kph);
+    const a = feels(h);
     const eff = effective(a);
     const band = pickBand(eff);
-    const cur = { tempC: h.tempC, rh: h.rh, kph: h.kph };
     const next12h = allHours.slice(i, i + 12);
-    const rec = recommend({ current: cur, next12h });
+    const rec = recommend({ current: h, next12h });
     return { ...h, apparent: a, eff, band, rec };
   });
   if (!cells.length) return null;
@@ -462,28 +514,28 @@ const fmt = c => `${Math.round(num(c))}°`;
 const wmo = code => WMO[code] || ["Unknown", "🌤️"];
 const hour = (iso) => {
   try {
-    return new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", hour12: true, timeZone: VANCOUVER.tz })
+    return new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", hour12: true, timeZone: LOCATION.tz })
       .replace(/\s/g, "").toLowerCase();
   } catch { return ""; }
 };
 const hourShort = (iso) => {
   try {
-    const s = new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", hour12: true, timeZone: VANCOUVER.tz });
+    const s = new Date(iso).toLocaleTimeString("en-US", { hour: "numeric", hour12: true, timeZone: LOCATION.tz });
     // "8 AM" -> "8a", "12 PM" -> "12p"
     return s.replace(/\s?AM/i, "a").replace(/\s?PM/i, "p");
   } catch { return ""; }
 };
 const localHourOf = (iso) => {
   try {
-    const parts = new Intl.DateTimeFormat("en-US", { timeZone: VANCOUVER.tz, hour12: false, hour: "2-digit" }).formatToParts(new Date(iso));
+    const parts = new Intl.DateTimeFormat("en-US", { timeZone: LOCATION.tz, hour12: false, hour: "2-digit" }).formatToParts(new Date(iso));
     return parseInt((parts.find(p => p.type === "hour") || { value: "0" }).value, 10);
   } catch { return 0; }
 };
 const localDateOf = (iso) => {
-  try { return new Date(iso).toLocaleDateString("en-CA", { timeZone: VANCOUVER.tz }); }
+  try { return new Date(iso).toLocaleDateString("en-CA", { timeZone: LOCATION.tz }); }
   catch { return ""; }
 };
-const todayDateLocal = () => new Date().toLocaleDateString("en-CA", { timeZone: VANCOUVER.tz });
+const todayDateLocal = () => new Date().toLocaleDateString("en-CA", { timeZone: LOCATION.tz });
 const dayLabel = (isoDate) => {
   try {
     const d = new Date(isoDate + "T12:00:00");
@@ -491,7 +543,7 @@ const dayLabel = (isoDate) => {
     const diffDays = Math.round((d.getTime() - today.getTime()) / 86400000);
     if (diffDays === 0) return "Today";
     if (diffDays === 1) return "Tomorrow";
-    return d.toLocaleDateString("en-US", { weekday: "short", timeZone: VANCOUVER.tz });
+    return d.toLocaleDateString("en-US", { weekday: "short", timeZone: LOCATION.tz });
   } catch { return ""; }
 };
 const rainLevel = p => p >= 40 ? "wet" : p >= 10 ? "maybe" : "dry";
@@ -500,7 +552,7 @@ function renderHero(rec, c, cLabel) {
   const layers = [rec.layers.outer, rec.layers.mid, rec.layers.base, rec.layers.bottom, rec.layers.footwear].filter(Boolean);
   const heroIcons = layers.map(l => l.ic).join(" + ");
   return `<section id="hero" class="hero ${esc(rec.band)}">
-    <div class="hero-head"><span>${esc(VANCOUVER.name)}</span><span>${esc(BAND_LABEL[rec.band] || "")}</span></div>
+    <div class="hero-head"><button class="loc-btn" type="button" data-loc-open>${esc(LOCATION.name)} ▾</button><span>${esc(BAND_LABEL[rec.band] || "")}</span></div>
     <div class="hero-temp"><span class="big">${fmt(c.tempC)}</span><span class="feels">feels ${fmt(rec.aNow)}</span></div>
     <div class="hero-cond">${esc(cLabel)}</div>
     <div class="hero-icons">${esc(heroIcons)}</div>
@@ -664,7 +716,7 @@ function render(weather) {
 
   // Fall back when today has no remaining hours (late evening). Use current.
   if (!today) {
-    const rec = recommend({ current: { tempC: c.tempC, rh: c.rh, kph: c.kph }, next12h: weather.next12h });
+    const rec = recommend({ current: c, next12h: weather.next12h });
     root.innerHTML = `
       ${renderHero(rec, c, cLabel)}
       ${renderBring(rec)}
@@ -673,7 +725,7 @@ function render(weather) {
       ${renderComing(weather)}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">Vancouver, BC . v6-feedback</div>
+      <div class="footer">${esc(LOCATION.name)} . v7-locations</div>
     `;
     attachToggleHandler(root);
     return;
@@ -692,7 +744,7 @@ function render(weather) {
     ${renderHeadsUp(weather)}
     ${renderComing(weather)}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">Vancouver, BC . v6-feedback</div>
+    <div class="footer">${esc(LOCATION.name)} . v7-locations</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -743,8 +795,102 @@ function attachGlobalHandlers(root) {
         applySettings();
         if (LAST_WEATHER) render(LAST_WEATHER);
       }
+      return;
     }
+    if (e.target.closest("[data-loc-open]")) { openLocationModal(); return; }
   });
+}
+
+async function refreshWeather() {
+  const root = document.getElementById("root");
+  if (root) root.innerHTML = `<div class="loading">Checking the sky...</div>`;
+  try {
+    LAST_WEATHER = await fetchWeather();
+    render(LAST_WEATHER);
+  } catch (e) {
+    renderError(e && e.message || String(e));
+  }
+}
+
+function openLocationModal() {
+  if (document.querySelector(".loc-overlay")) return;
+  const overlay = document.createElement("div");
+  overlay.className = "loc-overlay";
+  overlay.innerHTML = `
+    <div class="loc-card" role="dialog" aria-label="Change location">
+      <h3>Change location</h3>
+      <button class="loc-here" type="button">📍 Use my current location</button>
+      <input class="loc-search" type="search" placeholder="Search a city" autocomplete="off" />
+      <ul class="loc-results"></ul>
+      <button class="loc-close" type="button">Close</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  const card = overlay.querySelector(".loc-card");
+  const close = () => overlay.remove();
+  overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+  card.addEventListener("click", e => e.stopPropagation());
+  overlay.querySelector(".loc-close").addEventListener("click", close);
+
+  const here = overlay.querySelector(".loc-here");
+  here.addEventListener("click", () => {
+    if (!navigator.geolocation) { here.textContent = "Geolocation not supported"; return; }
+    here.disabled = true;
+    here.textContent = "Locating...";
+    navigator.geolocation.getCurrentPosition(pos => {
+      const tz = (Intl.DateTimeFormat().resolvedOptions() || {}).timeZone || "auto";
+      LOCATION = { lat: pos.coords.latitude, lon: pos.coords.longitude, tz, name: "Current location" };
+      saveLocation();
+      close();
+      refreshWeather();
+    }, err => {
+      here.disabled = false;
+      here.textContent = `Couldn't locate: ${err.message || "denied"}`;
+    }, { timeout: 10000, maximumAge: 60000 });
+  });
+
+  const search = overlay.querySelector(".loc-search");
+  const results = overlay.querySelector(".loc-results");
+  let timer = null;
+  search.addEventListener("input", () => {
+    clearTimeout(timer);
+    const q = search.value.trim();
+    if (q.length < 2) { results.innerHTML = ""; return; }
+    timer = setTimeout(async () => {
+      try {
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=8&language=en&format=json`;
+        const r = await fetch(url, { cache: "no-store", referrerPolicy: "no-referrer" });
+        const d = await r.json();
+        results.innerHTML = "";
+        const items = (d && d.results) || [];
+        if (!items.length) { results.innerHTML = `<li class="loc-empty">No matches</li>`; return; }
+        for (const item of items) {
+          const li = document.createElement("li");
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "loc-result";
+          const parts = [item.name, item.admin1, item.country].filter(Boolean);
+          btn.textContent = parts.join(", ");
+          btn.addEventListener("click", () => {
+            LOCATION = {
+              lat: num(item.latitude),
+              lon: num(item.longitude),
+              tz: item.timezone || "auto",
+              name: parts.slice(0, 2).join(", ") || item.name,
+            };
+            saveLocation();
+            close();
+            refreshWeather();
+          });
+          li.appendChild(btn);
+          results.appendChild(li);
+        }
+      } catch (e) {
+        results.innerHTML = `<li class="loc-empty">Search failed</li>`;
+      }
+    }, 250);
+  });
+
+  search.focus();
 }
 
 function attachToggleHandler(root) {
@@ -837,6 +983,7 @@ function renderError(msg) {
 
 (async () => {
   try {
+    loadLocation();
     applySettings();
     LAST_WEATHER = await fetchWeather();
     render(LAST_WEATHER);
