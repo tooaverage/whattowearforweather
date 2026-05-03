@@ -46,6 +46,14 @@
   .tl-ic { font-size: 1.05rem; line-height: 1; }
   .tl-text { color: #e2e8f0; line-height: 1.4; }
   .tl-text strong { color: #f8fafc; font-weight: 600; }
+  .panel-tag { color: #94a3b8; font-size: .75rem; margin: -.4rem 0 .85rem; line-height: 1.4; }
+  .day-row { display: grid; grid-template-columns: 4.5rem 1.5rem 4.5rem 1fr; gap: .55rem; align-items: baseline; padding: .55rem 0; border-bottom: 1px solid rgba(255,255,255,.06); font-size: .9rem; }
+  .day-row:last-child { border-bottom: none; }
+  .day-row .day { color: #f8fafc; font-weight: 600; font-size: .82rem; text-transform: uppercase; letter-spacing: .05em; }
+  .day-row .ic { font-size: 1.1rem; line-height: 1; }
+  .day-row .temps { color: #e2e8f0; font-variant-numeric: tabular-nums; font-size: .85rem; }
+  .day-row .temps .lo { color: #94a3b8; }
+  .day-row .out { color: #cbd5e1; font-size: .9rem; letter-spacing: .05em; }
   details summary { font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; }
   details summary::-webkit-details-marker { display: none; }
   details summary::after { content: "+"; color: #64748b; }
@@ -135,12 +143,17 @@ const RECIPES = {
 };
 
 function summarizeArc(next) {
-  if (!next.length) return { min: 0, max: 0, spread: 0, cross: false, totalMm: 0, maxProb: 0, maxUv: 0, maxKph: 0 };
-  const apps = next.map(p => apparentC(p.tempC, p.rh, p.kph));
-  const minA = Math.min(...apps), maxA = Math.max(...apps);
+  if (!next.length) return { min: 0, max: 0, spread: 0, cross: false, minTime: "", maxTime: "", totalMm: 0, maxProb: 0, maxUv: 0, maxKph: 0 };
+  let minA = Infinity, maxA = -Infinity, minIdx = 0, maxIdx = 0;
+  next.forEach((p, i) => {
+    const a = apparentC(p.tempC, p.rh, p.kph);
+    if (a < minA) { minA = a; minIdx = i; }
+    if (a > maxA) { maxA = a; maxIdx = i; }
+  });
   return {
     min: minA, max: maxA, spread: maxA - minA,
     cross: pickBand(effective(minA)) !== pickBand(effective(maxA)),
+    minTime: next[minIdx].time, maxTime: next[maxIdx].time,
     totalMm: next.reduce((s, p) => s + p.precipMm, 0),
     maxProb: next.reduce((m, p) => Math.max(m, p.precipProb || 0), 0),
     maxUv: next.reduce((m, p) => Math.max(m, p.uv), 0),
@@ -194,9 +207,9 @@ function recommend(input) {
   const minB = pickBand(minE), maxB = pickBand(maxE), nowB = band;
   const colder = bandIdx(minB) > bandIdx(nowB), warmer = bandIdx(maxB) < bandIdx(nowB);
   const fmtT = c => `${Math.round(c)}°`;
-  if (arc.cross && colder) bring = `Cools off to ${fmtT(arc.min)} later — pack an extra layer.`;
-  else if (arc.cross && warmer) bring = `Warms up to ${fmtT(arc.max)} later — wear something you can shed.`;
-  else if (arc.spread >= CFG.bringLayerSpreadC) bring = `Big swing today (${fmtT(arc.min)}–${fmtT(arc.max)}) — bring a layer you can adjust.`;
+  if (arc.cross && colder) bring = `Cools off to ${fmtT(arc.min)} around ${hour(arc.minTime)} — pack an extra layer.`;
+  else if (arc.cross && warmer) bring = `Warms up to ${fmtT(arc.max)} by ${hour(arc.maxTime)} — wear something you can shed.`;
+  else if (arc.spread >= CFG.bringLayerSpreadC) bring = `Big swing today: ${fmtT(arc.min)} around ${hour(arc.minTime)} → ${fmtT(arc.max)} by ${hour(arc.maxTime)} — bring a layer you can adjust.`;
 
   return { aNow, eNow, band, layers: { base: r.base, mid: r.mid, outer, bottom: r.bottom, footwear, acc }, bring, rationale, arc };
 }
@@ -257,7 +270,7 @@ async function fetchWeather() {
     latitude: VANCOUVER.lat, longitude: VANCOUVER.lon, timezone: VANCOUVER.tz,
     current: "temperature_2m,relative_humidity_2m,is_day,precipitation,snowfall,weather_code,cloud_cover,wind_speed_10m,wind_gusts_10m,uv_index",
     hourly: "temperature_2m,relative_humidity_2m,precipitation_probability,precipitation,snowfall,weather_code,cloud_cover,wind_speed_10m,wind_gusts_10m,uv_index,is_day",
-    wind_speed_unit: "kmh", temperature_unit: "celsius", precipitation_unit: "mm", forecast_days: "2",
+    wind_speed_unit: "kmh", temperature_unit: "celsius", precipitation_unit: "mm", forecast_days: "3",
   });
   const r = await fetch("https://api.open-meteo.com/v1/forecast?" + params, { cache: "no-store", referrerPolicy: "no-referrer" });
   if (!r.ok) throw new Error(`Open-Meteo ${r.status}`);
@@ -266,12 +279,9 @@ async function fetchWeather() {
   const c = d.current, h = d.hourly;
   if (!c || !h || !Array.isArray(h.time)) throw new Error("Bad response shape");
 
-  const now = Date.now();
-  let start = 0;
-  for (let i = 0; i < h.time.length; i++) if (new Date(h.time[i]).getTime() <= now) start = i; else break;
-  const next12h = [];
-  for (let i = start; i < start + 12 && i < h.time.length; i++) {
-    next12h.push({
+  const allHours = [];
+  for (let i = 0; i < h.time.length; i++) {
+    allHours.push({
       time: String(h.time[i] || ""),
       tempC: num(h.temperature_2m && h.temperature_2m[i]),
       rh: clamp(num(h.relative_humidity_2m && h.relative_humidity_2m[i]), 0, 100),
@@ -283,6 +293,11 @@ async function fetchWeather() {
       isDay: (h.is_day && h.is_day[i]) === 1,
     });
   }
+  const now = Date.now();
+  let start = 0;
+  for (let i = 0; i < allHours.length; i++) if (new Date(allHours[i].time).getTime() <= now) start = i; else break;
+  const next12h = allHours.slice(start, start + 12);
+
   return {
     current: {
       time: String(c.time || ""),
@@ -294,7 +309,35 @@ async function fetchWeather() {
       isDay: c.is_day === 1,
     },
     next12h,
+    allHours,
   };
+}
+
+function buildDailySummaries(allHours) {
+  const byDay = new Map();
+  for (const h of allHours) {
+    const d = new Date(h.time).toLocaleDateString("en-CA", { timeZone: VANCOUVER.tz });
+    if (!byDay.has(d)) byDay.set(d, []);
+    byDay.get(d).push(h);
+  }
+  const out = [];
+  for (const [date, hours] of byDay) {
+    if (hours.length === 0) continue;
+    const temps = hours.map(p => p.tempC);
+    const hi = Math.max(...temps), lo = Math.min(...temps);
+    const midday = hours.find(p => {
+      const h = new Date(p.time).toLocaleString("en-US", { timeZone: VANCOUVER.tz, hour: "2-digit", hour12: false });
+      return h.startsWith("12") || h.startsWith("13") || h.startsWith("14");
+    }) || hours[Math.floor(hours.length / 2)];
+    const a = apparentC(midday.tempC, midday.rh, midday.kph);
+    const band = pickBand(effective(a));
+    const r = RECIPES[band];
+    const icons = [r.outer, r.mid, r.base, r.bottom, r.footwear].filter(Boolean).map(l => l.ic).join(" ");
+    const dayHours = hours.filter(p => p.isDay);
+    const code = dayHours.length ? Math.max(...dayHours.map(p => p.code)) : (hours[0].code || 0);
+    out.push({ date, hi, lo, code, band, icons, jacket: !!r.outer });
+  }
+  return out;
 }
 
 const WMO = {
@@ -310,15 +353,22 @@ const BAND_LABEL = { hot: "Hot", warm: "Warm", mild: "Mild", cool: "Cool", cold:
 const fmt = c => `${Math.round(num(c))}°`;
 const wmo = code => WMO[code] || ["—", "🌤️"];
 const hour = (iso) => { try { return new Date(iso).toLocaleTimeString([], { hour: "numeric", timeZone: VANCOUVER.tz }); } catch { return ""; } };
+const dayLabel = (isoDate) => {
+  try {
+    const d = new Date(isoDate + "T12:00:00");
+    const today = new Date(new Date().toLocaleDateString("en-CA", { timeZone: VANCOUVER.tz }) + "T12:00:00");
+    const diffDays = Math.round((d.getTime() - today.getTime()) / 86400000);
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "Tomorrow";
+    return d.toLocaleDateString("en-US", { weekday: "short", timeZone: VANCOUVER.tz });
+  } catch { return ""; }
+};
 
 function render(weather, rec) {
   const c = weather.current;
   const [cLabel] = wmo(c.code);
   const root = document.getElementById("root");
 
-  // Wear panel order: Jacket (always, with "not needed" fallback) → Mid (if
-  // any) → Top → Bottom → Shoes. Matches how people decide what to grab on
-  // the way out the door.
   const wearRows = [
     rec.layers.outer
       ? { ic: rec.layers.outer.ic, label: "Jacket", value: rec.layers.outer.v, skip: false }
@@ -332,8 +382,6 @@ function render(weather, rec) {
     .filter(Boolean).map(l => l.ic).join(" + ");
   const layerRows = wearRows.map(r => `<div class="outfit-row${r.skip ? " skip" : ""}"><span class="ic">${esc(r.ic)}</span><span class="lbl">${esc(r.label)}</span><span class="val">${esc(r.value)}</span></div>`).join("");
 
-  // Pull umbrella out of accessory pills into the Bring panel — easier to
-  // spot at 7am than buried in a chip strip.
   const umbrellaItem = rec.layers.acc.find(a => a.v.includes("umbrella"));
   const visibleAcc = rec.layers.acc.filter(a => a !== umbrellaItem);
   const accs = visibleAcc.length
@@ -350,6 +398,16 @@ function render(weather, rec) {
     ? timeline.map(e => `<div class="tl-row"><span class="tl-time">${esc(hour(e.t))}</span><span class="tl-ic">${esc(e.ic)}</span><span class="tl-text">${e.text}</span></div>`).join("")
     : `<div class="tl-row"><span class="tl-time"></span><span class="tl-ic">·</span><span class="tl-text">Steady all day — no surprises.</span></div>`;
 
+  const days = buildDailySummaries(weather.allHours || []);
+  const todayDate = new Date(new Date().toLocaleDateString("en-CA", { timeZone: VANCOUVER.tz }) + "T12:00:00").toISOString().slice(0, 10);
+  const upcoming = days.filter(d => d.date !== todayDate).slice(0, 2);
+  const dayRows = upcoming.map(d => {
+    const [, ic] = wmo(d.code);
+    return `<div class="day-row"><span class="day">${esc(dayLabel(d.date))}</span><span class="ic">${esc(ic)}</span><span class="temps">${fmt(d.hi)} <span class="lo">/ ${fmt(d.lo)}</span></span><span class="out">${esc(d.icons)}</span></div>`;
+  }).join("");
+  const comingHtml = upcoming.length
+    ? `<section class="panel"><h2>Coming up</h2>${dayRows}</section>` : "";
+
   root.innerHTML = `
     <section class="hero ${esc(rec.band)}">
       <div class="hero-head"><span>${esc(VANCOUVER.name)}</span><span>${esc(BAND_LABEL[rec.band] || "")}</span></div>
@@ -361,8 +419,9 @@ function render(weather, rec) {
       </div>
     </section>
     ${bringHtml}
-    <section class="panel"><h2>Wear</h2>${layerRows}${accs}</section>
-    <section class="panel"><h2>Today's plan</h2><div class="timeline">${tlRows}</div></section>
+    <section class="panel"><h2>Wear today</h2>${layerRows}${accs}</section>
+    <section class="panel"><h2>Heads up</h2><p class="panel-tag">When the day actually shifts — what to do and when.</p><div class="timeline">${tlRows}</div></section>
+    ${comingHtml}
     <section class="panel">
       <details><summary>Why this</summary><ul>${rec.rationale.map(r => `<li>${esc(r)}</li>`).join("")}</ul></details>
       <p class="src">Data: Open-Meteo · Engine: rules-based</p>
