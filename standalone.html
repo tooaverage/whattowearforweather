@@ -19,9 +19,9 @@
   .hero.scorching { background: #ef4444; }
   .hero.hot { background: #f97316; }
   .hero.warm { background: #fbbf24; }
-  .hero.balmy { background: #facc15; }
-  .hero.mild { background: #34d399; }
-  .hero.cool { background: #38bdf8; }
+  .hero.mild { background: #facc15; }
+  .hero.cool { background: #34d399; }
+  .hero.chilly { background: #38bdf8; }
   .hero.cold { background: #818cf8; }
   .hero.very_cold { background: #a78bfa; }
   .hero.freezing { background: #64748b; color: #f1f5f9; }
@@ -40,11 +40,11 @@
   .rain-pill[data-level="wet"] { background: rgba(96,165,250,.18); color: #93c5fd; }
   .strip-wrap { padding: 1.1rem 0 1.5rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; margin: 0 -.25rem; }
   .strip-wrap::-webkit-scrollbar { display: none; }
-  .hour-graph { position: relative; display: flex; width: max-content; height: 7rem; }
+  .hour-graph { position: relative; height: 7rem; }
   .hg-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-  .hg-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke: #fb923c; vector-effect: non-scaling-stroke; }
-  .hour-cell { position: relative; flex: 0 0 3rem; scroll-snap-align: center; background: transparent; border: 1px solid transparent; border-radius: .65rem; padding: 0; color: inherit; cursor: pointer; transition: background .15s, border-color .15s; font-family: inherit; z-index: 1; }
-  .hour-cell:active { transform: scale(.97); }
+  .hg-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; stroke: #fb923c; vector-effect: non-scaling-stroke; }
+  .hour-cell { position: absolute; top: 0; bottom: 0; width: 3rem; margin-left: -1.5rem; scroll-snap-align: center; background: transparent; border: 1px solid transparent; border-radius: .65rem; padding: 0; color: inherit; cursor: pointer; transition: background .15s, border-color .15s; font-family: inherit; z-index: 1; }
+  .hour-cell:active { background: rgba(15,23,42,.55); }
   .hour-cell[aria-pressed="true"] { border-color: rgba(255,255,255,.35); background: rgba(15,23,42,.85); box-shadow: 0 0 0 1px rgba(255,255,255,.05) inset; }
   .hour-cell.now::before { content: "now"; position: absolute; top: -.95rem; left: 50%; transform: translateX(-50%); font-size: .55rem; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; background: #020617; padding: 0 .3rem; }
   .hc-time { position: absolute; top: .25rem; left: 0; right: 0; text-align: center; font-size: .65rem; letter-spacing: .04em; color: #94a3b8; font-variant-numeric: tabular-nums; pointer-events: none; }
@@ -88,6 +88,14 @@
   .dg-lo { font-size: .72rem; color: #94a3b8; transform: translate(-50%, .5rem); }
   .dg-day { bottom: 0; font-size: .7rem; color: #cbd5e1; text-transform: uppercase; letter-spacing: .04em; font-weight: 600; transform: translateX(-50%); }
   .day-hint { font-size: .65rem; color: #64748b; text-align: right; margin-top: .25rem; letter-spacing: .04em; }
+  .pref-row { display: flex; flex-direction: column; gap: .5rem; padding: .75rem 0; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .pref-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .pref-row:first-of-type { padding-top: 0; }
+  .pref-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; font-weight: 600; }
+  .pref-chips { display: flex; flex-wrap: wrap; gap: .375rem; }
+  .chip { background: #1e293b; color: #cbd5e1; padding: .4rem .85rem; border-radius: 999px; font-size: .82rem; font-weight: 500; border: 1px solid transparent; cursor: pointer; font-family: inherit; transition: background .15s, color .15s; }
+  .chip:hover { background: #273449; }
+  .chip[aria-pressed="true"] { background: #f1f5f9; color: #020617; border-color: #f1f5f9; font-weight: 600; }
   .day-toggle { background: transparent; border: 1px solid rgba(255,255,255,.1); color: #cbd5e1; padding: .55rem 1rem; border-radius: .65rem; font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; cursor: pointer; margin-top: .85rem; width: 100%; font-weight: 600; font-family: inherit; }
   .day-toggle:hover { background: rgba(255,255,255,.04); }
   details summary { font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; padding: .55rem 0; align-items: center; }
@@ -120,16 +128,16 @@ const CFG = {
   rainShellProbabilityPct: 40, rainShellTotalMm: 1.0, umbrellaProbabilityPct: 10,
   uvProtectionIndex: 3, uvSunscreenIndex: 6, bringLayerSpreadC: 5,
   bands: [
-    { band: "scorching", min: 30 }, { band: "hot", min: 24 }, { band: "warm", min: 19 }, { band: "balmy", min: 14 },
-    { band: "mild", min: 10 }, { band: "cool", min: 6 }, { band: "cold", min: 1 }, { band: "very_cold", min: -5 },
+    { band: "scorching", min: 30 }, { band: "hot", min: 24 }, { band: "warm", min: 19 }, { band: "mild", min: 14 },
+    { band: "cool", min: 10 }, { band: "chilly", min: 6 }, { band: "cold", min: 1 }, { band: "very_cold", min: -5 },
     { band: "freezing", min: -Infinity },
   ],
   baselineOffset: 0,
   activityOffset: 1.5,
 };
 const BAND_ICON = {
-  scorching: "🩱", hot: "🎽", warm: "👕", balmy: "👕",
-  mild: "🥼", cool: "🧥", cold: "🧥", very_cold: "🧣", freezing: "🥶",
+  scorching: "🩱", hot: "🎽", warm: "👕", mild: "👕",
+  cool: "🥼", chilly: "🧥", cold: "🧥", very_cold: "🧣", freezing: "🥶",
 };
 
 const C2F = c => c * 9 / 5 + 32, F2C = f => (f - 32) * 5 / 9;
@@ -176,9 +184,9 @@ const RECIPES = {
   scorching: { base: { ic: "🩱", v: "bathing suit or tank" }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts" }, footwear: { ic: "🩴", v: "sandals" }, acc: [] },
   hot: { base: { ic: "🎽", v: "tank top" }, mid: null, outer: null, bottom: { ic: "🩳", v: "athletic shorts" }, footwear: { ic: "🩴", v: "sandals or sneakers" }, acc: [] },
   warm: { base: { ic: "👕", v: "breathable t-shirt" }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
-  balmy: { base: { ic: "👕", v: "t-shirt" }, mid: null, outer: null, bottom: { ic: "👖", v: "light pants or jeans" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
-  mild: { base: { ic: "🥼", v: "thin long-sleeve shirt" }, mid: null, outer: null, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
-  cool: { base: { ic: "👕", v: "long-sleeve shirt" }, mid: { ic: "🧥", v: "light sweater or fleece" }, outer: null, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "closed shoes" }, acc: [] },
+  mild: { base: { ic: "👕", v: "t-shirt" }, mid: null, outer: null, bottom: { ic: "👖", v: "light pants or jeans" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
+  cool: { base: { ic: "🥼", v: "thin long-sleeve shirt" }, mid: null, outer: null, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
+  chilly: { base: { ic: "👕", v: "long-sleeve shirt" }, mid: { ic: "🧥", v: "light sweater or fleece" }, outer: null, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "closed shoes" }, acc: [] },
   cold: { base: { ic: "👕", v: "long-sleeve thermal top" }, mid: { ic: "🧥", v: "sweater or fleece" }, outer: { ic: "🧥", v: "insulated jacket" }, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "closed shoes" }, acc: [] },
   very_cold: { base: { ic: "👕", v: "thermal base layer" }, mid: { ic: "🧥", v: "mid-weight fleece or wool" }, outer: { ic: "🧥", v: "insulated winter jacket" }, bottom: { ic: "👖", v: "lined or thermal pants" }, footwear: { ic: "🥾", v: "insulated boots" }, acc: [{ ic: "🧢", v: "warm hat" }, { ic: "🧤", v: "gloves" }] },
   freezing: { base: { ic: "👕", v: "heavy thermal base" }, mid: { ic: "🧥", v: "down or heavy fleece" }, outer: { ic: "🧥", v: "parka" }, bottom: { ic: "👖", v: "thermal pants under outer pants" }, footwear: { ic: "🥾", v: "insulated waterproof boots" }, acc: [{ ic: "🧢", v: "warm hat" }, { ic: "🧤", v: "insulated gloves" }, { ic: "🧣", v: "scarf or neck gaiter" }] },
@@ -212,7 +220,10 @@ function recommend(input) {
   const r = RECIPES[band];
   const rationale = [];
   rationale.push(`Feels like ${aNow.toFixed(1)}° (air ${c.tempC.toFixed(1)}°, ${Math.round(c.rh)}% humidity, ${Math.round(c.kph)} km/h wind).`);
-  rationale.push(`Engine-effective: ${eNow.toFixed(1)}° including walking-commute warmth (+${CFG.activityOffset}°).`);
+  const adj = [];
+  if (CFG.baselineOffset) adj.push(`baseline ${CFG.baselineOffset > 0 ? "+" : ""}${CFG.baselineOffset.toFixed(1)}°`);
+  if (CFG.activityOffset) adj.push(`activity +${CFG.activityOffset.toFixed(1)}°`);
+  rationale.push(`Engine-effective: ${eNow.toFixed(1)}°${adj.length ? ` (${adj.join(", ")})` : ""}.`);
   rationale.push(`Selected band: ${band.replace("_", " ")}.`);
 
   const acc = r.acc.map(a => ({ ...a }));
@@ -434,7 +445,7 @@ const WMO = {
   80: ["Showers", "🌦️"], 81: ["Showers", "🌧️"], 82: ["Heavy showers", "🌧️"],
   95: ["Thunderstorm", "⛈️"], 96: ["Thunderstorm", "⛈️"], 99: ["Thunderstorm", "⛈️"],
 };
-const BAND_LABEL = { scorching: "Scorching", hot: "Hot", warm: "Warm", balmy: "Balmy", mild: "Mild", cool: "Cool", cold: "Cold", very_cold: "Very cold", freezing: "Freezing" };
+const BAND_LABEL = { scorching: "Scorching", hot: "Hot", warm: "Warm", mild: "Mild", cool: "Cool", chilly: "Chilly", cold: "Cold", very_cold: "Very cold", freezing: "Freezing" };
 
 const fmt = c => `${Math.round(num(c))}°`;
 const wmo = code => WMO[code] || ["Unknown", "🌤️"];
@@ -534,11 +545,13 @@ function renderHourStrip(today, selectedIdx, nowIdx) {
   const range = Math.max(today.dayMaxApp - today.dayMinApp, 1);
   const yOf = a => 25 + (1 - (a - today.dayMinApp) / range) * 50;
   const xOf = i => ((i + 0.5) / cells.length) * 100;
+  const colRem = 3;
   const path = "M" + cells.map((c, i) => `${xOf(i).toFixed(2)},${yOf(c.apparent).toFixed(2)}`).join(" L");
   const cellsHtml = cells.map((cell, i) => {
     const [label] = wmo(cell.code);
     const icon = BAND_ICON[cell.band] || "👕";
     const y = yOf(cell.apparent).toFixed(2);
+    const x = xOf(i).toFixed(2);
     let badge = "";
     if (i > 0 && cells[i - 1].band !== cell.band) {
       const fromI = bandIdx(cells[i - 1].band), toI = bandIdx(cell.band);
@@ -548,13 +561,13 @@ function renderHourStrip(today, selectedIdx, nowIdx) {
     }
     const cls = ["hour-cell"];
     if (i === nowIdx) cls.push("now");
-    return `<button class="${cls.join(" ")}" data-idx="${i}" aria-pressed="${i === selectedIdx ? "true" : "false"}" style="--y: ${y}%" aria-label="${esc(hour(cell.time))}, ${fmt(cell.tempC)}, ${esc(label)}">
+    return `<button class="${cls.join(" ")}" data-idx="${i}" aria-pressed="${i === selectedIdx ? "true" : "false"}" style="left: ${x}%; --y: ${y}%" aria-label="${esc(hour(cell.time))}, ${fmt(cell.tempC)}, ${esc(label)}">
       <span class="hc-time">${esc(hourShort(cell.time))}</span>
       <span class="hc-point"><span class="hc-temp">${fmt(cell.tempC)}</span><span class="hc-icon">${esc(icon)}</span></span>
       ${badge}
     </button>`;
   }).join("");
-  return `<div class="strip-wrap"><div class="hour-graph" id="hour-strip">
+  return `<div class="strip-wrap"><div class="hour-graph" id="hour-strip" style="width: ${(cells.length * colRem).toFixed(2)}rem">
     <svg class="hg-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
       <path d="${path}" class="hg-line" />
     </svg>
@@ -646,8 +659,9 @@ function render(weather) {
       ${renderWear(rec)}
       ${renderHeadsUp(weather)}
       ${renderComing(weather)}
+      ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">Vancouver, BC . v3-balmy</div>
+      <div class="footer">Vancouver, BC . v5-renames</div>
     `;
     attachToggleHandler(root);
     return;
@@ -666,7 +680,7 @@ function render(weather) {
     ${renderHeadsUp(weather)}
     ${renderComing(weather)}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">Vancouver, BC . v3-balmy</div>
+    <div class="footer">Vancouver, BC . v5-renames</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -698,6 +712,22 @@ function render(weather) {
   });
 
   attachToggleHandler(root);
+  attachSettingsHandler(root);
+}
+
+function attachSettingsHandler(root) {
+  const panel = root.querySelector("#settings");
+  if (!panel) return;
+  panel.addEventListener("click", e => {
+    const btn = e.target.closest(".chip");
+    if (!btn) return;
+    const pref = btn.dataset.pref;
+    const val = btn.dataset.val;
+    if (!pref || !val || !PREFS[pref]) return;
+    setPref(pref, val);
+    applySettings();
+    if (LAST_WEATHER) render(LAST_WEATHER);
+  });
 }
 
 function attachToggleHandler(root) {
@@ -713,6 +743,60 @@ function attachToggleHandler(root) {
   });
 }
 
+const PREFS = {
+  baseline: {
+    key: "wtwfw-baseline",
+    label: "Body baseline",
+    default: "neutral",
+    options: [
+      { val: "runs_cold", label: "Runs cold", offset: -1.5 },
+      { val: "neutral", label: "Neutral", offset: 0 },
+      { val: "runs_warm", label: "Runs warm", offset: 1.5 },
+    ],
+  },
+  activity: {
+    key: "wtwfw-activity",
+    label: "Activity",
+    default: "walking",
+    options: [
+      { val: "standing", label: "Standing", offset: 0 },
+      { val: "walking", label: "Walking", offset: 1.5 },
+      { val: "biking", label: "Biking", offset: 3 },
+      { val: "running", label: "Running", offset: 5 },
+    ],
+  },
+};
+
+function getPref(name) {
+  const def = PREFS[name];
+  try {
+    const v = localStorage.getItem(def.key);
+    if (v && def.options.some(o => o.val === v)) return v;
+  } catch {}
+  return def.default;
+}
+function setPref(name, val) {
+  try { localStorage.setItem(PREFS[name].key, val); } catch {}
+}
+function applySettings() {
+  const b = PREFS.baseline.options.find(o => o.val === getPref("baseline"));
+  const a = PREFS.activity.options.find(o => o.val === getPref("activity"));
+  CFG.baselineOffset = b ? b.offset : 0;
+  CFG.activityOffset = a ? a.offset : 1.5;
+}
+
+function renderSettings() {
+  const rowFor = (name) => {
+    const def = PREFS[name];
+    const cur = getPref(name);
+    const chips = def.options.map(o => `<button class="chip" type="button" data-pref="${esc(name)}" data-val="${esc(o.val)}" aria-pressed="${o.val === cur ? "true" : "false"}">${esc(o.label)}</button>`).join("");
+    return `<div class="pref-row"><span class="pref-label">${esc(def.label)}</span><div class="pref-chips">${chips}</div></div>`;
+  };
+  return `<section id="settings" class="panel"><h2>You</h2>${rowFor("baseline")}${rowFor("activity")}</section>`;
+}
+
+let LAST_WEATHER = null;
+
 function renderError(msg) {
   document.getElementById("root").innerHTML =
     `<section class="panel err"><strong>Couldn't load the forecast</strong>${esc(msg)}</section>`;
@@ -720,8 +804,9 @@ function renderError(msg) {
 
 (async () => {
   try {
-    const w = await fetchWeather();
-    render(w);
+    applySettings();
+    LAST_WEATHER = await fetchWeather();
+    render(LAST_WEATHER);
   } catch (e) {
     renderError(e && e.message || String(e));
   }
