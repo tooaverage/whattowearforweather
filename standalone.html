@@ -108,11 +108,14 @@
   .chip[aria-pressed="true"] { background: #f1f5f9; color: #020617; border-color: #f1f5f9; font-weight: 600; }
   .outfit-row .val-cell { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
   .your-items { font-size: .72rem; color: #6ee7b7; line-height: 1.3; }
+  .closet-hint { font-size: .78rem; color: #94a3b8; margin: -.4rem 0 .65rem; line-height: 1.4; }
   .closet-form { display: flex; gap: .35rem; flex-wrap: wrap; margin-bottom: .85rem; padding-bottom: .85rem; border-bottom: 1px solid rgba(255,255,255,.06); }
   .closet-form input[type="text"] { flex: 1 1 100%; background: #020617; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .55rem .75rem; color: #f1f5f9; font: inherit; -webkit-appearance: none; }
   .closet-form input[type="text"]:focus { outline: none; border-color: rgba(255,255,255,.3); }
-  .closet-form select { flex: 1; background: #1e293b; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .55rem .75rem; color: #f1f5f9; font: inherit; -webkit-appearance: none; }
-  .closet-form button { background: #f1f5f9; color: #020617; border: none; padding: .55rem 1rem; border-radius: .5rem; font: inherit; font-weight: 600; cursor: pointer; }
+  .closet-form select { flex: 1 1 calc(50% - .2rem); background: #1e293b; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .55rem .75rem; color: #f1f5f9; font: inherit; -webkit-appearance: none; }
+  .closet-form button { flex: 1 1 100%; background: #f1f5f9; color: #020617; border: none; padding: .55rem 1rem; border-radius: .5rem; font: inherit; font-weight: 600; cursor: pointer; }
+  .closet-name { flex: 1; }
+  .closet-band { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: #cbd5e1; background: rgba(255,255,255,.06); padding: .15rem .45rem; border-radius: 999px; font-weight: 600; }
   .closet-section { padding: .5rem 0; }
   .closet-section + .closet-section { border-top: 1px solid rgba(255,255,255,.04); }
   .closet-slot-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; font-weight: 600; margin-bottom: .4rem; }
@@ -749,7 +752,10 @@ function renderWear(rec) {
     rec.layers.footwear && { ic: rec.layers.footwear.ic, label: "Shoes", value: rec.layers.footwear.v, slot: "footwear", skip: false },
   ].filter(Boolean);
   const layerRows = wearRows.map(r => {
-    const items = !r.skip && Array.isArray(closet[r.slot]) ? closet[r.slot] : [];
+    const all = !r.skip && Array.isArray(closet[r.slot]) ? closet[r.slot] : [];
+    const matched = all.filter(it => it.band === rec.band);
+    const untagged = all.filter(it => !it.band);
+    const items = matched.length ? matched : untagged;
     let icon = r.ic, value = r.value, hint = "";
     if (items.length) {
       icon = iconForName(items[0].name) || SLOT_ICON[r.slot] || r.ic;
@@ -905,7 +911,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v17-time-bottom</div>
+      <div class="footer">${esc(LOCATION.name)} . v18-bands</div>
     `;
     attachToggleHandler(root);
     return;
@@ -927,7 +933,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v17-time-bottom</div>
+    <div class="footer">${esc(LOCATION.name)} . v18-bands</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -998,8 +1004,10 @@ function attachGlobalHandlers(root) {
     e.preventDefault();
     const name = (form.querySelector('input[name="name"]') || {}).value || "";
     const slot = (form.querySelector('select[name="slot"]') || {}).value || "";
+    const band = (form.querySelector('select[name="band"]') || {}).value || "";
     if (name.trim() && CLOSET_SLOTS[slot]) {
-      addClosetItem(slot, name);
+      addClosetItem(slot, name, band);
+      form.reset();
       if (LAST_WEATHER) render(LAST_WEATHER);
     }
   });
@@ -1276,6 +1284,7 @@ function setPref(name, val) {
   try { localStorage.setItem(PREFS[name].key, val); } catch {}
 }
 const CLOSET_SLOTS = { outer: "Jackets", mid: "Mid layers", base: "Tops", bottom: "Bottoms", footwear: "Shoes" };
+const CLOSET_BANDS = ["scorching", "hot", "warm", "mild", "cool", "chilly", "cold", "very_cold", "freezing"];
 function getCloset() {
   try {
     const s = localStorage.getItem("wtwfw-closet");
@@ -1284,7 +1293,7 @@ function getCloset() {
       if (obj && typeof obj === "object") {
         const out = {};
         for (const k of Object.keys(CLOSET_SLOTS)) {
-          out[k] = Array.isArray(obj[k]) ? obj[k].filter(it => it && typeof it.name === "string").slice(0, 12) : [];
+          out[k] = Array.isArray(obj[k]) ? obj[k].filter(it => it && typeof it.name === "string").slice(0, 12).map(it => ({ name: String(it.name).slice(0, 40), band: CLOSET_BANDS.includes(it.band) ? it.band : "" })) : [];
         }
         return out;
       }
@@ -1293,14 +1302,15 @@ function getCloset() {
   return { outer: [], mid: [], base: [], bottom: [], footwear: [] };
 }
 function setCloset(c) { try { localStorage.setItem("wtwfw-closet", JSON.stringify(c)); } catch {} }
-function addClosetItem(slot, name) {
+function addClosetItem(slot, name, band) {
   if (!CLOSET_SLOTS[slot]) return;
   const trimmed = String(name || "").trim().slice(0, 40);
   if (!trimmed) return;
+  const cleanBand = CLOSET_BANDS.includes(band) ? band : "";
   const c = getCloset();
   if (c[slot].length >= 12) return;
-  if (c[slot].some(it => it.name.toLowerCase() === trimmed.toLowerCase())) return;
-  c[slot].push({ name: trimmed });
+  if (c[slot].some(it => it.name.toLowerCase() === trimmed.toLowerCase() && (it.band || "") === cleanBand)) return;
+  c[slot].push({ name: trimmed, band: cleanBand });
   setCloset(c);
 }
 function removeClosetItem(slot, idx) {
@@ -1340,13 +1350,23 @@ function renderCloset() {
   const sections = Object.keys(CLOSET_SLOTS).map(slot => {
     const items = c[slot] || [];
     const list = items.length
-      ? `<ul class="closet-list">${items.map((it, i) => `<li>${bigIcon(iconForName(it.name) || SLOT_ICON[slot] || "👕")}<span>${esc(it.name)}</span><button class="closet-remove" type="button" data-slot="${esc(slot)}" data-idx="${i}" aria-label="Remove ${esc(it.name)}">×</button></li>`).join("")}</ul>`
+      ? `<ul class="closet-list">${items.map((it, i) => {
+        const tag = it.band ? `<span class="closet-band">${esc(BAND_LABEL[it.band] || it.band)}</span>` : "";
+        return `<li>${bigIcon(iconForName(it.name) || SLOT_ICON[slot] || "👕")}<span class="closet-name">${esc(it.name)}</span>${tag}<button class="closet-remove" type="button" data-slot="${esc(slot)}" data-idx="${i}" aria-label="Remove ${esc(it.name)}">×</button></li>`;
+      }).join("")}</ul>`
       : `<div class="closet-empty">Nothing yet</div>`;
     return `<div class="closet-section"><div class="closet-slot-label">${esc(CLOSET_SLOTS[slot])}</div>${list}</div>`;
   }).join("");
   const slotOpts = Object.entries(CLOSET_SLOTS).map(([k, v]) => `<option value="${esc(k)}">${esc(v)}</option>`).join("");
-  const form = `<form class="closet-form" id="closet-form" autocomplete="off"><input type="text" name="name" placeholder="Add an item, e.g. brown leather jacket" maxlength="40" /><select name="slot">${slotOpts}</select><button type="submit">Add</button></form>`;
-  return `<section id="closet" class="panel"><h2>My closet</h2>${form}${sections}</section>`;
+  const bandOpts = `<option value="">Any temperature</option>` +
+    CLOSET_BANDS.map(b => `<option value="${esc(b)}">${esc(BAND_LABEL[b] || b)}</option>`).join("");
+  const form = `<form class="closet-form" id="closet-form" autocomplete="off">
+    <input type="text" name="name" placeholder="Add an item, e.g. brown leather jacket" maxlength="40" />
+    <select name="slot" aria-label="Slot">${slotOpts}</select>
+    <select name="band" aria-label="Wear when">${bandOpts}</select>
+    <button type="submit">Add</button>
+  </form>`;
+  return `<section id="closet" class="panel"><h2>My closet</h2><p class="closet-hint">Tag each item with the temperature you'd wear it in. Items without a tag show up at every temperature.</p>${form}${sections}</section>`;
 }
 
 function renderSettings() {
