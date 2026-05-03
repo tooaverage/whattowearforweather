@@ -96,13 +96,15 @@
   .chip { background: #1e293b; color: #cbd5e1; padding: .4rem .85rem; border-radius: 999px; font-size: .82rem; font-weight: 500; border: 1px solid transparent; cursor: pointer; font-family: inherit; transition: background .15s, color .15s; }
   .chip:hover { background: #273449; }
   .chip[aria-pressed="true"] { background: #f1f5f9; color: #020617; border-color: #f1f5f9; font-weight: 600; }
-  .feedback { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-top: 1rem; padding-top: .85rem; border-top: 1px solid rgba(255,255,255,.06); }
+  .feedback { display: flex; flex-wrap: wrap; gap: .5rem; align-items: stretch; margin-top: 1rem; padding-top: .85rem; border-top: 1px solid rgba(255,255,255,.06); }
   .fb-label { font-size: .65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; font-weight: 600; flex-basis: 100%; margin-bottom: .15rem; }
-  .fb-btn { background: #1e293b; color: #cbd5e1; padding: .4rem .8rem; border-radius: 999px; font-size: .82rem; font-weight: 500; border: 1px solid transparent; cursor: pointer; font-family: inherit; transition: background .15s; }
-  .fb-btn:hover { background: #273449; }
-  .fb-btn:active { transform: scale(.97); }
-  .fb-thanks { display: none; font-size: .75rem; color: #6ee7b7; margin-top: .5rem; }
-  .feedback.thanks .fb-thanks { display: block; flex-basis: 100%; }
+  .fb-btn { flex: 1; min-width: 0; background: #334155; color: #f8fafc; padding: .7rem .5rem; border-radius: .65rem; font-size: .82rem; font-weight: 600; border: 1px solid #475569; cursor: pointer; font-family: inherit; transition: background .12s, transform .08s, box-shadow .12s; box-shadow: 0 1px 2px rgba(0,0,0,.25); display: flex; flex-direction: column; align-items: center; gap: .15rem; line-height: 1.1; }
+  .fb-btn .fb-emoji { font-size: 1.05rem; }
+  .fb-btn:hover { background: #475569; }
+  .fb-btn:active { transform: translateY(1px); box-shadow: none; }
+  .fb-btn[data-fb="cold"] { border-color: rgba(125,211,252,.35); }
+  .fb-btn[data-fb="warm"] { border-color: rgba(251,146,60,.35); }
+  .fb-btn[data-fb="right"] { border-color: rgba(110,231,183,.35); }
   .loc-btn { background: rgba(0,0,0,.12); color: inherit; border: none; padding: .15rem .55rem; border-radius: 999px; font: inherit; font-weight: 600; cursor: pointer; letter-spacing: inherit; text-transform: inherit; }
   .loc-btn:hover { background: rgba(0,0,0,.22); }
   .loc-overlay { position: fixed; inset: 0; background: rgba(2,6,23,.85); z-index: 100; display: flex; align-items: flex-start; justify-content: center; padding: 4rem 1rem 1rem; overflow-y: auto; }
@@ -149,6 +151,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;"
 const CFG = {
   windLayerKph: 16, windShellMaxEffC: 16, windChillTempC: 10, windChillMinWindKph: 4.8, heatIndexTempC: 26.7,
   rainShellProbabilityPct: 40, rainShellTotalMm: 1.0, umbrellaProbabilityPct: 10,
+  snowBootsCm: 0.5, snowHeavyCm: 5,
   uvProtectionIndex: 3, uvSunscreenIndex: 6, bringLayerSpreadC: 5,
   bands: [
     { band: "scorching", min: 30 }, { band: "hot", min: 24 }, { band: "warm", min: 19 }, { band: "mild", min: 14 },
@@ -233,7 +236,7 @@ const RECIPES = {
 };
 
 function summarizeArc(next) {
-  if (!next.length) return { min: 0, max: 0, spread: 0, cross: false, minTime: "", maxTime: "", totalMm: 0, maxProb: 0, maxUv: 0, maxKph: 0 };
+  if (!next.length) return { min: 0, max: 0, spread: 0, cross: false, minTime: "", maxTime: "", totalMm: 0, maxProb: 0, maxUv: 0, maxKph: 0, totalSnow: 0 };
   let minA = Infinity, maxA = -Infinity, minIdx = 0, maxIdx = 0;
   next.forEach((p, i) => {
     const a = feels(p);
@@ -245,6 +248,7 @@ function summarizeArc(next) {
     cross: pickBand(effective(minA)) !== pickBand(effective(maxA)),
     minTime: next[minIdx].time, maxTime: next[maxIdx].time,
     totalMm: next.reduce((s, p) => s + p.precipMm, 0),
+    totalSnow: next.reduce((s, p) => s + (p.snowCm || 0), 0),
     maxProb: next.reduce((m, p) => Math.max(m, p.precipProb || 0), 0),
     maxUv: next.reduce((m, p) => Math.max(m, p.uv), 0),
     maxKph: next.reduce((m, p) => Math.max(m, p.kph), 0),
@@ -290,6 +294,15 @@ function recommend(input) {
   } else if (arc.maxProb >= CFG.umbrellaProbabilityPct) {
     acc.push({ ic: "☂️", v: "compact umbrella" });
     rationale.push(`Light chance of rain (${Math.round(arc.maxProb)}%). Toss an umbrella in your bag.`);
+  }
+
+  if (arc.totalSnow >= CFG.snowBootsCm) {
+    footwear = { ic: "🥾", v: "insulated waterproof boots" };
+    outer = { ic: "🧥", v: outer && outer.v ? `${outer.v.replace(/^waterproof\s+/, "").replace(/\s*\(waterproof\)$/, "")} (waterproof, insulated)` : "waterproof insulated jacket" };
+    if (!acc.some(a => a.v.includes("hat"))) acc.push({ ic: "🧢", v: "warm hat" });
+    if (!acc.some(a => a.v.includes("gloves"))) acc.push({ ic: "🧤", v: "gloves" });
+    if (arc.totalSnow >= CFG.snowHeavyCm && !acc.some(a => a.v.includes("scarf"))) acc.push({ ic: "🧣", v: "scarf or neck gaiter" });
+    rationale.push(`Snow expected (${arc.totalSnow.toFixed(1)} cm over 12h). Boots, waterproof outer, hat and gloves.`);
   }
 
   if (arc.maxUv >= CFG.uvProtectionIndex) {
@@ -409,6 +422,7 @@ async function fetchWeather() {
       precipProb: clamp(num(h.precipitation_probability && h.precipitation_probability[i]), 0, 100),
       uv: Math.max(0, num(h.uv_index && h.uv_index[i])),
       cloud: clamp(num(h.cloud_cover && h.cloud_cover[i]), 0, 100),
+      snowCm: Math.max(0, num(h.snowfall && h.snowfall[i])),
       code: num(h.weather_code && h.weather_code[i]),
       isDay: (h.is_day && h.is_day[i]) === 1,
     });
@@ -583,7 +597,11 @@ function renderWear(rec) {
   const visibleAcc = rec.layers.acc.filter(a => a !== umbrellaItem);
   const accs = visibleAcc.length
     ? `<div class="pills"><span class="lbl">Plus</span>${visibleAcc.map(a => `<span class="pill">${esc(a.ic || "")} ${esc(a.v)}</span>`).join("")}</div>` : "";
-  const fb = `<div class="feedback"><span class="fb-label">How does this feel?</span><button class="fb-btn" type="button" data-fb="cold">+ Add a layer</button><button class="fb-btn" type="button" data-fb="right">Just right</button><button class="fb-btn" type="button" data-fb="warm">− Drop a layer</button></div>`;
+  const fb = `<div class="feedback"><span class="fb-label">How does this feel?</span>` +
+    `<button class="fb-btn" type="button" data-fb="cold"><span class="fb-emoji">🥶</span><span>Too cold</span></button>` +
+    `<button class="fb-btn" type="button" data-fb="right"><span class="fb-emoji">👌</span><span>Just right</span></button>` +
+    `<button class="fb-btn" type="button" data-fb="warm"><span class="fb-emoji">🥵</span><span>Too warm</span></button>` +
+    `</div>`;
   return `<section id="wear" class="panel"><h2>Wear</h2>${layerRows}${accs}${fb}</section>`;
 }
 
@@ -725,7 +743,7 @@ function render(weather) {
       ${renderComing(weather)}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v7-locations</div>
+      <div class="footer">${esc(LOCATION.name)} . v8-snow</div>
     `;
     attachToggleHandler(root);
     return;
@@ -744,7 +762,7 @@ function render(weather) {
     ${renderHeadsUp(weather)}
     ${renderComing(weather)}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v7-locations</div>
+    <div class="footer">${esc(LOCATION.name)} . v8-snow</div>
   `;
 
   // Scroll selected cell into center of strip.
