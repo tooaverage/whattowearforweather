@@ -98,6 +98,21 @@
   .chip { background: #1e293b; color: #cbd5e1; padding: .4rem .85rem; border-radius: 999px; font-size: .82rem; font-weight: 500; border: 1px solid transparent; cursor: pointer; font-family: inherit; transition: background .15s, color .15s; }
   .chip:hover { background: #273449; }
   .chip[aria-pressed="true"] { background: #f1f5f9; color: #020617; border-color: #f1f5f9; font-weight: 600; }
+  .outfit-row .val-cell { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
+  .your-items { font-size: .72rem; color: #6ee7b7; line-height: 1.3; }
+  .closet-form { display: flex; gap: .35rem; flex-wrap: wrap; margin-bottom: .85rem; padding-bottom: .85rem; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .closet-form input[type="text"] { flex: 1 1 100%; background: #020617; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .55rem .75rem; color: #f1f5f9; font: inherit; -webkit-appearance: none; }
+  .closet-form input[type="text"]:focus { outline: none; border-color: rgba(255,255,255,.3); }
+  .closet-form select { flex: 1; background: #1e293b; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .55rem .75rem; color: #f1f5f9; font: inherit; -webkit-appearance: none; }
+  .closet-form button { background: #f1f5f9; color: #020617; border: none; padding: .55rem 1rem; border-radius: .5rem; font: inherit; font-weight: 600; cursor: pointer; }
+  .closet-section { padding: .5rem 0; }
+  .closet-section + .closet-section { border-top: 1px solid rgba(255,255,255,.04); }
+  .closet-slot-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; font-weight: 600; margin-bottom: .4rem; }
+  .closet-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .35rem; }
+  .closet-list li { display: inline-flex; align-items: center; gap: .35rem; background: #1e293b; padding: .35rem .35rem .35rem .75rem; border-radius: 999px; font-size: .82rem; color: #e2e8f0; }
+  .closet-remove { background: transparent; color: #94a3b8; border: none; font-size: 1.05rem; cursor: pointer; padding: 0 .35rem; line-height: 1; border-radius: 999px; }
+  .closet-remove:hover { color: #f1f5f9; background: rgba(255,255,255,.08); }
+  .closet-empty { font-size: .78rem; color: #64748b; }
   .feedback { display: flex; flex-wrap: wrap; gap: .5rem; align-items: stretch; margin-top: 1rem; padding-top: .85rem; border-top: 1px solid rgba(255,255,255,.06); }
   .fb-label { font-size: .65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; font-weight: 600; flex-basis: 100%; margin-bottom: .15rem; }
   .fb-btn { flex: 1; min-width: 0; background: #334155; color: #f8fafc; padding: .7rem .5rem; border-radius: .65rem; font-size: .82rem; font-weight: 600; border: 1px solid #475569; cursor: pointer; font-family: inherit; transition: background .12s, transform .08s, box-shadow .12s; box-shadow: 0 1px 2px rgba(0,0,0,.25); display: flex; flex-direction: column; align-items: center; gap: .15rem; line-height: 1.1; }
@@ -123,6 +138,27 @@
   .loc-empty { color: #64748b; font-size: .8rem; text-align: center; padding: .5rem; }
   .loc-close { background: transparent; border: 1px solid rgba(255,255,255,.1); color: #cbd5e1; padding: .5rem 1rem; border-radius: .65rem; cursor: pointer; font-family: inherit; font-size: .85rem; margin-top: .25rem; }
   .loc-close:hover { background: rgba(255,255,255,.04); }
+  .onb-overlay { position: fixed; inset: 0; background: rgba(2,6,23,.92); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem 1rem; overflow-y: auto; }
+  .onb-card { background: #0f172a; border-radius: 1rem; padding: 1.5rem 1.25rem; width: 100%; max-width: 22rem; display: flex; flex-direction: column; gap: 1rem; border: 1px solid rgba(255,255,255,.08); }
+  .onb-step { font-size: .65rem; text-transform: uppercase; letter-spacing: .15em; color: #94a3b8; font-weight: 600; }
+  .onb-card h2 { margin: 0; font-size: 1.15rem; color: #f8fafc; line-height: 1.3; font-weight: 700; }
+  .onb-card p { margin: 0; font-size: .88rem; color: #cbd5e1; line-height: 1.45; }
+  .onb-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .onb-chip { background: #1e293b; color: #cbd5e1; padding: .5rem .85rem; border-radius: 999px; font-size: .85rem; font-weight: 500; border: 1px solid transparent; cursor: pointer; font-family: inherit; transition: background .12s; }
+  .onb-chip[aria-pressed="true"] { background: #f1f5f9; color: #020617; border-color: #f1f5f9; font-weight: 600; }
+  .onb-comfort { display: flex; gap: .5rem; }
+  .onb-comfort button { flex: 1; background: #1e293b; color: #f8fafc; padding: 1rem .5rem; border-radius: .75rem; border: 1px solid #334155; cursor: pointer; font-family: inherit; font-size: .82rem; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: .35rem; }
+  .onb-comfort .em { font-size: 1.6rem; line-height: 1; }
+  .onb-comfort button:active { transform: scale(.98); }
+  .onb-here { background: #1e293b; color: #e2e8f0; padding: .8rem 1rem; border-radius: .65rem; border: 1px solid rgba(255,255,255,.08); cursor: pointer; font-family: inherit; font-size: .9rem; text-align: left; }
+  .onb-here:hover { background: #273449; }
+  .onb-here:disabled { opacity: .6; cursor: default; }
+  .onb-actions { display: flex; gap: .5rem; margin-top: .25rem; }
+  .onb-back { background: transparent; color: #cbd5e1; border: 1px solid rgba(255,255,255,.1); padding: .55rem 1rem; border-radius: .65rem; cursor: pointer; font-family: inherit; font-size: .85rem; }
+  .onb-next { flex: 1; background: #f1f5f9; color: #020617; border: none; padding: .65rem 1rem; border-radius: .65rem; font-family: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; }
+  .onb-next:disabled { opacity: .5; cursor: not-allowed; }
+  .onb-skip { background: transparent; color: #64748b; border: none; padding: .35rem; cursor: pointer; font-family: inherit; font-size: .75rem; align-self: flex-end; }
+  .onb-skip:hover { color: #94a3b8; }
   .day-toggle { background: transparent; border: 1px solid rgba(255,255,255,.1); color: #cbd5e1; padding: .55rem 1rem; border-radius: .65rem; font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; cursor: pointer; margin-top: .85rem; width: 100%; font-weight: 600; font-family: inherit; }
   .day-toggle:hover { background: rgba(255,255,255,.04); }
   details summary { font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; padding: .55rem 0; align-items: center; }
@@ -610,16 +646,21 @@ function renderBring(rec) {
 }
 
 function renderWear(rec) {
+  const closet = getCloset();
   const wearRows = [
     rec.layers.outer
-      ? { ic: rec.layers.outer.ic, label: "Jacket", value: rec.layers.outer.v, skip: false }
-      : { ic: "🧥", label: "Jacket", value: "not needed", skip: true },
-    rec.layers.mid && { ic: rec.layers.mid.ic, label: "Mid", value: rec.layers.mid.v, skip: false },
-    rec.layers.base && { ic: rec.layers.base.ic, label: "Top", value: rec.layers.base.v, skip: false },
-    rec.layers.bottom && { ic: rec.layers.bottom.ic, label: "Bottom", value: rec.layers.bottom.v, skip: false },
-    rec.layers.footwear && { ic: rec.layers.footwear.ic, label: "Shoes", value: rec.layers.footwear.v, skip: false },
+      ? { ic: rec.layers.outer.ic, label: "Jacket", value: rec.layers.outer.v, slot: "outer", skip: false }
+      : { ic: "🧥", label: "Jacket", value: "not needed", slot: "outer", skip: true },
+    rec.layers.mid && { ic: rec.layers.mid.ic, label: "Mid", value: rec.layers.mid.v, slot: "mid", skip: false },
+    rec.layers.base && { ic: rec.layers.base.ic, label: "Top", value: rec.layers.base.v, slot: "base", skip: false },
+    rec.layers.bottom && { ic: rec.layers.bottom.ic, label: "Bottom", value: rec.layers.bottom.v, slot: "bottom", skip: false },
+    rec.layers.footwear && { ic: rec.layers.footwear.ic, label: "Shoes", value: rec.layers.footwear.v, slot: "footwear", skip: false },
   ].filter(Boolean);
-  const layerRows = wearRows.map(r => `<div class="outfit-row${r.skip ? " skip" : ""}"><span class="ic">${bigIcon(r.ic)}</span><span class="lbl">${esc(r.label)}</span><span class="val">${esc(r.value)}</span></div>`).join("");
+  const layerRows = wearRows.map(r => {
+    const items = !r.skip && Array.isArray(closet[r.slot]) ? closet[r.slot] : [];
+    const yours = items.length ? `<span class="your-items">You have: ${items.map(it => esc(it.name)).join(", ")}</span>` : "";
+    return `<div class="outfit-row${r.skip ? " skip" : ""}"><span class="ic">${bigIcon(r.ic)}</span><span class="lbl">${esc(r.label)}</span><div class="val-cell"><span class="val">${esc(r.value)}</span>${yours}</div></div>`;
+  }).join("");
   const umbrellaItem = rec.layers.acc.find(a => a.v.includes("umbrella"));
   const visibleAcc = rec.layers.acc.filter(a => a !== umbrellaItem);
   const accs = visibleAcc.length
@@ -768,9 +809,10 @@ function render(weather) {
       ${renderWear(rec)}
       ${renderHeadsUp(weather)}
       ${renderComing(weather)}
+      ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v9-icons</div>
+      <div class="footer">${esc(LOCATION.name)} . v10-closet</div>
     `;
     attachToggleHandler(root);
     return;
@@ -788,8 +830,10 @@ function render(weather) {
     ${renderWear(rec)}
     ${renderHeadsUp(weather)}
     ${renderComing(weather)}
+    ${renderCloset()}
+    ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v9-icons</div>
+    <div class="footer">${esc(LOCATION.name)} . v10-closet</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -831,6 +875,16 @@ function attachGlobalHandlers(root) {
   root.addEventListener("click", e => {
     const fb = e.target.closest(".fb-btn");
     if (fb) { recordFeedback(fb.dataset.fb); return; }
+    const rem = e.target.closest(".closet-remove");
+    if (rem) {
+      const slot = rem.dataset.slot;
+      const idx = parseInt(rem.dataset.idx, 10);
+      if (slot && Number.isFinite(idx)) {
+        removeClosetItem(slot, idx);
+        if (LAST_WEATHER) render(LAST_WEATHER);
+      }
+      return;
+    }
     const chip = e.target.closest(".chip");
     if (chip) {
       const pref = chip.dataset.pref;
@@ -844,6 +898,17 @@ function attachGlobalHandlers(root) {
     }
     if (e.target.closest("[data-loc-open]")) { openLocationModal(); return; }
   });
+  root.addEventListener("submit", e => {
+    const form = e.target.closest("#closet-form");
+    if (!form) return;
+    e.preventDefault();
+    const name = (form.querySelector('input[name="name"]') || {}).value || "";
+    const slot = (form.querySelector('select[name="slot"]') || {}).value || "";
+    if (name.trim() && CLOSET_SLOTS[slot]) {
+      addClosetItem(slot, name);
+      if (LAST_WEATHER) render(LAST_WEATHER);
+    }
+  });
 }
 
 async function refreshWeather() {
@@ -855,6 +920,136 @@ async function refreshWeather() {
   } catch (e) {
     renderError(e && e.message || String(e));
   }
+}
+
+const ONB_OUTFIT = [
+  { v: "tank", label: "Tank top", slot: "base" },
+  { v: "tshirt", label: "T-shirt", slot: "base" },
+  { v: "longsleeve", label: "Long sleeve", slot: "base" },
+  { v: "sweater", label: "Sweater", slot: "mid" },
+  { v: "ljacket", label: "Light jacket", slot: "outer" },
+  { v: "hcoat", label: "Heavy coat", slot: "outer" },
+  { v: "shorts", label: "Shorts", slot: "bottom" },
+  { v: "pants", label: "Pants or jeans", slot: "bottom" },
+  { v: "skirt", label: "Skirt or dress", slot: "bottom" },
+  { v: "sneakers", label: "Sneakers", slot: "footwear" },
+  { v: "boots", label: "Boots", slot: "footwear" },
+  { v: "sandals", label: "Sandals", slot: "footwear" },
+];
+
+function maybeShowOnboarding() {
+  try { if (localStorage.getItem("wtwfw-onboarded") === "1") return; } catch {}
+  if (!LAST_WEATHER || !LAST_WEATHER.current) return;
+  showOnboarding();
+}
+
+function showOnboarding() {
+  if (document.querySelector(".onb-overlay")) return;
+  const c = LAST_WEATHER.current;
+  const aNow = feels(c);
+  const overlay = document.createElement("div");
+  overlay.className = "onb-overlay";
+  document.body.appendChild(overlay);
+  const state = { step: 1, picked: new Set(), comfort: null };
+  const close = () => overlay.remove();
+  const finishSkip = () => { try { localStorage.setItem("wtwfw-onboarded", "1"); } catch {} close(); };
+  function step1() {
+    overlay.innerHTML = `<div class="onb-card">
+      <div class="onb-step">Step 1 of 3</div>
+      <h2>Where are you?</h2>
+      <p>We use your location to pull the local forecast. Default is Vancouver.</p>
+      <button class="onb-here" type="button" id="onb-locate">📍 Use my current location</button>
+      <button class="onb-here" type="button" id="onb-keep">Keep ${esc(LOCATION.name)}</button>
+      <button class="onb-skip" type="button" id="onb-skip">Skip setup</button>
+    </div>`;
+    overlay.querySelector("#onb-skip").onclick = finishSkip;
+    overlay.querySelector("#onb-keep").onclick = () => { state.step = 2; render(); };
+    overlay.querySelector("#onb-locate").onclick = (e) => {
+      const btn = e.currentTarget;
+      if (!navigator.geolocation) { btn.textContent = "Geolocation not supported"; return; }
+      btn.disabled = true;
+      btn.textContent = "Locating...";
+      navigator.geolocation.getCurrentPosition(pos => {
+        const tz = (Intl.DateTimeFormat().resolvedOptions() || {}).timeZone || "auto";
+        LOCATION = { lat: pos.coords.latitude, lon: pos.coords.longitude, tz, name: "Current location" };
+        saveLocation();
+        state.step = 2;
+        refreshWeather().then(() => render());
+      }, () => {
+        btn.disabled = false;
+        btn.textContent = "Couldn't locate. Tap to try again.";
+      }, { timeout: 10000, maximumAge: 60000 });
+    };
+  }
+  function step2() {
+    const tempLine = `Right now in ${esc(LOCATION.name)} it's ${fmt(c.tempC)}, feels like ${fmt(aNow)}.`;
+    const chips = ONB_OUTFIT.map(o => `<button type="button" class="onb-chip" data-v="${esc(o.v)}" aria-pressed="${state.picked.has(o.v) ? "true" : "false"}">${esc(o.label)}</button>`).join("");
+    overlay.innerHTML = `<div class="onb-card">
+      <div class="onb-step">Step 2 of 3</div>
+      <h2>What are you wearing right now?</h2>
+      <p>${tempLine} Pick everything you have on. We'll add these to your closet.</p>
+      <div class="onb-chips">${chips}</div>
+      <div class="onb-actions">
+        <button class="onb-back" type="button" id="onb-back">Back</button>
+        <button class="onb-next" type="button" id="onb-next">Next</button>
+      </div>
+      <button class="onb-skip" type="button" id="onb-skip">Skip setup</button>
+    </div>`;
+    overlay.querySelector("#onb-skip").onclick = finishSkip;
+    overlay.querySelector("#onb-back").onclick = () => { state.step = 1; render(); };
+    overlay.querySelector("#onb-next").onclick = () => { state.step = 3; render(); };
+    overlay.querySelectorAll(".onb-chip").forEach(btn => {
+      btn.onclick = () => {
+        const v = btn.dataset.v;
+        if (state.picked.has(v)) state.picked.delete(v); else state.picked.add(v);
+        btn.setAttribute("aria-pressed", state.picked.has(v) ? "true" : "false");
+      };
+    });
+  }
+  function step3() {
+    overlay.innerHTML = `<div class="onb-card">
+      <div class="onb-step">Step 3 of 3</div>
+      <h2>How does that feel?</h2>
+      <p>This sets your starting point. You can fine-tune anytime with the buttons under Wear.</p>
+      <div class="onb-comfort">
+        <button type="button" data-c="cold"><span class="em">🥶</span><span>Too cold</span></button>
+        <button type="button" data-c="right"><span class="em">👌</span><span>Just right</span></button>
+        <button type="button" data-c="warm"><span class="em">🥵</span><span>Too warm</span></button>
+      </div>
+      <div class="onb-actions">
+        <button class="onb-back" type="button" id="onb-back">Back</button>
+      </div>
+      <button class="onb-skip" type="button" id="onb-skip">Skip setup</button>
+    </div>`;
+    overlay.querySelector("#onb-skip").onclick = finishSkip;
+    overlay.querySelector("#onb-back").onclick = () => { state.step = 2; render(); };
+    overlay.querySelectorAll(".onb-comfort button").forEach(btn => {
+      btn.onclick = () => { state.comfort = btn.dataset.c; finish(); };
+    });
+  }
+  function finish() {
+    const seedClosetFromOnboarding = () => {
+      const closet = getCloset();
+      for (const v of state.picked) {
+        const opt = ONB_OUTFIT.find(o => o.v === v);
+        if (!opt) continue;
+        if (!Array.isArray(closet[opt.slot])) closet[opt.slot] = [];
+        if (!closet[opt.slot].some(it => it.name.toLowerCase() === opt.label.toLowerCase())) {
+          closet[opt.slot].push({ name: opt.label });
+        }
+      }
+      setCloset(closet);
+    };
+    seedClosetFromOnboarding();
+    if (state.comfort === "cold") setLearned(getLearned() - 1.5);
+    else if (state.comfort === "warm") setLearned(getLearned() + 1.5);
+    try { localStorage.setItem("wtwfw-onboarded", "1"); } catch {}
+    applySettings();
+    close();
+    if (LAST_WEATHER) window.render(LAST_WEATHER);
+  }
+  function render() { state.step === 1 ? step1() : state.step === 2 ? step2() : step3(); }
+  render();
 }
 
 function openLocationModal() {
@@ -986,6 +1181,43 @@ function getPref(name) {
 function setPref(name, val) {
   try { localStorage.setItem(PREFS[name].key, val); } catch {}
 }
+const CLOSET_SLOTS = { outer: "Jackets", mid: "Mid layers", base: "Tops", bottom: "Bottoms", footwear: "Shoes" };
+function getCloset() {
+  try {
+    const s = localStorage.getItem("wtwfw-closet");
+    if (s) {
+      const obj = JSON.parse(s);
+      if (obj && typeof obj === "object") {
+        const out = {};
+        for (const k of Object.keys(CLOSET_SLOTS)) {
+          out[k] = Array.isArray(obj[k]) ? obj[k].filter(it => it && typeof it.name === "string").slice(0, 12) : [];
+        }
+        return out;
+      }
+    }
+  } catch {}
+  return { outer: [], mid: [], base: [], bottom: [], footwear: [] };
+}
+function setCloset(c) { try { localStorage.setItem("wtwfw-closet", JSON.stringify(c)); } catch {} }
+function addClosetItem(slot, name) {
+  if (!CLOSET_SLOTS[slot]) return;
+  const trimmed = String(name || "").trim().slice(0, 40);
+  if (!trimmed) return;
+  const c = getCloset();
+  if (c[slot].length >= 12) return;
+  if (c[slot].some(it => it.name.toLowerCase() === trimmed.toLowerCase())) return;
+  c[slot].push({ name: trimmed });
+  setCloset(c);
+}
+function removeClosetItem(slot, idx) {
+  if (!CLOSET_SLOTS[slot]) return;
+  const c = getCloset();
+  if (c[slot] && c[slot][idx]) {
+    c[slot].splice(idx, 1);
+    setCloset(c);
+  }
+}
+
 function getLearned() {
   try { return clamp(parseFloat(localStorage.getItem("wtwfw-learned") || "0") || 0, -3, 3); }
   catch { return 0; }
@@ -1007,6 +1239,20 @@ function recordFeedback(direction) {
     applySettings();
     if (LAST_WEATHER) render(LAST_WEATHER);
   }
+}
+
+function renderCloset() {
+  const c = getCloset();
+  const sections = Object.keys(CLOSET_SLOTS).map(slot => {
+    const items = c[slot] || [];
+    const list = items.length
+      ? `<ul class="closet-list">${items.map((it, i) => `<li><span>${esc(it.name)}</span><button class="closet-remove" type="button" data-slot="${esc(slot)}" data-idx="${i}" aria-label="Remove ${esc(it.name)}">×</button></li>`).join("")}</ul>`
+      : `<div class="closet-empty">Nothing yet</div>`;
+    return `<div class="closet-section"><div class="closet-slot-label">${esc(CLOSET_SLOTS[slot])}</div>${list}</div>`;
+  }).join("");
+  const slotOpts = Object.entries(CLOSET_SLOTS).map(([k, v]) => `<option value="${esc(k)}">${esc(v)}</option>`).join("");
+  const form = `<form class="closet-form" id="closet-form" autocomplete="off"><input type="text" name="name" placeholder="Add an item, e.g. brown leather jacket" maxlength="40" /><select name="slot">${slotOpts}</select><button type="submit">Add</button></form>`;
+  return `<section id="closet" class="panel"><h2>My closet</h2>${form}${sections}</section>`;
 }
 
 function renderSettings() {
@@ -1032,6 +1278,7 @@ function renderError(msg) {
     applySettings();
     LAST_WEATHER = await fetchWeather();
     render(LAST_WEATHER);
+    maybeShowOnboarding();
   } catch (e) {
     renderError(e && e.message || String(e));
   }
