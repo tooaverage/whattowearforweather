@@ -124,7 +124,8 @@
   .closet-remove:hover { color: #f1f5f9; background: rgba(255,255,255,.08); }
   .closet-empty { font-size: .78rem; color: #64748b; }
   .feedback { display: flex; flex-wrap: wrap; gap: .5rem; align-items: stretch; margin-top: 1rem; padding-top: .85rem; border-top: 1px solid rgba(255,255,255,.06); }
-  .fb-label { font-size: .65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; font-weight: 600; flex-basis: 100%; margin-bottom: .15rem; }
+  .fb-label { font-size: .65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; font-weight: 600; flex-basis: 100%; margin-bottom: .15rem; display: flex; justify-content: space-between; align-items: baseline; }
+  .fb-calib { color: #6ee7b7; font-weight: 600; letter-spacing: .04em; text-transform: none; font-size: .72rem; }
   .fb-btn { flex: 1; min-width: 0; background: #334155; color: #f8fafc; padding: .7rem .5rem; border-radius: .65rem; font-size: .82rem; font-weight: 600; border: 1px solid #475569; cursor: pointer; font-family: inherit; transition: background .12s, transform .08s, box-shadow .12s; box-shadow: 0 1px 2px rgba(0,0,0,.25); display: flex; flex-direction: column; align-items: center; gap: .15rem; line-height: 1.1; }
   .fb-btn .fb-emoji { font-size: 1.05rem; display: flex; align-items: center; justify-content: center; }
   .fb-btn .fb-emoji svg { width: 2rem; height: 2rem; display: block; }
@@ -762,7 +763,11 @@ function renderWear(rec) {
   const visibleAcc = rec.layers.acc.filter(a => a !== umbrellaItem);
   const accs = visibleAcc.length
     ? `<div class="pills"><span class="lbl">Plus</span>${visibleAcc.map(a => `<span class="pill">${bigIcon(a.ic || "")}${esc(a.v)}</span>`).join("")}</div>` : "";
-  const fb = `<div class="feedback"><span class="fb-label">How does this feel?</span>` +
+  const learned = getLearned();
+  const calibTag = learned !== 0
+    ? `<span class="fb-calib">Calibrated ${learned > 0 ? "+" : ""}${learned.toFixed(1)}°</span>`
+    : "";
+  const fb = `<div class="feedback"><span class="fb-label">How does this feel?${calibTag}</span>` +
     `<button class="fb-btn" type="button" data-fb="cold"><span class="fb-emoji">${bigIcon("🥶")}</span><span>Too cold</span></button>` +
     `<button class="fb-btn" type="button" data-fb="right"><span class="fb-emoji">${bigIcon("👌")}</span><span>Just right</span></button>` +
     `<button class="fb-btn" type="button" data-fb="warm"><span class="fb-emoji">${bigIcon("🥵")}</span><span>Too warm</span></button>` +
@@ -909,7 +914,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v14-hero</div>
+      <div class="footer">${esc(LOCATION.name)} . v15-fb</div>
     `;
     attachToggleHandler(root);
     return;
@@ -930,7 +935,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v14-hero</div>
+    <div class="footer">${esc(LOCATION.name)} . v15-fb</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1329,13 +1334,13 @@ function applySettings() {
   CFG.activityOffset = a ? a.offset : 1.5;
 }
 function recordFeedback(direction) {
-  const step = 0.5;
+  const step = 1.0;
   const delta = direction === "cold" ? -step : direction === "warm" ? step : 0;
   if (delta !== 0) {
     setLearned(getLearned() + delta);
     applySettings();
-    if (LAST_WEATHER) render(LAST_WEATHER);
   }
+  if (LAST_WEATHER) render(LAST_WEATHER);
 }
 
 function renderCloset() {
