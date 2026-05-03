@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#0b1220" />
 <meta name="referrer" content="no-referrer" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://api.open-meteo.com; img-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" />
 <title>What to wear in Vancouver</title>
 <style>
@@ -648,7 +651,7 @@ function render(weather) {
       ${renderHeadsUp(weather)}
       ${renderComing(weather)}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">Vancouver, BC . v1</div>
+      <div class="footer">Vancouver, BC . v2-graphs</div>
     `;
     attachToggleHandler(root);
     return;
@@ -667,7 +670,7 @@ function render(weather) {
     ${renderHeadsUp(weather)}
     ${renderComing(weather)}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">Vancouver, BC . v1</div>
+    <div class="footer">Vancouver, BC . v2-graphs</div>
   `;
 
   // Scroll selected cell into center of strip.
