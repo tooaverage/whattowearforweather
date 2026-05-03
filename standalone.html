@@ -13,13 +13,7 @@
   html, body { margin: 0; padding: 0; min-height: 100%; background: #020617; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
   main { max-width: 28rem; margin: 0 auto; padding: 1rem 1rem 2.5rem; display: flex; flex-direction: column; gap: 1rem; }
   .hero { border-radius: 1.5rem; padding: 1.25rem 1.5rem 1.25rem; color: #020617; box-shadow: 0 10px 25px rgba(0,0,0,.25); }
-  .hero.hot { background: linear-gradient(135deg, #fb923c, #f43f5e); }
-  .hero.warm { background: linear-gradient(135deg, #fcd34d, #fb923c); }
-  .hero.mild { background: linear-gradient(135deg, #6ee7b7, #10b981); }
-  .hero.cool { background: linear-gradient(135deg, #7dd3fc, #0ea5e9); }
-  .hero.cold { background: linear-gradient(135deg, #a5b4fc, #6366f1); }
-  .hero.very_cold { background: linear-gradient(135deg, #818cf8, #7c3aed); }
-  .hero.freezing { background: linear-gradient(135deg, #cbd5e1, #475569); color: #f1f5f9; }
+  .hero.cold-text { color: #f1f5f9; }
   .hero-head { display: flex; justify-content: space-between; align-items: baseline; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; opacity: .8; font-weight: 600; }
   .hero-glance { font-size: 2.4rem; font-weight: 600; line-height: 1.1; margin: .75rem 0 .5rem; letter-spacing: .02em; }
   .hero-strip { display: flex; gap: 1rem; align-items: baseline; font-size: .8rem; opacity: .85; flex-wrap: wrap; }
@@ -71,14 +65,9 @@
 <main id="root"><div class="loading">Checking the sky…</div></main>
 <script>
 "use strict";
-
-const num = (v, fallback = 0) => {
-  const n = typeof v === "number" ? v : Number(v);
-  return Number.isFinite(n) ? n : fallback;
-};
+const num = (v, fallback = 0) => { const n = typeof v === "number" ? v : Number(v); return Number.isFinite(n) ? n : fallback; };
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-
 const CFG = {
   windLayerKph: 16, windChillTempC: 10, windChillMinWindKph: 4.8, heatIndexTempC: 26.7,
   rainShellProbabilityPct: 40, rainShellTotalMm: 1.0, umbrellaProbabilityPct: 10,
@@ -88,50 +77,38 @@ const CFG = {
     { band: "cool", min: 8 }, { band: "cold", min: 2 }, { band: "very_cold", min: -5 },
     { band: "freezing", min: -Infinity },
   ],
-  baselineOffset: 0,
-  activityOffset: 1.5,
+  baselineOffset: 0, activityOffset: 1.5,
 };
-
 const C2F = c => c * 9 / 5 + 32, F2C = f => (f - 32) * 5 / 9;
 const KPH2MPH = k => k * 0.621371, KPH2MS = k => k / 3.6;
-
 function heatIndexC(tempC, rh) {
   const T = C2F(tempC);
   const simple = 0.5 * (T + 61 + (T - 68) * 1.2 + rh * 0.094);
   const avg = (simple + T) / 2;
   if (avg < 80) return F2C(avg);
-  let HI = -42.379 + 2.04901523*T + 10.14333127*rh
-    - 0.22475541*T*rh - 0.00683783*T*T - 0.05481717*rh*rh
-    + 0.00122874*T*T*rh + 0.00085282*T*rh*rh - 0.00000199*T*T*rh*rh;
-  if (rh < 13 && T >= 80 && T <= 112)
-    HI -= ((13 - rh) / 4) * Math.sqrt((17 - Math.abs(T - 95)) / 17);
-  if (rh > 85 && T >= 80 && T <= 87)
-    HI += ((rh - 85) / 10) * ((87 - T) / 5);
+  let HI = -42.379 + 2.04901523*T + 10.14333127*rh - 0.22475541*T*rh - 0.00683783*T*T - 0.05481717*rh*rh + 0.00122874*T*T*rh + 0.00085282*T*rh*rh - 0.00000199*T*T*rh*rh;
+  if (rh < 13 && T >= 80 && T <= 112) HI -= ((13 - rh) / 4) * Math.sqrt((17 - Math.abs(T - 95)) / 17);
+  if (rh > 85 && T >= 80 && T <= 87) HI += ((rh - 85) / 10) * ((87 - T) / 5);
   return F2C(HI);
 }
-
 function windChillC(tempC, kph) {
   if (!Number.isFinite(tempC) || !Number.isFinite(kph) || tempC > CFG.windChillTempC || kph <= CFG.windChillMinWindKph) return tempC;
   const T = C2F(tempC), V = KPH2MPH(kph), V16 = Math.pow(V, 0.16);
   return F2C(35.74 + 0.6215*T - 35.75*V16 + 0.4275*T*V16);
 }
-
 function bomAT(tempC, rh, kph) {
   const ws = KPH2MS(kph);
   const e = (rh / 100) * 6.105 * Math.exp((17.27 * tempC) / (237.7 + tempC));
   return tempC + 0.33 * e - 0.70 * ws - 4.00;
 }
-
 function apparentC(tempC, rh, kph) {
   if (tempC <= CFG.windChillTempC && kph > CFG.windChillMinWindKph) return windChillC(tempC, kph);
   if (tempC >= CFG.heatIndexTempC) return heatIndexC(tempC, rh);
   return bomAT(tempC, rh, kph);
 }
-
 function pickBand(c) { for (const b of CFG.bands) if (c >= b.min) return b.band; return "freezing"; }
 function bandIdx(b) { return CFG.bands.findIndex(x => x.band === b); }
 const effective = c => c + CFG.baselineOffset + CFG.activityOffset;
-
 const RECIPES = {
   hot: { base: { ic: "👕", v: "breathable t-shirt" }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts" }, footwear: { ic: "👟", v: "sneakers or sandals" }, acc: [] },
   warm: { base: { ic: "👕", v: "t-shirt" }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts or light pants" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
@@ -141,7 +118,6 @@ const RECIPES = {
   very_cold: { base: { ic: "👕", v: "thermal base layer" }, mid: { ic: "🧥", v: "mid-weight fleece or wool" }, outer: { ic: "🧥", v: "insulated winter jacket" }, bottom: { ic: "👖", v: "lined or thermal pants" }, footwear: { ic: "🥾", v: "insulated boots" }, acc: [{ ic: "🧢", v: "warm hat" }, { ic: "🧤", v: "gloves" }] },
   freezing: { base: { ic: "👕", v: "heavy thermal base" }, mid: { ic: "🧥", v: "down or heavy fleece" }, outer: { ic: "🧥", v: "parka" }, bottom: { ic: "👖", v: "thermal pants under outer pants" }, footwear: { ic: "🥾", v: "insulated waterproof boots" }, acc: [{ ic: "🧢", v: "warm hat" }, { ic: "🧤", v: "insulated gloves" }, { ic: "🧣", v: "scarf or neck gaiter" }] },
 };
-
 function summarizeArc(next) {
   if (!next.length) return { min: 0, max: 0, spread: 0, cross: false, minTime: "", maxTime: "", totalMm: 0, maxProb: 0, maxUv: 0, maxKph: 0 };
   let minA = Infinity, maxA = -Infinity, minIdx = 0, maxIdx = 0;
@@ -160,7 +136,6 @@ function summarizeArc(next) {
     maxKph: next.reduce((m, p) => Math.max(m, p.kph), 0),
   };
 }
-
 function recommend(input) {
   const c = input.current;
   const aNow = apparentC(c.tempC, c.rh, c.kph);
@@ -172,16 +147,13 @@ function recommend(input) {
   rationale.push(`Feels like ${aNow.toFixed(1)}° (air ${c.tempC.toFixed(1)}°, ${Math.round(c.rh)}% humidity, ${Math.round(c.kph)} km/h wind).`);
   rationale.push(`Engine-effective: ${eNow.toFixed(1)}° including walking-commute warmth (+${CFG.activityOffset}°).`);
   rationale.push(`Selected band: ${band.replace("_", " ")}.`);
-
   const acc = r.acc.map(a => ({ ...a }));
   let outer = r.outer ? { ...r.outer } : null;
   let footwear = { ...r.footwear };
-
   if (arc.maxKph >= CFG.windLayerKph && !outer) {
     outer = { ic: "🧥", v: "wind-resistant shell" };
     rationale.push(`Sustained wind reaches ${Math.round(arc.maxKph)} km/h — wind shell to manage convective cooling.`);
   }
-
   const rainLikely = arc.maxProb >= CFG.rainShellProbabilityPct || arc.totalMm >= CFG.rainShellTotalMm;
   if (rainLikely) {
     outer = outer ? { ic: "🧥", v: `${outer.v} (waterproof)` } : { ic: "🧥", v: "waterproof rain shell" };
@@ -191,7 +163,6 @@ function recommend(input) {
     acc.push({ ic: "☂️", v: "compact umbrella" });
     rationale.push(`Light chance of rain (${Math.round(arc.maxProb)}%) — toss an umbrella in your bag.`);
   }
-
   if (arc.maxUv >= CFG.uvProtectionIndex) {
     if (!acc.some(a => a.v === "sunglasses")) acc.push({ ic: "🕶️", v: "sunglasses" });
     if (arc.maxUv >= CFG.uvProtectionIndex + 1 && !acc.some(a => a.v.includes("hat"))) acc.push({ ic: "🧢", v: "brimmed hat" });
@@ -201,7 +172,6 @@ function recommend(input) {
       rationale.push(`UV reaches "high" (≥ ${CFG.uvSunscreenIndex}) — apply SPF.`);
     }
   }
-
   let bring = null;
   const minE = effective(arc.min), maxE = effective(arc.max);
   const minB = pickBand(minE), maxB = pickBand(maxE), nowB = band;
@@ -210,29 +180,19 @@ function recommend(input) {
   if (arc.cross && colder) bring = `Cools off to ${fmtT(arc.min)} around ${hour(arc.minTime)} — pack an extra layer.`;
   else if (arc.cross && warmer) bring = `Warms up to ${fmtT(arc.max)} by ${hour(arc.maxTime)} — wear something you can shed.`;
   else if (arc.spread >= CFG.bringLayerSpreadC) bring = `Big swing today: ${fmtT(arc.min)} around ${hour(arc.minTime)} → ${fmtT(arc.max)} by ${hour(arc.maxTime)} — bring a layer you can adjust.`;
-
   return { aNow, eNow, band, layers: { base: r.base, mid: r.mid, outer, bottom: r.bottom, footwear, acc }, bring, rationale, arc };
 }
-
 function buildTimeline(weather) {
   const events = [];
-  // Anchor the timeline to waking hours (6 AM–10 PM local). The 12h window
-  // can cross midnight when you check in the evening, but layer-shifts at
-  // 2 AM aren't actionable advice — kill them at the source.
   const hours = weather.next12h.map(p => {
     const a = apparentC(p.tempC, p.rh, p.kph);
     return { t: p.time, tempC: p.tempC, apparent: a, eff: effective(a), band: pickBand(effective(a)), uv: p.uv, precipProb: p.precipProb, precipMm: p.precipMm, kph: p.kph };
-  }).filter(h => {
-    const hr = localHourOf(h.t);
-    return hr >= 6 && hr <= 22;
-  });
+  }).filter(h => { const hr = localHourOf(h.t); return hr >= 6 && hr <= 22; });
   if (hours.length === 0) return events;
-
   const startBand = hours[0].band;
   const sr = RECIPES[startBand];
   const startBits = [sr.base.v, sr.mid && sr.mid.v, sr.outer && sr.outer.v].filter(Boolean).slice(0, 2);
   events.push({ t: hours[0].t, ic: sr.base.ic, text: `<strong>Start:</strong> ${startBits.join(" + ")}` });
-
   for (let i = 1; i < hours.length; i++) {
     if (hours[i].band !== hours[i-1].band) {
       const fromI = bandIdx(hours[i-1].band), toI = bandIdx(hours[i].band);
@@ -245,7 +205,6 @@ function buildTimeline(weather) {
       }
     }
   }
-
   let peakUv = -Infinity, peakIdx = -1;
   hours.forEach((h, i) => { if (h.uv > peakUv) { peakUv = h.uv; peakIdx = i; } });
   if (peakUv >= CFG.uvProtectionIndex && peakIdx >= 0) {
@@ -256,21 +215,15 @@ function buildTimeline(weather) {
       events.push({ t: hours[applyIdx].t, ic: "🕶️", text: `Sun gets stronger — UV ${peakUv.toFixed(0)} around ${hour(hours[peakIdx].t)}` });
     }
   }
-
   const rainStart = hours.findIndex(h => num(h.precipProb) >= CFG.rainShellProbabilityPct || h.precipMm >= 0.5);
   if (rainStart >= 0) {
     const probAtStart = Math.round(num(hours[rainStart].precipProb));
     events.push({ t: hours[rainStart].t, ic: "☂️", text: `<strong>Rain likely</strong> — ${probAtStart}% chance` });
   }
-
   const seen = new Set();
-  return events
-    .filter(e => { const k = e.t + "|" + e.ic; if (seen.has(k)) return false; seen.add(k); return true; })
-    .sort((a, b) => new Date(a.t) - new Date(b.t));
+  return events.filter(e => { const k = e.t + "|" + e.ic; if (seen.has(k)) return false; seen.add(k); return true; }).sort((a, b) => new Date(a.t) - new Date(b.t));
 }
-
 const VANCOUVER = { lat: 49.2497, lon: -123.1193, tz: "America/Vancouver", name: "Vancouver, BC" };
-
 async function fetchWeather() {
   const params = new URLSearchParams({
     latitude: VANCOUVER.lat, longitude: VANCOUVER.lon, timezone: VANCOUVER.tz,
@@ -284,7 +237,6 @@ async function fetchWeather() {
   if (!d || typeof d !== "object") throw new Error("Bad response shape");
   const c = d.current, h = d.hourly;
   if (!c || !h || !Array.isArray(h.time)) throw new Error("Bad response shape");
-
   const allHours = [];
   for (let i = 0; i < h.time.length; i++) {
     allHours.push({
@@ -303,7 +255,6 @@ async function fetchWeather() {
   let start = 0;
   for (let i = 0; i < allHours.length; i++) if (new Date(allHours[i].time).getTime() <= now) start = i; else break;
   const next12h = allHours.slice(start, start + 12);
-
   return {
     current: {
       time: String(c.time || ""),
@@ -314,11 +265,9 @@ async function fetchWeather() {
       code: num(c.weather_code),
       isDay: c.is_day === 1,
     },
-    next12h,
-    allHours,
+    next12h, allHours,
   };
 }
-
 function buildDailySummaries(allHours) {
   const byDay = new Map();
   for (const h of allHours) {
@@ -331,9 +280,6 @@ function buildDailySummaries(allHours) {
     if (hours.length === 0) continue;
     const temps = hours.map(p => p.tempC);
     const hi = Math.max(...temps), lo = Math.min(...temps);
-    // Use the WARMEST DAYTIME apparent temp for the outfit band — that's
-    // what people dress for. Midday-only undershoots Vancouver afternoons
-    // that peak at 3–4 PM and gives "shirt + pants" on actual t-shirt days.
     const dayHours = hours.filter(p => p.isDay);
     const sourceHours = dayHours.length ? dayHours : hours;
     let peakA = -Infinity;
@@ -349,7 +295,6 @@ function buildDailySummaries(allHours) {
   }
   return out;
 }
-
 const WMO = {
   0: ["Clear", "☀️"], 1: ["Mostly clear", "🌤️"], 2: ["Partly cloudy", "⛅"], 3: ["Overcast", "☁️"],
   45: ["Fog", "🌫️"], 48: ["Fog", "🌫️"], 51: ["Light drizzle", "🌦️"], 53: ["Drizzle", "🌦️"], 55: ["Heavy drizzle", "🌧️"],
@@ -359,18 +304,45 @@ const WMO = {
   95: ["Thunderstorm", "⛈️"], 96: ["Thunderstorm", "⛈️"], 99: ["Thunderstorm", "⛈️"],
 };
 const BAND_LABEL = { hot: "Hot", warm: "Warm", mild: "Mild", cool: "Cool", cold: "Cold", very_cold: "Very cold", freezing: "Freezing" };
-
 const fmt = c => `${Math.round(num(c))}°`;
 const wmo = code => WMO[code] || ["—", "🌤️"];
 const hour = (iso) => { try { return new Date(iso).toLocaleTimeString([], { hour: "numeric", timeZone: VANCOUVER.tz }); } catch { return ""; } };
-// Local hour as integer 0–23 in Vancouver tz, used to filter "Heads up" to
-// daylight (no more "add a layer at 4 AM" nonsense).
 const localHourOf = (iso) => {
   try {
     const parts = new Intl.DateTimeFormat("en-US", { timeZone: VANCOUVER.tz, hour12: false, hour: "2-digit" }).formatToParts(new Date(iso));
     return parseInt((parts.find(p => p.type === "hour") || { value: "0" }).value, 10);
   } catch { return 0; }
 };
+// Map apparent temp to a continuous HSL colour: deep blue → cyan → teal →
+// green → yellow → orange → red. Every degree shifts the hue.
+const TEMP_STOPS = [
+  { t: -15, h: 245, s: 65, l: 60 },
+  { t: 0,   h: 210, s: 75, l: 62 },
+  { t: 10,  h: 185, s: 60, l: 60 },
+  { t: 16,  h: 130, s: 50, l: 58 },
+  { t: 22,  h: 50,  s: 80, l: 60 },
+  { t: 28,  h: 22,  s: 85, l: 58 },
+  { t: 35,  h: 0,   s: 80, l: 55 },
+];
+function tempHsl(c) {
+  if (!Number.isFinite(c)) c = 15;
+  if (c <= TEMP_STOPS[0].t) return { ...TEMP_STOPS[0] };
+  if (c >= TEMP_STOPS[TEMP_STOPS.length - 1].t) return { ...TEMP_STOPS[TEMP_STOPS.length - 1] };
+  for (let i = 0; i < TEMP_STOPS.length - 1; i++) {
+    const lo = TEMP_STOPS[i], hi = TEMP_STOPS[i + 1];
+    if (c >= lo.t && c <= hi.t) {
+      const f = (c - lo.t) / (hi.t - lo.t);
+      return { h: lo.h + (hi.h - lo.h) * f, s: lo.s + (hi.s - lo.s) * f, l: lo.l + (hi.l - lo.l) * f };
+    }
+  }
+  return { h: 200, s: 50, l: 55 };
+}
+function heroGradient(c) {
+  const { h, s, l } = tempHsl(c);
+  const top = `hsl(${h.toFixed(0)}, ${Math.min(95, s + 5).toFixed(0)}%, ${Math.min(78, l + 10).toFixed(0)}%)`;
+  const bot = `hsl(${h.toFixed(0)}, ${s.toFixed(0)}%, ${Math.max(40, l - 12).toFixed(0)}%)`;
+  return `linear-gradient(135deg, ${top}, ${bot})`;
+}
 const dayLabel = (isoDate) => {
   try {
     const d = new Date(isoDate + "T12:00:00");
@@ -381,12 +353,10 @@ const dayLabel = (isoDate) => {
     return d.toLocaleDateString("en-US", { weekday: "short", timeZone: VANCOUVER.tz });
   } catch { return ""; }
 };
-
 function render(weather, rec) {
   const c = weather.current;
   const [cLabel] = wmo(c.code);
   const root = document.getElementById("root");
-
   const wearRows = [
     rec.layers.outer
       ? { ic: rec.layers.outer.ic, label: "Jacket", value: rec.layers.outer.v, skip: false }
@@ -396,26 +366,21 @@ function render(weather, rec) {
     rec.layers.bottom && { ic: rec.layers.bottom.ic, label: "Bottom", value: rec.layers.bottom.v, skip: false },
     rec.layers.footwear && { ic: rec.layers.footwear.ic, label: "Shoes", value: rec.layers.footwear.v, skip: false },
   ].filter(Boolean);
-  const heroIcons = [rec.layers.outer, rec.layers.mid, rec.layers.base, rec.layers.bottom, rec.layers.footwear]
-    .filter(Boolean).map(l => l.ic).join(" + ");
+  const heroIcons = [rec.layers.outer, rec.layers.mid, rec.layers.base, rec.layers.bottom, rec.layers.footwear].filter(Boolean).map(l => l.ic).join(" + ");
   const layerRows = wearRows.map(r => `<div class="outfit-row${r.skip ? " skip" : ""}"><span class="ic">${esc(r.ic)}</span><span class="lbl">${esc(r.label)}</span><span class="val">${esc(r.value)}</span></div>`).join("");
-
   const umbrellaItem = rec.layers.acc.find(a => a.v.includes("umbrella"));
   const visibleAcc = rec.layers.acc.filter(a => a !== umbrellaItem);
   const accs = visibleAcc.length
     ? `<div class="pills"><span class="lbl">Plus</span>${visibleAcc.map(a => `<span class="pill">${esc(a.ic || "")} ${esc(a.v)}</span>`).join("")}</div>` : "";
-
   const bringLines = [];
   if (umbrellaItem) bringLines.push(`☂️  Bring a compact umbrella — there's a chance of rain.`);
   if (rec.bring) bringLines.push(`🎒  ${rec.bring}`);
   const bringHtml = bringLines.length
     ? `<section class="panel bring"><h2>Bring with you</h2>${bringLines.map(l => `<p>${esc(l)}</p>`).join("")}</section>` : "";
-
   const timeline = buildTimeline(weather);
   const tlRows = timeline.length
     ? timeline.map(e => `<div class="tl-row"><span class="tl-time">${esc(hour(e.t))}</span><span class="tl-ic">${esc(e.ic)}</span><span class="tl-text">${e.text}</span></div>`).join("")
     : `<div class="tl-row"><span class="tl-time"></span><span class="tl-ic">·</span><span class="tl-text">Steady all day — no surprises.</span></div>`;
-
   const days = buildDailySummaries(weather.allHours || []);
   const todayDate = new Date(new Date().toLocaleDateString("en-CA", { timeZone: VANCOUVER.tz }) + "T12:00:00").toISOString().slice(0, 10);
   const upcoming = days.filter(d => d.date !== todayDate).slice(0, 2);
@@ -423,11 +388,9 @@ function render(weather, rec) {
     const [, ic] = wmo(d.code);
     return `<div class="day-row"><span class="day">${esc(dayLabel(d.date))}</span><span class="ic">${esc(ic)}</span><span class="temps">${fmt(d.hi)} <span class="lo">/ ${fmt(d.lo)}</span></span><span class="out">${esc(d.icons)}</span></div>`;
   }).join("");
-  const comingHtml = upcoming.length
-    ? `<section class="panel"><h2>Coming up</h2>${dayRows}</section>` : "";
-
+  const comingHtml = upcoming.length ? `<section class="panel"><h2>Coming up</h2>${dayRows}</section>` : "";
   root.innerHTML = `
-    <section class="hero ${esc(rec.band)}">
+    <section class="hero ${rec.aNow < 5 ? "cold-text" : ""}" style="background: ${heroGradient(rec.aNow)}">
       <div class="hero-head"><span>${esc(VANCOUVER.name)}</span><span>${esc(BAND_LABEL[rec.band] || "")}</span></div>
       <div class="hero-glance">${esc(heroIcons)}</div>
       <div class="hero-strip">
@@ -447,12 +410,9 @@ function render(weather, rec) {
     <div class="footer">Vancouver, BC · v1</div>
   `;
 }
-
 function renderError(msg) {
-  document.getElementById("root").innerHTML =
-    `<section class="panel err"><strong>Couldn't load the forecast</strong>${esc(msg)}</section>`;
+  document.getElementById("root").innerHTML = `<section class="panel err"><strong>Couldn't load the forecast</strong>${esc(msg)}</section>`;
 }
-
 (async () => {
   try {
     const w = await fetchWeather();
