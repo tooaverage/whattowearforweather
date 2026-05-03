@@ -92,7 +92,7 @@
   .dg-line-lo { stroke: #94a3b8; opacity: .55; stroke-dasharray: 4 4; }
   .dg-col { position: absolute; top: 0; bottom: 0; width: 0; scroll-snap-align: center; }
   .dg-col > div { position: absolute; left: 0; white-space: nowrap; font-variant-numeric: tabular-nums; line-height: 1; }
-  .dg-hi { font-size: .8rem; color: #f8fafc; font-weight: 600; transform: translate(-50%, calc(-100% - 1.4rem)); }
+  .dg-hi { font-size: .8rem; color: #f8fafc; font-weight: 600; transform: translate(-50%, calc(-100% - 2.45rem)); }
   .dg-icon { font-size: 1.25rem; transform: translate(-50%, calc(-100% - .1rem)); display: flex; align-items: center; }
   .dg-icon svg { width: 2rem; height: 2rem; display: block; }
   .dg-lo { font-size: .72rem; color: #94a3b8; transform: translate(-50%, .5rem); }
@@ -837,7 +837,7 @@ function renderDayGraph(days, colRem) {
   const tMin = Math.min(...allTemps);
   const tMax = Math.max(...allTemps);
   const tRange = Math.max(tMax - tMin, 1);
-  const yTop = 32, yBot = 64;
+  const yTop = 38, yBot = 70;
   const yOf = t => yBot - ((t - tMin) / tRange) * (yBot - yTop);
   const xOf = i => ((i + 0.5) / cols) * 100;
   const hiPath = "M" + days.map((d, i) => `${xOf(i).toFixed(2)},${yOf(d.hi).toFixed(2)}`).join(" L");
@@ -909,7 +909,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v12-bigger</div>
+      <div class="footer">${esc(LOCATION.name)} . v13-stack</div>
     `;
     attachToggleHandler(root);
     return;
@@ -930,7 +930,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v12-bigger</div>
+    <div class="footer">${esc(LOCATION.name)} . v13-stack</div>
   `;
 
   // Scroll selected cell into center of strip.
