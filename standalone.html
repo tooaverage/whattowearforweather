@@ -16,14 +16,15 @@
   html, body { margin: 0; padding: 0; min-height: 100%; background: #020617; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
   main { max-width: 28rem; margin: 0 auto; padding: 1rem 1rem 2.5rem; display: flex; flex-direction: column; gap: 1rem; }
   .hero { border-radius: 1.5rem; padding: 1.25rem 1.5rem; color: #020617; box-shadow: 0 10px 25px rgba(0,0,0,.25); }
-  .hero.scorching { background: linear-gradient(135deg, #f97316, #b91c1c); }
-  .hero.hot { background: linear-gradient(135deg, #fb923c, #f43f5e); }
-  .hero.warm { background: linear-gradient(135deg, #fcd34d, #fb923c); }
-  .hero.mild { background: linear-gradient(135deg, #6ee7b7, #10b981); }
-  .hero.cool { background: linear-gradient(135deg, #7dd3fc, #0ea5e9); }
-  .hero.cold { background: linear-gradient(135deg, #a5b4fc, #6366f1); }
-  .hero.very_cold { background: linear-gradient(135deg, #818cf8, #7c3aed); }
-  .hero.freezing { background: linear-gradient(135deg, #cbd5e1, #475569); color: #f1f5f9; }
+  .hero.scorching { background: #ef4444; }
+  .hero.hot { background: #f97316; }
+  .hero.warm { background: #fbbf24; }
+  .hero.balmy { background: #facc15; }
+  .hero.mild { background: #34d399; }
+  .hero.cool { background: #38bdf8; }
+  .hero.cold { background: #818cf8; }
+  .hero.very_cold { background: #a78bfa; }
+  .hero.freezing { background: #64748b; color: #f1f5f9; }
   .hero-head { display: flex; justify-content: space-between; align-items: baseline; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; opacity: .8; font-weight: 600; }
   .hero-temp { display: flex; align-items: baseline; gap: .8rem; margin-top: .65rem; flex-wrap: wrap; }
   .hero-temp .big { font-size: 3.4rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
@@ -39,7 +40,7 @@
   .rain-pill[data-level="wet"] { background: rgba(96,165,250,.18); color: #93c5fd; }
   .strip-wrap { padding: 1.1rem 0 1.5rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; margin: 0 -.25rem; }
   .strip-wrap::-webkit-scrollbar { display: none; }
-  .hour-graph { position: relative; display: flex; width: max-content; height: 7rem; padding: 0 .25rem; }
+  .hour-graph { position: relative; display: flex; width: max-content; height: 7rem; }
   .hg-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .hg-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke: #fb923c; vector-effect: non-scaling-stroke; }
   .hour-cell { position: relative; flex: 0 0 3rem; scroll-snap-align: center; background: transparent; border: 1px solid transparent; border-radius: .65rem; padding: 0; color: inherit; cursor: pointer; transition: background .15s, border-color .15s; font-family: inherit; z-index: 1; }
@@ -47,9 +48,9 @@
   .hour-cell[aria-pressed="true"] { border-color: rgba(255,255,255,.35); background: rgba(15,23,42,.85); box-shadow: 0 0 0 1px rgba(255,255,255,.05) inset; }
   .hour-cell.now::before { content: "now"; position: absolute; top: -.95rem; left: 50%; transform: translateX(-50%); font-size: .55rem; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; background: #020617; padding: 0 .3rem; }
   .hc-time { position: absolute; top: .25rem; left: 0; right: 0; text-align: center; font-size: .65rem; letter-spacing: .04em; color: #94a3b8; font-variant-numeric: tabular-nums; pointer-events: none; }
-  .hc-point { position: absolute; left: 50%; top: var(--y, 50%); transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: .15rem; pointer-events: none; }
+  .hc-point { position: absolute; left: 50%; top: var(--y, 50%); transform: translate(-50%, calc(-100% - .15rem)); display: flex; flex-direction: column; align-items: center; gap: .1rem; pointer-events: none; }
+  .hc-point .hc-temp { font-size: .72rem; line-height: 1; font-variant-numeric: tabular-nums; color: #f1f5f9; font-weight: 600; }
   .hc-point .hc-icon { font-size: 1.05rem; line-height: 1; }
-  .hc-point .hc-temp { font-size: .75rem; line-height: 1; font-variant-numeric: tabular-nums; color: #f1f5f9; font-weight: 500; }
   .hc-badge { position: absolute; bottom: -.6rem; left: 50%; transform: translateX(-50%); font-size: .8rem; background: #020617; padding: 0 .2rem; border-radius: .35rem; pointer-events: none; }
   .panel { border-radius: 1rem; padding: 1rem 1.1rem; background: rgba(15,23,42,.7); border: 1px solid rgba(255,255,255,.05); }
   .panel h2 { margin: 0 0 .75rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; }
@@ -73,21 +74,20 @@
   .tl-ic { font-size: 1.05rem; line-height: 1; }
   .tl-text { color: #e2e8f0; line-height: 1.4; }
   .tl-text strong { color: #f8fafc; font-weight: 600; }
-  .day-graph-list { display: flex; flex-direction: column; gap: .5rem; }
-  .day-extra { display: none; }
-  .day-graph-list.expanded .day-extra { display: block; }
-  .day-graph-list.expanded .day-extra .day-graph { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,.06); }
-  .day-graph { position: relative; height: 9.5rem; padding: 0 .25rem; }
+  .day-graph-list { overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; margin: 0 -1.1rem; padding: 0 1.1rem; }
+  .day-graph-list::-webkit-scrollbar { display: none; }
+  .day-graph { position: relative; height: 9.5rem; }
   .dg-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .dg-line { fill: none; stroke-width: 2; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
   .dg-line-hi { stroke: #fb923c; }
   .dg-line-lo { stroke: #94a3b8; opacity: .55; stroke-dasharray: 4 4; }
-  .dg-col { position: absolute; top: 0; bottom: 0; width: 0; }
+  .dg-col { position: absolute; top: 0; bottom: 0; width: 0; scroll-snap-align: center; }
   .dg-col > div { position: absolute; left: 0; white-space: nowrap; font-variant-numeric: tabular-nums; line-height: 1; }
   .dg-hi { font-size: .8rem; color: #f8fafc; font-weight: 600; transform: translate(-50%, calc(-100% - 1.4rem)); }
   .dg-icon { font-size: 1.25rem; transform: translate(-50%, calc(-100% - .1rem)); }
   .dg-lo { font-size: .72rem; color: #94a3b8; transform: translate(-50%, .5rem); }
   .dg-day { bottom: 0; font-size: .7rem; color: #cbd5e1; text-transform: uppercase; letter-spacing: .04em; font-weight: 600; transform: translateX(-50%); }
+  .day-hint { font-size: .65rem; color: #64748b; text-align: right; margin-top: .25rem; letter-spacing: .04em; }
   .day-toggle { background: transparent; border: 1px solid rgba(255,255,255,.1); color: #cbd5e1; padding: .55rem 1rem; border-radius: .65rem; font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; cursor: pointer; margin-top: .85rem; width: 100%; font-weight: 600; font-family: inherit; }
   .day-toggle:hover { background: rgba(255,255,255,.04); }
   details summary { font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; padding: .55rem 0; align-items: center; }
@@ -116,20 +116,20 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 const CFG = {
-  windLayerKph: 16, windChillTempC: 10, windChillMinWindKph: 4.8, heatIndexTempC: 26.7,
+  windLayerKph: 16, windShellMaxEffC: 16, windChillTempC: 10, windChillMinWindKph: 4.8, heatIndexTempC: 26.7,
   rainShellProbabilityPct: 40, rainShellTotalMm: 1.0, umbrellaProbabilityPct: 10,
   uvProtectionIndex: 3, uvSunscreenIndex: 6, bringLayerSpreadC: 5,
   bands: [
-    { band: "scorching", min: 30 }, { band: "hot", min: 24 }, { band: "warm", min: 19 }, { band: "mild", min: 13 },
-    { band: "cool", min: 8 }, { band: "cold", min: 2 }, { band: "very_cold", min: -5 },
+    { band: "scorching", min: 30 }, { band: "hot", min: 24 }, { band: "warm", min: 19 }, { band: "balmy", min: 14 },
+    { band: "mild", min: 10 }, { band: "cool", min: 6 }, { band: "cold", min: 1 }, { band: "very_cold", min: -5 },
     { band: "freezing", min: -Infinity },
   ],
   baselineOffset: 0,
   activityOffset: 1.5,
 };
 const BAND_ICON = {
-  scorching: "🩱", hot: "🎽", warm: "👕", mild: "👕",
-  cool: "🧥", cold: "🧥", very_cold: "🧣", freezing: "🥶",
+  scorching: "🩱", hot: "🎽", warm: "👕", balmy: "👕",
+  mild: "🥼", cool: "🧥", cold: "🧥", very_cold: "🧣", freezing: "🥶",
 };
 
 const C2F = c => c * 9 / 5 + 32, F2C = f => (f - 32) * 5 / 9;
@@ -176,7 +176,8 @@ const RECIPES = {
   scorching: { base: { ic: "🩱", v: "bathing suit or tank" }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts" }, footwear: { ic: "🩴", v: "sandals" }, acc: [] },
   hot: { base: { ic: "🎽", v: "tank top" }, mid: null, outer: null, bottom: { ic: "🩳", v: "athletic shorts" }, footwear: { ic: "🩴", v: "sandals or sneakers" }, acc: [] },
   warm: { base: { ic: "👕", v: "breathable t-shirt" }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
-  mild: { base: { ic: "👕", v: "thin long-sleeve shirt" }, mid: null, outer: null, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
+  balmy: { base: { ic: "👕", v: "t-shirt" }, mid: null, outer: null, bottom: { ic: "👖", v: "light pants or jeans" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
+  mild: { base: { ic: "🥼", v: "thin long-sleeve shirt" }, mid: null, outer: null, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
   cool: { base: { ic: "👕", v: "long-sleeve shirt" }, mid: { ic: "🧥", v: "light sweater or fleece" }, outer: null, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "closed shoes" }, acc: [] },
   cold: { base: { ic: "👕", v: "long-sleeve thermal top" }, mid: { ic: "🧥", v: "sweater or fleece" }, outer: { ic: "🧥", v: "insulated jacket" }, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "closed shoes" }, acc: [] },
   very_cold: { base: { ic: "👕", v: "thermal base layer" }, mid: { ic: "🧥", v: "mid-weight fleece or wool" }, outer: { ic: "🧥", v: "insulated winter jacket" }, bottom: { ic: "👖", v: "lined or thermal pants" }, footwear: { ic: "🥾", v: "insulated boots" }, acc: [{ ic: "🧢", v: "warm hat" }, { ic: "🧤", v: "gloves" }] },
@@ -218,9 +219,9 @@ function recommend(input) {
   let outer = r.outer ? { ...r.outer } : null;
   let footwear = { ...r.footwear };
 
-  if (arc.maxKph >= CFG.windLayerKph && !outer) {
+  if (arc.maxKph >= CFG.windLayerKph && !outer && eNow < CFG.windShellMaxEffC) {
     outer = { ic: "🧥", v: "wind-resistant shell" };
-    rationale.push(`Sustained wind reaches ${Math.round(arc.maxKph)} km/h. Adding a wind shell to manage convective cooling.`);
+    rationale.push(`Sustained wind reaches ${Math.round(arc.maxKph)} km/h and it's cool enough (${eNow.toFixed(1)}°) to feel it. Adding a wind shell.`);
   }
 
   const rainLikely = arc.maxProb >= CFG.rainShellProbabilityPct || arc.totalMm >= CFG.rainShellTotalMm;
@@ -433,7 +434,7 @@ const WMO = {
   80: ["Showers", "🌦️"], 81: ["Showers", "🌧️"], 82: ["Heavy showers", "🌧️"],
   95: ["Thunderstorm", "⛈️"], 96: ["Thunderstorm", "⛈️"], 99: ["Thunderstorm", "⛈️"],
 };
-const BAND_LABEL = { scorching: "Scorching", hot: "Hot", warm: "Warm", mild: "Mild", cool: "Cool", cold: "Cold", very_cold: "Very cold", freezing: "Freezing" };
+const BAND_LABEL = { scorching: "Scorching", hot: "Hot", warm: "Warm", balmy: "Balmy", mild: "Mild", cool: "Cool", cold: "Cold", very_cold: "Very cold", freezing: "Freezing" };
 
 const fmt = c => `${Math.round(num(c))}°`;
 const wmo = code => WMO[code] || ["Unknown", "🌤️"];
@@ -549,7 +550,7 @@ function renderHourStrip(today, selectedIdx, nowIdx) {
     if (i === nowIdx) cls.push("now");
     return `<button class="${cls.join(" ")}" data-idx="${i}" aria-pressed="${i === selectedIdx ? "true" : "false"}" style="--y: ${y}%" aria-label="${esc(hour(cell.time))}, ${fmt(cell.tempC)}, ${esc(label)}">
       <span class="hc-time">${esc(hourShort(cell.time))}</span>
-      <span class="hc-point"><span class="hc-icon">${esc(icon)}</span><span class="hc-temp">${fmt(cell.tempC)}</span></span>
+      <span class="hc-point"><span class="hc-temp">${fmt(cell.tempC)}</span><span class="hc-icon">${esc(icon)}</span></span>
       ${badge}
     </button>`;
   }).join("");
@@ -569,7 +570,7 @@ function renderHeadsUp(weather) {
   return `<section class="panel"><h2>Heads up</h2><div class="timeline">${tlRows}</div></section>`;
 }
 
-function renderDayGraph(days) {
+function renderDayGraph(days, colRem) {
   if (!days.length) return "";
   const cols = days.length;
   const allTemps = days.flatMap(d => [d.hi, d.lo]);
@@ -592,7 +593,7 @@ function renderDayGraph(days) {
       <div class="dg-day">${esc(dayLabel(d.date))}</div>
     </div>`;
   }).join("");
-  return `<div class="day-graph">
+  return `<div class="day-graph" style="width: ${(cols * colRem).toFixed(2)}rem">
     <svg class="dg-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
       <path d="${loPath}" class="dg-line dg-line-lo" />
       <path d="${hiPath}" class="dg-line dg-line-hi" />
@@ -606,19 +607,14 @@ function renderComing(weather) {
   const todayDate = todayDateLocal();
   const upcoming = days.filter(d => d.date !== todayDate);
   if (!upcoming.length) return "";
-  const DEFAULT_VISIBLE = 7;
-  const visible = upcoming.slice(0, DEFAULT_VISIBLE);
-  const extra = upcoming.slice(DEFAULT_VISIBLE);
-  const toggle = extra.length
-    ? `<button class="day-toggle" type="button" aria-expanded="false" aria-controls="day-extra">Show all ${upcoming.length} days</button>`
-    : "";
+  const colRem = 3.6;
+  const hint = upcoming.length > 7 ? `<div class="day-hint">Swipe to see all ${upcoming.length} days ›</div>` : "";
   return `<section class="panel">
     <h2>Coming up</h2>
     <div class="day-graph-list" id="day-list">
-      ${renderDayGraph(visible)}
-      <div class="day-extra" id="day-extra">${extra.length ? renderDayGraph(extra) : ""}</div>
+      ${renderDayGraph(upcoming, colRem)}
     </div>
-    ${toggle}
+    ${hint}
   </section>`;
 }
 
@@ -651,7 +647,7 @@ function render(weather) {
       ${renderHeadsUp(weather)}
       ${renderComing(weather)}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">Vancouver, BC . v2-graphs</div>
+      <div class="footer">Vancouver, BC . v3-balmy</div>
     `;
     attachToggleHandler(root);
     return;
@@ -670,7 +666,7 @@ function render(weather) {
     ${renderHeadsUp(weather)}
     ${renderComing(weather)}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">Vancouver, BC . v2-graphs</div>
+    <div class="footer">Vancouver, BC . v3-balmy</div>
   `;
 
   // Scroll selected cell into center of strip.
