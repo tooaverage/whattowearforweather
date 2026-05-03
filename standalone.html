@@ -114,11 +114,10 @@
   .closet-form input[type="text"]:focus { outline: none; border-color: rgba(255,255,255,.3); }
   .closet-form select { flex: 1 1 100%; background: #1e293b; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .55rem .75rem; color: #f1f5f9; font: inherit; -webkit-appearance: none; }
   .closet-form button { flex: 1 1 100%; background: #f1f5f9; color: #020617; border: none; padding: .55rem 1rem; border-radius: .5rem; font: inherit; font-weight: 600; cursor: pointer; }
-  .range-row { display: flex; gap: .35rem; flex: 1 1 100%; }
-  .range-row label { flex: 1; display: inline-flex; align-items: center; gap: .35rem; background: #020617; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .25rem .55rem; font-size: .75rem; color: #94a3b8; }
-  .range-row input { flex: 1; background: transparent; border: none; color: #f1f5f9; font: inherit; padding: .35rem 0; min-width: 0; -moz-appearance: textfield; }
+  .range-row { display: flex; gap: .35rem; flex: 1 1 100%; min-width: 0; }
+  .range-row input { flex: 1 1 0; min-width: 0; background: #020617; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .55rem .75rem; color: #f1f5f9; font: inherit; -webkit-appearance: none; -moz-appearance: textfield; }
   .range-row input::-webkit-outer-spin-button, .range-row input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  .range-row input:focus { outline: none; }
+  .range-row input:focus { outline: none; border-color: rgba(255,255,255,.3); }
   .cond-row { display: flex; gap: .35rem; flex-wrap: wrap; flex: 1 1 100%; }
   .cond-chip { display: inline-flex; align-items: center; cursor: pointer; user-select: none; }
   .cond-chip input { position: absolute; opacity: 0; pointer-events: none; }
@@ -935,7 +934,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v19-ranges</div>
+      <div class="footer">${esc(LOCATION.name)} . v20-form-fix</div>
     `;
     attachToggleHandler(root);
     return;
@@ -957,7 +956,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v19-ranges</div>
+    <div class="footer">${esc(LOCATION.name)} . v20-form-fix</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1416,8 +1415,8 @@ function renderCloset() {
     <input type="text" name="name" placeholder="Add an item, e.g. brown leather jacket" maxlength="40" />
     <select name="slot" aria-label="Slot">${slotOpts}</select>
     <div class="range-row">
-      <label>Min <input type="number" name="minTemp" inputmode="numeric" placeholder="-5" /> °C</label>
-      <label>Max <input type="number" name="maxTemp" inputmode="numeric" placeholder="35" /> °C</label>
+      <input type="number" name="minTemp" inputmode="numeric" placeholder="Min °C" />
+      <input type="number" name="maxTemp" inputmode="numeric" placeholder="Max °C" />
     </div>
     <div class="cond-row">${condChips}</div>
     <button type="submit">Add</button>
