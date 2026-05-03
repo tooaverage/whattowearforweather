@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['main']
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test + secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history so the secret scan can see prior commits
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Type-check
+        run: npx tsc -b
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Production build
+        run: npx vite build
+
+      # Belt-and-suspenders secret scan. Catches the obvious patterns; this is
+      # not a substitute for GitHub's Push Protection, which you should also
+      # enable in repo settings → Code security → Secret scanning.
+      - name: Secret pattern scan
+        run: |
+          set -euo pipefail
+          # Patterns: AWS keys, GitHub PATs, OpenAI/Anthropic-shaped keys,
+          # Slack tokens, private-key headers, Google API keys, generic
+          # high-entropy "token=..." or "password=..." literals.
+          PATTERNS='AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{82}|sk-(ant-)?[A-Za-z0-9_-]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN ([A-Z ]+ )?PRIVATE KEY-----|AIza[0-9A-Za-z_-]{35}|(api[_-]?key|secret|password|bearer)\s*[:=]\s*["'\'']\s*[A-Za-z0-9_-]{16,}'
+          # Exclude the workflow file itself (these patterns appear here as docs)
+          # and lockfiles (which contain irrelevant URL hashes).
+          if git -P grep -nE "$PATTERNS" -- ':!.github/workflows/ci.yml' ':!package-lock.json'; then
+            echo "::error::Possible secret pattern committed to the repo."
+            exit 1
+          fi
+          echo "OK: no obvious secret patterns in tree."
+
+      # Optional but cheap: warn on any unexpected new top-level files that
+      # commonly leak secrets if added by mistake.
+      - name: Warn on suspicious file types
+        run: |
+          set -euo pipefail
+          if git ls-files | grep -E '\.(env|pem|key|p12|pfx)$|^\.env$|credentials\.json$|service-account\.json$' ; then
+            echo "::error::Found a file that commonly contains secrets — review before merging."
+            exit 1
+          fi
+          echo "OK: no suspicious file types in tree."

@@ -70,7 +70,16 @@ export function heatIndexC(tempC: number, relativeHumidity: number): number {
  * formula's validity range (T ≤ 10°C, V > 4.8 km/h) is not met.
  */
 export function windChillC(tempC: number, windKph: number, cfg: Config = DEFAULT_CONFIG): number {
-  if (tempC > cfg.windChillTempC || windKph <= cfg.windChillMinWindKph) return tempC;
+  // Out of validity range OR non-finite inputs → return air temp unchanged.
+  // NaN comparisons are always false, so we test finiteness explicitly.
+  if (
+    !Number.isFinite(tempC) ||
+    !Number.isFinite(windKph) ||
+    tempC > cfg.windChillTempC ||
+    windKph <= cfg.windChillMinWindKph
+  ) {
+    return tempC;
+  }
   const T = C_TO_F(tempC);
   const V = KPH_TO_MPH(windKph);
   const V16 = Math.pow(V, 0.16);
@@ -106,7 +115,7 @@ export function apparentTemperatureC(
   tempC: number,
   relativeHumidity: number,
   windKph: number,
-  cfg: Config,
+  cfg: Config = DEFAULT_CONFIG,
 ): number {
   if (tempC <= cfg.windChillTempC && windKph > cfg.windChillMinWindKph) {
     return windChillC(tempC, windKph, cfg);

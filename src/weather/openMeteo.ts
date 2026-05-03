@@ -86,36 +86,47 @@ function buildUrl(loc: Location): string {
   return `https://api.open-meteo.com/v1/forecast?${params.toString()}`;
 }
 
+// Defensive numeric coercion: Open-Meteo is well-behaved, but TS types are
+// erased at runtime — anything reaching us from `await res.json()` is `any`.
+// Coerce to a finite number, fall back to 0 (or a clamped value) on garbage.
+function num(v: unknown, fallback = 0): number {
+  const n = typeof v === 'number' ? v : Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
+function clamp(v: number, lo: number, hi: number): number {
+  return Math.max(lo, Math.min(hi, v));
+}
+
 function pointFromCurrent(c: OpenMeteoResponse['current']): WeatherPoint {
   return {
-    time: c.time,
-    tempC: c.temperature_2m,
-    relativeHumidity: c.relative_humidity_2m,
-    windKph: c.wind_speed_10m,
-    gustKph: c.wind_gusts_10m,
-    precipMm: c.precipitation,
-    snowfallCm: c.snowfall, // Open-Meteo: snowfall in cm
-    uvIndex: c.uv_index,
-    cloudCoverPct: c.cloud_cover,
+    time: String(c.time ?? ''),
+    tempC: num(c.temperature_2m),
+    relativeHumidity: clamp(num(c.relative_humidity_2m), 0, 100),
+    windKph: Math.max(0, num(c.wind_speed_10m)),
+    gustKph: Math.max(0, num(c.wind_gusts_10m)),
+    precipMm: Math.max(0, num(c.precipitation)),
+    snowfallCm: Math.max(0, num(c.snowfall)), // Open-Meteo: snowfall in cm
+    uvIndex: Math.max(0, num(c.uv_index)),
+    cloudCoverPct: clamp(num(c.cloud_cover), 0, 100),
     isDay: c.is_day === 1,
-    weatherCode: c.weather_code,
+    weatherCode: num(c.weather_code),
   };
 }
 
 function pointFromHourly(h: OpenMeteoResponse['hourly'], i: number): WeatherPoint {
   return {
-    time: h.time[i],
-    tempC: h.temperature_2m[i],
-    relativeHumidity: h.relative_humidity_2m[i],
-    windKph: h.wind_speed_10m[i],
-    gustKph: h.wind_gusts_10m[i],
-    precipMm: h.precipitation[i],
-    precipProbability: h.precipitation_probability[i],
-    snowfallCm: h.snowfall[i],
-    uvIndex: h.uv_index[i],
-    cloudCoverPct: h.cloud_cover[i],
-    isDay: h.is_day[i] === 1,
-    weatherCode: h.weather_code[i],
+    time: String(h.time?.[i] ?? ''),
+    tempC: num(h.temperature_2m?.[i]),
+    relativeHumidity: clamp(num(h.relative_humidity_2m?.[i]), 0, 100),
+    windKph: Math.max(0, num(h.wind_speed_10m?.[i])),
+    gustKph: Math.max(0, num(h.wind_gusts_10m?.[i])),
+    precipMm: Math.max(0, num(h.precipitation?.[i])),
+    precipProbability: clamp(num(h.precipitation_probability?.[i]), 0, 100),
+    snowfallCm: Math.max(0, num(h.snowfall?.[i])),
+    uvIndex: Math.max(0, num(h.uv_index?.[i])),
+    cloudCoverPct: clamp(num(h.cloud_cover?.[i]), 0, 100),
+    isDay: h.is_day?.[i] === 1,
+    weatherCode: num(h.weather_code?.[i]),
   };
 }
 
@@ -137,11 +148,18 @@ function findStartIndex(times: string[]): number {
 export class OpenMeteoProvider implements WeatherProvider {
   async fetch(loc: Location, signal?: AbortSignal): Promise<WeatherInput> {
     const url = buildUrl(loc);
-    const res = await fetch(url, { signal });
+    const res = await fetch(url, {
+      signal,
+      cache: 'no-store',
+      referrerPolicy: 'no-referrer',
+    });
     if (!res.ok) {
       throw new Error(`Open-Meteo request failed: ${res.status} ${res.statusText}`);
     }
     const data = (await res.json()) as OpenMeteoResponse;
+    if (!data || !data.current || !data.hourly || !Array.isArray(data.hourly.time)) {
+      throw new Error('Open-Meteo response missing expected fields');
+    }
 
     const start = findStartIndex(data.hourly.time);
     const next12h: WeatherPoint[] = [];

@@ -14,6 +14,34 @@ import type {
   WeatherPoint,
 } from './types';
 
+// Engine-boundary input sanitisation. TS types are erased at runtime, and a
+// misbehaving adapter or upstream cache could hand the engine `NaN`,
+// `Infinity`, or a string. We coerce to finite numbers and clamp the obvious
+// physical bounds so the rest of the engine is allowed to use raw arithmetic.
+function finite(v: unknown, fallback = 0): number {
+  const n = typeof v === 'number' ? v : Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
+function clamp(v: number, lo: number, hi: number): number {
+  return Math.max(lo, Math.min(hi, v));
+}
+function sanitizePoint(p: WeatherPoint): WeatherPoint {
+  return {
+    ...p,
+    tempC: finite(p.tempC),
+    relativeHumidity: clamp(finite(p.relativeHumidity), 0, 100),
+    windKph: Math.max(0, finite(p.windKph)),
+    gustKph: Math.max(0, finite(p.gustKph)),
+    precipMm: Math.max(0, finite(p.precipMm)),
+    precipProbability:
+      p.precipProbability == null ? p.precipProbability : clamp(finite(p.precipProbability), 0, 100),
+    snowfallCm: Math.max(0, finite(p.snowfallCm)),
+    uvIndex: Math.max(0, finite(p.uvIndex)),
+    cloudCoverPct: clamp(finite(p.cloudCoverPct), 0, 100),
+    weatherCode: finite(p.weatherCode),
+  };
+}
+
 export interface RecommendOptions {
   config?: Config;
   baseline?: ThermalBaseline;
@@ -217,12 +245,18 @@ function bringWithYouCallout(
 }
 
 export function recommend(
-  input: WeatherInput,
+  rawInput: WeatherInput,
   options: RecommendOptions = {},
 ): OutfitRecommendation {
   const cfg = options.config ?? DEFAULT_CONFIG;
   const baseline: ThermalBaseline = options.baseline ?? 'neutral';
   const activity: Activity = options.activity ?? 'walking_commute';
+
+  const input: WeatherInput = {
+    ...rawInput,
+    current: sanitizePoint(rawInput.current),
+    next12h: rawInput.next12h.map(sanitizePoint),
+  };
 
   const apparentNowC = apparentTemperatureC(
     input.current.tempC,
