@@ -51,6 +51,8 @@
   .hour-cell:active { background: rgba(15,23,42,.55); }
   .hour-cell[aria-pressed="true"] { border-color: rgba(255,255,255,.35); background: rgba(15,23,42,.85); box-shadow: 0 0 0 1px rgba(255,255,255,.05) inset; }
   .hour-cell.now::before { content: "now"; position: absolute; top: -.95rem; left: 50%; transform: translateX(-50%); font-size: .55rem; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; background: #020617; padding: 0 .3rem; }
+  .hour-cell.day-break { border-left: 1px dashed rgba(255,255,255,.12); }
+  .hc-daylabel { position: absolute; top: -.95rem; left: .5rem; font-size: .55rem; text-transform: uppercase; letter-spacing: .08em; color: #fcd34d; background: #020617; padding: 0 .3rem; font-weight: 700; white-space: nowrap; }
   .hc-time { position: absolute; bottom: .35rem; left: 0; right: 0; text-align: center; font-size: .7rem; letter-spacing: .04em; color: #94a3b8; font-variant-numeric: tabular-nums; pointer-events: none; }
   .hc-point { position: absolute; left: 50%; top: var(--y, 50%); transform: translate(-50%, calc(-100% - .15rem)); display: flex; flex-direction: column; align-items: center; gap: .1rem; pointer-events: none; }
   .hc-point .hc-temp { font-size: .75rem; line-height: 1; font-variant-numeric: tabular-nums; color: #f1f5f9; font-weight: 600; }
@@ -145,6 +147,9 @@
   .snap-empty { font-size: .8rem; color: #64748b; }
   .snap-extra { background: #020617; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .55rem .75rem; color: #f1f5f9; font: inherit; -webkit-appearance: none; }
   .snap-extra:focus { outline: none; border-color: rgba(255,255,255,.3); }
+  .snap-when { display: flex; gap: .35rem; flex-wrap: wrap; }
+  .snap-when-btn { background: #1e293b; color: #cbd5e1; padding: .35rem .65rem; border-radius: .5rem; font-size: .75rem; font-weight: 600; border: 1px solid transparent; cursor: pointer; font-family: inherit; }
+  .snap-when-btn.on { background: #f1f5f9; color: #020617; border-color: #f1f5f9; }
   .snap-comfort { display: flex; gap: .35rem; }
   .snap-comfort-btn { flex: 1; min-width: 0; background: #1e293b; color: #f8fafc; padding: .65rem .25rem; border-radius: .65rem; border: 1px solid #334155; cursor: pointer; font-family: inherit; font-size: .68rem; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: .25rem; line-height: 1.1; }
   .snap-comfort-btn .em { font-size: 1.4rem; line-height: 1; }
@@ -680,15 +685,20 @@ function buildDailySummaries(allHours) {
   return out;
 }
 
-// Build today's hourly cells (6 AM - 10 PM local), each carrying a precomputed
-// recommend() for its hour so taps can swap panels instantly.
+// Build hourly cells across multiple days (6 AM - 10 PM each day), each
+// carrying a precomputed recommend() for its hour so taps can swap panels
+// instantly. Default scroll position is "now" but the strip extends through
+// the rest of the forecast so users can scroll forward.
 function buildTodayCells(weather) {
   const today = todayDateLocal();
+  const todayMs = new Date(today + "T00:00:00").getTime();
+  const cutoffMs = todayMs + 7 * 24 * 3600 * 1000;
   const allHours = weather.allHours || [];
   const idxs = [];
   for (let i = 0; i < allHours.length; i++) {
     const h = allHours[i];
-    if (localDateOf(h.time) !== today) continue;
+    const t = new Date(h.time).getTime();
+    if (t < todayMs || t >= cutoffMs) continue;
     const hr = localHourOf(h.time);
     if (hr < 6 || hr > 22) continue;
     idxs.push(i);
@@ -703,16 +713,18 @@ function buildTodayCells(weather) {
     return { ...h, apparent: a, eff, band, rec };
   });
   if (!cells.length) return null;
-  const apps = cells.map(c => c.apparent);
-  const dayMinApp = Math.min(...apps);
-  const dayMaxApp = Math.max(...apps);
-  const temps = cells.map(c => c.tempC);
-  const hi = Math.max(...temps), lo = Math.min(...temps);
-  const hiTime = cells[temps.indexOf(hi)].time;
-  const loTime = cells[temps.indexOf(lo)].time;
-  const peakIdx = apps.indexOf(Math.max(...apps));
-  const maxRainProb = Math.max(0, ...cells.map(c => c.precipProb || 0));
-  return { cells, dayMinApp, dayMaxApp, hi, lo, hiTime, loTime, peakIdx, maxRainProb };
+  const todayCells = cells.filter(c => localDateOf(c.time) === today);
+  const todayTemps = todayCells.length ? todayCells.map(c => c.tempC) : cells.map(c => c.tempC);
+  const todayApps = todayCells.length ? todayCells.map(c => c.apparent) : cells.map(c => c.apparent);
+  const hi = Math.max(...todayTemps), lo = Math.min(...todayTemps);
+  const hiCell = (todayCells.length ? todayCells : cells)[todayTemps.indexOf(hi)];
+  const loCell = (todayCells.length ? todayCells : cells)[todayTemps.indexOf(lo)];
+  const allTemps = cells.map(c => c.tempC);
+  const cellsHi = Math.max(...allTemps);
+  const cellsLo = Math.min(...allTemps);
+  const peakIdx = cells.findIndex(c => c.apparent === Math.max(...todayApps));
+  const maxRainProb = Math.max(0, ...todayCells.map(c => c.precipProb || 0));
+  return { cells, hi, lo, hiTime: hiCell.time, loTime: loCell.time, cellsHi, cellsLo, peakIdx, maxRainProb };
 }
 
 const WMO = {
@@ -850,19 +862,26 @@ function renderTodayLine(today) {
 
 function renderHourStrip(today, selectedIdx, nowIdx) {
   const cells = today.cells;
-  const range = Math.max(today.hi - today.lo, 1);
-  const yOf = t => 30 + (1 - (t - today.lo) / range) * 38;
+  const range = Math.max(today.cellsHi - today.cellsLo, 1);
+  const yOf = t => 30 + (1 - (t - today.cellsLo) / range) * 38;
   const xOf = i => ((i + 0.5) / cells.length) * 100;
   const colRem = 3;
   const path = "M" + cells.map((c, i) => `${xOf(i).toFixed(2)},${yOf(c.tempC).toFixed(2)}`).join(" L");
+  let prevDate = null;
   const cellsHtml = cells.map((cell, i) => {
     const [label] = wmo(cell.code);
     const icon = BAND_ICON[cell.band] || "👕";
     const y = yOf(cell.tempC).toFixed(2);
     const x = xOf(i).toFixed(2);
+    const cellDate = localDateOf(cell.time);
+    const newDay = i > 0 && cellDate !== prevDate;
+    prevDate = cellDate;
     const cls = ["hour-cell"];
     if (i === nowIdx) cls.push("now");
+    if (newDay) cls.push("day-break");
+    const dayMark = newDay ? `<span class="hc-daylabel">${esc(dayLabel(cellDate))}</span>` : "";
     return `<button class="${cls.join(" ")}" data-idx="${i}" aria-pressed="${i === selectedIdx ? "true" : "false"}" style="left: ${x}%; --y: ${y}%" aria-label="${esc(hour(cell.time))}, ${fmt(cell.tempC)}, ${esc(label)}">
+      ${dayMark}
       <span class="hc-time">${esc(hourShort(cell.time))}</span>
       <span class="hc-point"><span class="hc-temp">${fmt(cell.tempC)}</span><span class="hc-icon">${bigIcon(icon)}</span></span>
     </button>`;
@@ -963,7 +982,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v22-today</div>
+      <div class="footer">${esc(LOCATION.name)} . v23-when</div>
     `;
     attachToggleHandler(root);
     return;
@@ -986,7 +1005,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v22-today</div>
+    <div class="footer">${esc(LOCATION.name)} . v23-when</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1422,13 +1441,19 @@ function guessSlotFromName(name) {
 
 function saveSnapshot(state) {
   if (!LAST_WEATHER || !LAST_WEATHER.current) return;
-  const c = LAST_WEATHER.current;
-  const aNow = feels(c);
-  const conds = (LAST_WEATHER._lastRec && LAST_WEATHER._lastRec.conditions) || [];
+  const ctx = state.hour || { tempC: LAST_WEATHER.current.tempC, rh: LAST_WEATHER.current.rh, kph: LAST_WEATHER.current.kph, isDay: LAST_WEATHER.current.isDay, cloud: LAST_WEATHER.current.cloud, time: LAST_WEATHER.current.time };
+  const apparent = feels(ctx);
+  let conds;
+  if (state.hour && state.hour.rec) {
+    conds = state.hour.rec.conditions || [];
+  } else {
+    conds = (LAST_WEATHER._lastRec && LAST_WEATHER._lastRec.conditions) || [];
+  }
   const snap = {
     ts: Date.now(),
-    airTemp: Math.round(c.tempC),
-    feels: Math.round(aNow),
+    forTime: ctx.time || null,
+    airTemp: Math.round(ctx.tempC),
+    feels: Math.round(apparent),
     conditions: conds,
     location: LOCATION.name,
     worn: Array.from(state.worn),
@@ -1455,8 +1480,10 @@ function saveSnapshot(state) {
 function openSnapshotModal() {
   if (document.querySelector(".snap-overlay")) return;
   if (!LAST_WEATHER || !LAST_WEATHER.current) return;
-  const c = LAST_WEATHER.current;
-  const aNow = feels(c);
+  const today = buildTodayCells(LAST_WEATHER);
+  const nowMs = Date.now();
+  const pastCells = today ? today.cells.filter(c => new Date(c.time).getTime() <= nowMs) : [];
+  const defaultIdx = pastCells.length ? pastCells.length - 1 : -1;
   const closet = getCloset();
   const allItems = Object.entries(closet).flatMap(([slot, items]) =>
     items.map(it => ({ slot, name: it.name }))
@@ -1476,13 +1503,22 @@ function openSnapshotModal() {
   const comfortBtns = comfortOpts.map(o =>
     `<button type="button" class="snap-comfort-btn" data-v="${o.v}"><span class="em">${bigIcon(o.ic)}</span><span>${esc(o.label)}</span></button>`
   ).join("");
+  const whenBtns = pastCells.map((cell, i) => {
+    const isLast = i === pastCells.length - 1;
+    const label = isLast ? `${hourShort(cell.time)} now` : hourShort(cell.time);
+    return `<button type="button" class="snap-when-btn${i === defaultIdx ? " on" : ""}" data-idx="${i}">${esc(label)}</button>`;
+  }).join("");
+  const whenSection = pastCells.length > 1
+    ? `<div class="snap-section"><div class="snap-label">When?</div><div class="snap-when">${whenBtns}</div></div>`
+    : "";
   overlay.innerHTML = `
     <div class="snap-card" role="dialog" aria-label="Log what you're wearing">
       <div class="snap-header">
-        <h3>What are you actually wearing?</h3>
+        <h3>What are you wearing?</h3>
         <button type="button" class="snap-close" aria-label="Close">×</button>
       </div>
-      <p class="snap-weather">${esc(LOCATION.name)}: ${fmt(c.tempC)}, feels ${fmt(aNow)}${conditionsLabel(LAST_WEATHER._lastRec)}</p>
+      <p class="snap-weather" id="snap-weather"></p>
+      ${whenSection}
       <div class="snap-section">
         <div class="snap-label">From your closet</div>
         <div class="snap-chips">${itemChips}</div>
@@ -1498,9 +1534,27 @@ function openSnapshotModal() {
       <button type="button" class="snap-save" disabled>Save</button>
     </div>`;
   document.body.appendChild(overlay);
-  const state = { worn: new Set(), extra: "", comfort: null };
+  const state = { worn: new Set(), extra: "", comfort: null, hour: pastCells[defaultIdx] || null };
+  const weatherEl = overlay.querySelector("#snap-weather");
+  function refreshWeather() {
+    const ctx = state.hour || LAST_WEATHER.current;
+    const a = feels(ctx);
+    const time = state.hour ? ` at ${hour(state.hour.time)}` : "";
+    const condStr = state.hour && state.hour.rec ? conditionsLabel(state.hour.rec) : conditionsLabel(LAST_WEATHER._lastRec);
+    weatherEl.textContent = `${LOCATION.name}${time}: ${fmt(ctx.tempC)}, feels ${fmt(a)}${condStr}`;
+  }
+  refreshWeather();
   const saveBtn = overlay.querySelector(".snap-save");
   function refreshSave() { saveBtn.disabled = state.comfort === null; }
+  overlay.querySelectorAll(".snap-when-btn").forEach(btn => {
+    btn.onclick = () => {
+      const idx = parseInt(btn.dataset.idx, 10);
+      state.hour = pastCells[idx] || null;
+      overlay.querySelectorAll(".snap-when-btn").forEach(b => b.classList.remove("on"));
+      btn.classList.add("on");
+      refreshWeather();
+    };
+  });
   overlay.addEventListener("click", e => { if (e.target === overlay) overlay.remove(); });
   overlay.querySelector(".snap-close").onclick = () => overlay.remove();
   overlay.querySelectorAll(".snap-chip").forEach(btn => {
