@@ -30,10 +30,12 @@
   .bring { background: rgba(252,211,77,.08); border-color: rgba(252,211,77,.2); }
   .bring h2 { color: #fcd34d; }
   .bring p { margin: 0; color: #fef3c7; font-size: .95rem; line-height: 1.4; }
-  .outfit-row { display: flex; align-items: center; gap: .75rem; padding: .65rem 0; font-size: 1rem; border-bottom: 1px solid rgba(255,255,255,.06); }
+  .outfit-row { display: grid; grid-template-columns: 2rem 4.2rem 1fr; align-items: baseline; gap: .6rem; padding: .65rem 0; font-size: 1rem; border-bottom: 1px solid rgba(255,255,255,.06); }
   .outfit-row:last-child { border-bottom: none; }
-  .outfit-row .ic { font-size: 1.4rem; width: 1.8rem; text-align: center; line-height: 1; flex-shrink: 0; }
+  .outfit-row .ic { font-size: 1.4rem; line-height: 1; }
+  .outfit-row .lbl { color: #94a3b8; font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
   .outfit-row .val { color: #f1f5f9; font-weight: 500; }
+  .outfit-row.skip .val { color: #64748b; font-style: italic; font-weight: 400; }
   .pills { display: flex; flex-wrap: wrap; gap: .375rem; margin-top: .85rem; padding-top: .85rem; border-top: 1px solid rgba(255,255,255,.06); }
   .pills .lbl { font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; width: 100%; margin-bottom: .25rem; font-weight: 600; }
   .pill { background: #1e293b; color: #e2e8f0; padding: .35rem .75rem; border-radius: 999px; font-size: .85rem; font-weight: 500; display: inline-flex; align-items: center; gap: .35rem; }
@@ -327,13 +329,34 @@ function render(weather, rec) {
   const [cLabel, cIcon] = wmo(c.code);
   const root = document.getElementById("root");
 
-  const layers = [rec.layers.base, rec.layers.mid, rec.layers.outer, rec.layers.bottom, rec.layers.footwear].filter(Boolean);
-  const heroIcons = [rec.layers.base, rec.layers.mid, rec.layers.outer, rec.layers.bottom, rec.layers.footwear]
+  // Wear panel order: Jacket (always, with "not needed" fallback) → Mid (if
+  // any) → Top → Bottom → Shoes. Matches how people decide what to grab on
+  // the way out the door.
+  const wearRows = [
+    rec.layers.outer
+      ? { ic: rec.layers.outer.ic, label: "Jacket", value: rec.layers.outer.v, skip: false }
+      : { ic: "🧥", label: "Jacket", value: "not needed today", skip: true },
+    rec.layers.mid && { ic: rec.layers.mid.ic, label: "Mid", value: rec.layers.mid.v, skip: false },
+    rec.layers.base && { ic: rec.layers.base.ic, label: "Top", value: rec.layers.base.v, skip: false },
+    rec.layers.bottom && { ic: rec.layers.bottom.ic, label: "Bottom", value: rec.layers.bottom.v, skip: false },
+    rec.layers.footwear && { ic: rec.layers.footwear.ic, label: "Shoes", value: rec.layers.footwear.v, skip: false },
+  ].filter(Boolean);
+  const heroIcons = [rec.layers.outer, rec.layers.mid, rec.layers.base, rec.layers.bottom, rec.layers.footwear]
     .filter(Boolean).map(l => l.ic).join(" + ");
+  const layerRows = wearRows.map(r => `<div class="outfit-row${r.skip ? " skip" : ""}"><span class="ic">${esc(r.ic)}</span><span class="lbl">${esc(r.label)}</span><span class="val">${esc(r.value)}</span></div>`).join("");
 
-  const layerRows = layers.map(l => `<div class="outfit-row"><span class="ic">${esc(l.ic)}</span><span class="val">${esc(l.v)}</span></div>`).join("");
-  const accs = rec.layers.acc.length
-    ? `<div class="pills"><span class="lbl">Plus</span>${rec.layers.acc.map(a => `<span class="pill">${esc(a.ic || "")} ${esc(a.v)}</span>`).join("")}</div>` : "";
+  // Pull umbrella out of accessory pills into the Bring panel — easier to
+  // spot at 7am than buried in a chip strip.
+  const umbrellaItem = rec.layers.acc.find(a => a.v.includes("umbrella"));
+  const visibleAcc = rec.layers.acc.filter(a => a !== umbrellaItem);
+  const accs = visibleAcc.length
+    ? `<div class="pills"><span class="lbl">Plus</span>${visibleAcc.map(a => `<span class="pill">${esc(a.ic || "")} ${esc(a.v)}</span>`).join("")}</div>` : "";
+
+  const bringLines = [];
+  if (umbrellaItem) bringLines.push(`☂️  Bring a compact umbrella — there's a chance of rain.`);
+  if (rec.bring) bringLines.push(`🎒  ${rec.bring}`);
+  const bringHtml = bringLines.length
+    ? `<section class="panel bring"><h2>Bring with you</h2>${bringLines.map(l => `<p>${esc(l)}</p>`).join("")}</section>` : "";
 
   const timeline = buildTimeline(weather);
   const tlRows = timeline.length
@@ -350,7 +373,7 @@ function render(weather, rec) {
         <span>${Math.round(num(c.kph))} km/h wind</span>
       </div>
     </section>
-    ${rec.bring ? `<section class="panel bring"><h2>Bring with you</h2><p>${esc(rec.bring)}</p></section>` : ""}
+    ${bringHtml}
     <section class="panel"><h2>Wear</h2>${layerRows}${accs}</section>
     <section class="panel"><h2>Today's plan</h2><div class="timeline">${tlRows}</div></section>
     <section class="panel">
