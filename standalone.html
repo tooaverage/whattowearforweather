@@ -96,6 +96,13 @@
   .chip { background: #1e293b; color: #cbd5e1; padding: .4rem .85rem; border-radius: 999px; font-size: .82rem; font-weight: 500; border: 1px solid transparent; cursor: pointer; font-family: inherit; transition: background .15s, color .15s; }
   .chip:hover { background: #273449; }
   .chip[aria-pressed="true"] { background: #f1f5f9; color: #020617; border-color: #f1f5f9; font-weight: 600; }
+  .feedback { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin-top: 1rem; padding-top: .85rem; border-top: 1px solid rgba(255,255,255,.06); }
+  .fb-label { font-size: .65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; font-weight: 600; flex-basis: 100%; margin-bottom: .15rem; }
+  .fb-btn { background: #1e293b; color: #cbd5e1; padding: .4rem .8rem; border-radius: 999px; font-size: .82rem; font-weight: 500; border: 1px solid transparent; cursor: pointer; font-family: inherit; transition: background .15s; }
+  .fb-btn:hover { background: #273449; }
+  .fb-btn:active { transform: scale(.97); }
+  .fb-thanks { display: none; font-size: .75rem; color: #6ee7b7; margin-top: .5rem; }
+  .feedback.thanks .fb-thanks { display: block; flex-basis: 100%; }
   .day-toggle { background: transparent; border: 1px solid rgba(255,255,255,.1); color: #cbd5e1; padding: .55rem 1rem; border-radius: .65rem; font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; cursor: pointer; margin-top: .85rem; width: 100%; font-weight: 600; font-family: inherit; }
   .day-toggle:hover { background: rgba(255,255,255,.04); }
   details summary { font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; padding: .55rem 0; align-items: center; }
@@ -221,7 +228,11 @@ function recommend(input) {
   const rationale = [];
   rationale.push(`Feels like ${aNow.toFixed(1)}° (air ${c.tempC.toFixed(1)}°, ${Math.round(c.rh)}% humidity, ${Math.round(c.kph)} km/h wind).`);
   const adj = [];
-  if (CFG.baselineOffset) adj.push(`baseline ${CFG.baselineOffset > 0 ? "+" : ""}${CFG.baselineOffset.toFixed(1)}°`);
+  const baseChip = PREFS.baseline.options.find(o => o.val === getPref("baseline"));
+  const baseOff = baseChip ? baseChip.offset : 0;
+  const learned = getLearned();
+  if (baseOff) adj.push(`baseline ${baseOff > 0 ? "+" : ""}${baseOff.toFixed(1)}°`);
+  if (learned) adj.push(`learned ${learned > 0 ? "+" : ""}${learned.toFixed(1)}°`);
   if (CFG.activityOffset) adj.push(`activity +${CFG.activityOffset.toFixed(1)}°`);
   rationale.push(`Engine-effective: ${eNow.toFixed(1)}°${adj.length ? ` (${adj.join(", ")})` : ""}.`);
   rationale.push(`Selected band: ${band.replace("_", " ")}.`);
@@ -520,7 +531,8 @@ function renderWear(rec) {
   const visibleAcc = rec.layers.acc.filter(a => a !== umbrellaItem);
   const accs = visibleAcc.length
     ? `<div class="pills"><span class="lbl">Plus</span>${visibleAcc.map(a => `<span class="pill">${esc(a.ic || "")} ${esc(a.v)}</span>`).join("")}</div>` : "";
-  return `<section id="wear" class="panel"><h2>Wear</h2>${layerRows}${accs}</section>`;
+  const fb = `<div class="feedback"><span class="fb-label">How does this feel?</span><button class="fb-btn" type="button" data-fb="cold">+ Add a layer</button><button class="fb-btn" type="button" data-fb="right">Just right</button><button class="fb-btn" type="button" data-fb="warm">− Drop a layer</button></div>`;
+  return `<section id="wear" class="panel"><h2>Wear</h2>${layerRows}${accs}${fb}</section>`;
 }
 
 function renderWhy(rec, source) {
@@ -661,7 +673,7 @@ function render(weather) {
       ${renderComing(weather)}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">Vancouver, BC . v5-renames</div>
+      <div class="footer">Vancouver, BC . v6-feedback</div>
     `;
     attachToggleHandler(root);
     return;
@@ -680,7 +692,7 @@ function render(weather) {
     ${renderHeadsUp(weather)}
     ${renderComing(weather)}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">Vancouver, BC . v5-renames</div>
+    <div class="footer">Vancouver, BC . v6-feedback</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -712,21 +724,26 @@ function render(weather) {
   });
 
   attachToggleHandler(root);
-  attachSettingsHandler(root);
+  attachGlobalHandlers(root);
 }
 
-function attachSettingsHandler(root) {
-  const panel = root.querySelector("#settings");
-  if (!panel) return;
-  panel.addEventListener("click", e => {
-    const btn = e.target.closest(".chip");
-    if (!btn) return;
-    const pref = btn.dataset.pref;
-    const val = btn.dataset.val;
-    if (!pref || !val || !PREFS[pref]) return;
-    setPref(pref, val);
-    applySettings();
-    if (LAST_WEATHER) render(LAST_WEATHER);
+let GLOBAL_HANDLERS_ATTACHED = false;
+function attachGlobalHandlers(root) {
+  if (GLOBAL_HANDLERS_ATTACHED) return;
+  GLOBAL_HANDLERS_ATTACHED = true;
+  root.addEventListener("click", e => {
+    const fb = e.target.closest(".fb-btn");
+    if (fb) { recordFeedback(fb.dataset.fb); return; }
+    const chip = e.target.closest(".chip");
+    if (chip) {
+      const pref = chip.dataset.pref;
+      const val = chip.dataset.val;
+      if (pref && val && PREFS[pref]) {
+        setPref(pref, val);
+        applySettings();
+        if (LAST_WEATHER) render(LAST_WEATHER);
+      }
+    }
   });
 }
 
@@ -778,11 +795,27 @@ function getPref(name) {
 function setPref(name, val) {
   try { localStorage.setItem(PREFS[name].key, val); } catch {}
 }
+function getLearned() {
+  try { return clamp(parseFloat(localStorage.getItem("wtwfw-learned") || "0") || 0, -3, 3); }
+  catch { return 0; }
+}
+function setLearned(v) {
+  try { localStorage.setItem("wtwfw-learned", clamp(v, -3, 3).toFixed(1)); } catch {}
+}
 function applySettings() {
   const b = PREFS.baseline.options.find(o => o.val === getPref("baseline"));
   const a = PREFS.activity.options.find(o => o.val === getPref("activity"));
-  CFG.baselineOffset = b ? b.offset : 0;
+  CFG.baselineOffset = (b ? b.offset : 0) + getLearned();
   CFG.activityOffset = a ? a.offset : 1.5;
+}
+function recordFeedback(direction) {
+  const step = 0.5;
+  const delta = direction === "cold" ? -step : direction === "warm" ? step : 0;
+  if (delta !== 0) {
+    setLearned(getLearned() + delta);
+    applySettings();
+    if (LAST_WEATHER) render(LAST_WEATHER);
+  }
 }
 
 function renderSettings() {
