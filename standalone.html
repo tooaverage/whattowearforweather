@@ -112,10 +112,21 @@
   .closet-form { display: flex; gap: .35rem; flex-wrap: wrap; margin-bottom: .85rem; padding-bottom: .85rem; border-bottom: 1px solid rgba(255,255,255,.06); }
   .closet-form input[type="text"] { flex: 1 1 100%; background: #020617; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .55rem .75rem; color: #f1f5f9; font: inherit; -webkit-appearance: none; }
   .closet-form input[type="text"]:focus { outline: none; border-color: rgba(255,255,255,.3); }
-  .closet-form select { flex: 1 1 calc(50% - .2rem); background: #1e293b; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .55rem .75rem; color: #f1f5f9; font: inherit; -webkit-appearance: none; }
+  .closet-form select { flex: 1 1 100%; background: #1e293b; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .55rem .75rem; color: #f1f5f9; font: inherit; -webkit-appearance: none; }
   .closet-form button { flex: 1 1 100%; background: #f1f5f9; color: #020617; border: none; padding: .55rem 1rem; border-radius: .5rem; font: inherit; font-weight: 600; cursor: pointer; }
+  .range-row { display: flex; gap: .35rem; flex: 1 1 100%; }
+  .range-row label { flex: 1; display: inline-flex; align-items: center; gap: .35rem; background: #020617; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .25rem .55rem; font-size: .75rem; color: #94a3b8; }
+  .range-row input { flex: 1; background: transparent; border: none; color: #f1f5f9; font: inherit; padding: .35rem 0; min-width: 0; -moz-appearance: textfield; }
+  .range-row input::-webkit-outer-spin-button, .range-row input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .range-row input:focus { outline: none; }
+  .cond-row { display: flex; gap: .35rem; flex-wrap: wrap; flex: 1 1 100%; }
+  .cond-chip { display: inline-flex; align-items: center; cursor: pointer; user-select: none; }
+  .cond-chip input { position: absolute; opacity: 0; pointer-events: none; }
+  .cond-chip span { background: #1e293b; color: #cbd5e1; padding: .4rem .75rem; border-radius: 999px; font-size: .8rem; font-weight: 500; border: 1px solid transparent; }
+  .cond-chip input:checked + span { background: #f1f5f9; color: #020617; border-color: #f1f5f9; font-weight: 600; }
   .closet-name { flex: 1; }
   .closet-band { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: #cbd5e1; background: rgba(255,255,255,.06); padding: .15rem .45rem; border-radius: 999px; font-weight: 600; }
+  .closet-cond { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: #93c5fd; background: rgba(96,165,250,.12); padding: .15rem .45rem; border-radius: 999px; font-weight: 600; }
   .closet-section { padding: .5rem 0; }
   .closet-section + .closet-section { border-top: 1px solid rgba(255,255,255,.04); }
   .closet-slot-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; font-weight: 600; margin-bottom: .4rem; }
@@ -483,7 +494,12 @@ function recommend(input) {
   else if (arc.cross && warmer) bring = `Warms to ${fmtT(arc.max)} by ${hour(arc.maxTime)}. Wear something you can shed.`;
   else if (arc.spread >= CFG.bringLayerSpreadC) bring = `Big swing today, ${fmtT(arc.min)} at ${hour(arc.minTime)} up to ${fmtT(arc.max)} by ${hour(arc.maxTime)}. Bring a layer you can adjust.`;
 
-  return { aNow, eNow, band, layers: { base: r.base, mid: r.mid, outer, bottom: r.bottom, footwear, acc }, bring, rationale, arc };
+  const conditions = [];
+  if (arc.maxProb >= 40 || arc.totalMm >= 1) conditions.push("rain");
+  if (arc.maxKph >= 15) conditions.push("wind");
+  if ((arc.totalSnow || 0) >= 0.5) conditions.push("snow");
+  if (c.isDay && num(c.cloud, 50) < 30) conditions.push("sun");
+  return { aNow, eNow, band, layers: { base: r.base, mid: r.mid, outer, bottom: r.bottom, footwear, acc }, bring, rationale, arc, conditions };
 }
 
 function buildTimeline(weather) {
@@ -740,8 +756,18 @@ function renderBring(rec) {
   return `<section id="bring" class="panel bring"><h2>${bigIcon("📌")}Bring with you</h2>${lines.map(l => `<p>${bigIcon(l.ic)}<span>${esc(l.text)}</span></p>`).join("")}</section>`;
 }
 
+function itemMatchesItem(it, refTemp, currentConds) {
+  if (it.minTemp !== null && refTemp < it.minTemp) return false;
+  if (it.maxTemp !== null && refTemp > it.maxTemp) return false;
+  if (Array.isArray(it.conditions) && it.conditions.length) {
+    for (const c of it.conditions) if (!currentConds.includes(c)) return false;
+  }
+  return true;
+}
 function renderWear(rec) {
   const closet = getCloset();
+  const conds = rec.conditions || [];
+  const refTemp = rec.aNow;
   const wearRows = [
     rec.layers.outer
       ? { ic: rec.layers.outer.ic, label: "Jacket", value: rec.layers.outer.v, slot: "outer", skip: false }
@@ -753,9 +779,7 @@ function renderWear(rec) {
   ].filter(Boolean);
   const layerRows = wearRows.map(r => {
     const all = !r.skip && Array.isArray(closet[r.slot]) ? closet[r.slot] : [];
-    const matched = all.filter(it => it.band === rec.band);
-    const untagged = all.filter(it => !it.band);
-    const items = matched.length ? matched : untagged;
+    const items = all.filter(it => itemMatchesItem(it, refTemp, conds));
     let icon = r.ic, value = r.value, hint = "";
     if (items.length) {
       icon = iconForName(items[0].name) || SLOT_ICON[r.slot] || r.ic;
@@ -911,7 +935,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v18-bands</div>
+      <div class="footer">${esc(LOCATION.name)} . v19-ranges</div>
     `;
     attachToggleHandler(root);
     return;
@@ -933,7 +957,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v18-bands</div>
+    <div class="footer">${esc(LOCATION.name)} . v19-ranges</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1004,9 +1028,13 @@ function attachGlobalHandlers(root) {
     e.preventDefault();
     const name = (form.querySelector('input[name="name"]') || {}).value || "";
     const slot = (form.querySelector('select[name="slot"]') || {}).value || "";
-    const band = (form.querySelector('select[name="band"]') || {}).value || "";
+    const minRaw = (form.querySelector('input[name="minTemp"]') || {}).value;
+    const maxRaw = (form.querySelector('input[name="maxTemp"]') || {}).value;
+    const minTemp = minRaw === "" ? null : Number(minRaw);
+    const maxTemp = maxRaw === "" ? null : Number(maxRaw);
+    const conds = Array.from(form.querySelectorAll('input[name="cond"]:checked')).map(c => c.value);
     if (name.trim() && CLOSET_SLOTS[slot]) {
-      addClosetItem(slot, name, band);
+      addClosetItem(slot, name, minTemp, maxTemp, conds);
       form.reset();
       if (LAST_WEATHER) render(LAST_WEATHER);
     }
@@ -1285,6 +1313,12 @@ function setPref(name, val) {
 }
 const CLOSET_SLOTS = { outer: "Jackets", mid: "Mid layers", base: "Tops", bottom: "Bottoms", footwear: "Shoes" };
 const CLOSET_BANDS = ["scorching", "hot", "warm", "mild", "cool", "chilly", "cold", "very_cold", "freezing"];
+const BAND_RANGE = {
+  scorching: [30, 50], hot: [24, 29], warm: [19, 23], mild: [14, 18], cool: [10, 13],
+  chilly: [6, 9], cold: [1, 5], very_cold: [-5, 0], freezing: [-50, -6],
+};
+const CONDITIONS = ["rain", "wind", "sun", "snow"];
+const CONDITION_LABEL = { rain: "Rain", wind: "Wind", sun: "Sun", snow: "Snow" };
 function getCloset() {
   try {
     const s = localStorage.getItem("wtwfw-closet");
@@ -1293,7 +1327,16 @@ function getCloset() {
       if (obj && typeof obj === "object") {
         const out = {};
         for (const k of Object.keys(CLOSET_SLOTS)) {
-          out[k] = Array.isArray(obj[k]) ? obj[k].filter(it => it && typeof it.name === "string").slice(0, 12).map(it => ({ name: String(it.name).slice(0, 40), band: CLOSET_BANDS.includes(it.band) ? it.band : "" })) : [];
+          out[k] = Array.isArray(obj[k]) ? obj[k].filter(it => it && typeof it.name === "string").slice(0, 12).map(it => {
+            const name = String(it.name).slice(0, 40);
+            let minT = Number.isFinite(it.minTemp) ? it.minTemp : null;
+            let maxT = Number.isFinite(it.maxTemp) ? it.maxTemp : null;
+            if (minT === null && maxT === null && it.band && BAND_RANGE[it.band]) {
+              minT = BAND_RANGE[it.band][0]; maxT = BAND_RANGE[it.band][1];
+            }
+            const conds = Array.isArray(it.conditions) ? it.conditions.filter(c => CONDITIONS.includes(c)) : [];
+            return { name, minTemp: minT, maxTemp: maxT, conditions: conds };
+          }) : [];
         }
         return out;
       }
@@ -1302,15 +1345,17 @@ function getCloset() {
   return { outer: [], mid: [], base: [], bottom: [], footwear: [] };
 }
 function setCloset(c) { try { localStorage.setItem("wtwfw-closet", JSON.stringify(c)); } catch {} }
-function addClosetItem(slot, name, band) {
+function addClosetItem(slot, name, minTemp, maxTemp, conditions) {
   if (!CLOSET_SLOTS[slot]) return;
   const trimmed = String(name || "").trim().slice(0, 40);
   if (!trimmed) return;
-  const cleanBand = CLOSET_BANDS.includes(band) ? band : "";
+  const minT = Number.isFinite(minTemp) ? Math.round(minTemp) : null;
+  const maxT = Number.isFinite(maxTemp) ? Math.round(maxTemp) : null;
+  const conds = Array.isArray(conditions) ? conditions.filter(c => CONDITIONS.includes(c)) : [];
   const c = getCloset();
   if (c[slot].length >= 12) return;
-  if (c[slot].some(it => it.name.toLowerCase() === trimmed.toLowerCase() && (it.band || "") === cleanBand)) return;
-  c[slot].push({ name: trimmed, band: cleanBand });
+  if (c[slot].some(it => it.name.toLowerCase() === trimmed.toLowerCase() && (it.minTemp === minT) && (it.maxTemp === maxT))) return;
+  c[slot].push({ name: trimmed, minTemp: minT, maxTemp: maxT, conditions: conds });
   setCloset(c);
 }
 function removeClosetItem(slot, idx) {
@@ -1351,22 +1396,33 @@ function renderCloset() {
     const items = c[slot] || [];
     const list = items.length
       ? `<ul class="closet-list">${items.map((it, i) => {
-        const tag = it.band ? `<span class="closet-band">${esc(BAND_LABEL[it.band] || it.band)}</span>` : "";
-        return `<li>${bigIcon(iconForName(it.name) || SLOT_ICON[slot] || "👕")}<span class="closet-name">${esc(it.name)}</span>${tag}<button class="closet-remove" type="button" data-slot="${esc(slot)}" data-idx="${i}" aria-label="Remove ${esc(it.name)}">×</button></li>`;
+        const tags = [];
+        if (it.minTemp !== null || it.maxTemp !== null) {
+          const lo = it.minTemp !== null ? `${it.minTemp}°` : "any";
+          const hi = it.maxTemp !== null ? `${it.maxTemp}°` : "any";
+          tags.push(`<span class="closet-band">${esc(lo)} to ${esc(hi)}</span>`);
+        }
+        for (const cond of (it.conditions || [])) {
+          tags.push(`<span class="closet-cond">${esc(CONDITION_LABEL[cond] || cond)}</span>`);
+        }
+        return `<li>${bigIcon(iconForName(it.name) || SLOT_ICON[slot] || "👕")}<span class="closet-name">${esc(it.name)}</span>${tags.join("")}<button class="closet-remove" type="button" data-slot="${esc(slot)}" data-idx="${i}" aria-label="Remove ${esc(it.name)}">×</button></li>`;
       }).join("")}</ul>`
       : `<div class="closet-empty">Nothing yet</div>`;
     return `<div class="closet-section"><div class="closet-slot-label">${esc(CLOSET_SLOTS[slot])}</div>${list}</div>`;
   }).join("");
   const slotOpts = Object.entries(CLOSET_SLOTS).map(([k, v]) => `<option value="${esc(k)}">${esc(v)}</option>`).join("");
-  const bandOpts = `<option value="">Any temperature</option>` +
-    CLOSET_BANDS.map(b => `<option value="${esc(b)}">${esc(BAND_LABEL[b] || b)}</option>`).join("");
+  const condChips = CONDITIONS.map(c => `<label class="cond-chip"><input type="checkbox" name="cond" value="${esc(c)}" /><span>${esc(CONDITION_LABEL[c])}</span></label>`).join("");
   const form = `<form class="closet-form" id="closet-form" autocomplete="off">
     <input type="text" name="name" placeholder="Add an item, e.g. brown leather jacket" maxlength="40" />
     <select name="slot" aria-label="Slot">${slotOpts}</select>
-    <select name="band" aria-label="Wear when">${bandOpts}</select>
+    <div class="range-row">
+      <label>Min <input type="number" name="minTemp" inputmode="numeric" placeholder="-5" /> °C</label>
+      <label>Max <input type="number" name="maxTemp" inputmode="numeric" placeholder="35" /> °C</label>
+    </div>
+    <div class="cond-row">${condChips}</div>
     <button type="submit">Add</button>
   </form>`;
-  return `<section id="closet" class="panel"><h2>My closet</h2><p class="closet-hint">Tag each item with the temperature you'd wear it in. Items without a tag show up at every temperature.</p>${form}${sections}</section>`;
+  return `<section id="closet" class="panel"><h2>My closet</h2><p class="closet-hint">Set the temperature range you'd wear each item in. Tag a rain jacket with rain, sunglasses with sun, etc. Untagged items show in any conditions.</p>${form}${sections}</section>`;
 }
 
 function renderSettings() {
