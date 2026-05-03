@@ -15,7 +15,7 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; min-height: 100%; background: #020617; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
   main { max-width: 28rem; margin: 0 auto; padding: 1rem 1rem 2.5rem; display: flex; flex-direction: column; gap: 1rem; }
-  .hero { border-radius: 1.5rem; padding: 1.25rem 1.5rem; color: #020617; box-shadow: 0 10px 25px rgba(0,0,0,.25); }
+  .hero { border-radius: 1.5rem; padding: 1.1rem 1.5rem 1.4rem; color: #020617; box-shadow: 0 10px 25px rgba(0,0,0,.25); }
   .hero.scorching { background: #ef4444; }
   .hero.hot { background: #f97316; }
   .hero.warm { background: #fbbf24; }
@@ -25,14 +25,15 @@
   .hero.cold { background: #818cf8; }
   .hero.very_cold { background: #a78bfa; }
   .hero.freezing { background: #64748b; color: #f1f5f9; }
-  .hero-head { display: flex; justify-content: space-between; align-items: baseline; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; opacity: .8; font-weight: 600; }
-  .hero-temp { display: flex; align-items: baseline; gap: .8rem; margin-top: .65rem; flex-wrap: wrap; }
-  .hero-temp .big { font-size: 3.4rem; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
-  .hero-temp .feels { font-size: .85rem; opacity: .8; font-variant-numeric: tabular-nums; }
-  .hero-cond { font-size: .9rem; font-weight: 500; opacity: .85; margin-top: .15rem; }
-  .hero-icons { display: flex; flex-wrap: wrap; gap: .35rem; align-items: center; margin-top: .75rem; }
-  .hero-icons svg { width: 2.6rem; height: 2.6rem; display: block; }
-  .hero-plus { color: rgba(2,6,23,.55); font-weight: 700; font-size: 1.2rem; }
+  .hero-head { display: flex; justify-content: space-between; align-items: center; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; opacity: .85; font-weight: 600; }
+  .hero-band { background: rgba(2,6,23,.12); padding: .2rem .6rem; border-radius: 999px; }
+  .hero-icons { display: flex; flex-wrap: wrap; gap: .55rem; align-items: center; justify-content: center; margin: 1.4rem 0 1.1rem; min-height: 4rem; }
+  .hero-icons svg { width: 4rem; height: 4rem; display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,.18)); }
+  .hero-plus { color: rgba(2,6,23,.4); font-weight: 700; font-size: 1.4rem; line-height: 1; }
+  .hero-summary { display: flex; gap: .55rem; align-items: baseline; flex-wrap: wrap; justify-content: center; font-size: .85rem; font-weight: 500; opacity: .9; font-variant-numeric: tabular-nums; }
+  .hero-summary .temp { font-size: 1.35rem; font-weight: 700; line-height: 1; letter-spacing: -.01em; }
+  .hero-summary .sep { opacity: .5; }
+  .hero-summary .cond { font-weight: 500; }
   .hero-for { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; opacity: .7; font-weight: 600; margin-top: .55rem; }
   .today-line { display: flex; gap: .5rem; flex-wrap: wrap; padding: 0 .25rem; font-size: .85rem; color: #cbd5e1; font-variant-numeric: tabular-nums; align-items: center; }
   .today-line .sep { color: #475569; }
@@ -721,10 +722,9 @@ function renderHero(rec, c, cLabel) {
   const layers = [rec.layers.outer, rec.layers.mid, rec.layers.base, rec.layers.bottom, rec.layers.footwear].filter(Boolean);
   const heroIconsHtml = layers.map(l => bigIcon(l.ic)).join('<span class="hero-plus">+</span>');
   return `<section id="hero" class="hero ${esc(rec.band)}">
-    <div class="hero-head"><button class="loc-btn" type="button" data-loc-open>${esc(LOCATION.name)} ▾</button><span>${esc(BAND_LABEL[rec.band] || "")}</span></div>
-    <div class="hero-temp"><span class="big">${fmt(c.tempC)}</span><span class="feels">feels ${fmt(rec.aNow)}</span></div>
-    <div class="hero-cond">${esc(cLabel)}</div>
+    <div class="hero-head"><button class="loc-btn" type="button" data-loc-open>${esc(LOCATION.name)} ▾</button><span class="hero-band">${esc(BAND_LABEL[rec.band] || "")}</span></div>
     <div class="hero-icons">${heroIconsHtml}</div>
+    <div class="hero-summary"><span class="temp">${fmt(c.tempC)}</span><span class="sep">·</span><span>feels ${fmt(rec.aNow)}</span><span class="sep">·</span><span class="cond">${esc(cLabel)}</span></div>
   </section>`;
 }
 
@@ -909,7 +909,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v13-stack</div>
+      <div class="footer">${esc(LOCATION.name)} . v14-hero</div>
     `;
     attachToggleHandler(root);
     return;
@@ -930,7 +930,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v13-stack</div>
+    <div class="footer">${esc(LOCATION.name)} . v14-hero</div>
   `;
 
   // Scroll selected cell into center of strip.
