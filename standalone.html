@@ -440,23 +440,38 @@ function apparentC(tempC, rh, kph) {
   return bomAT(tempC, rh, kph);
 }
 
-// Open-Meteo's apparent temperature ignores radiant heat. In direct sun the
-// MRT is meaningfully higher than the air temp, so a clear UV-rich daytime
-// hour feels warmer than the formulas suggest. Overcast nudges the other way
-// because the sky no longer adds radiation. Low UV during the day (early
-// morning, dusk, sun behind buildings) is the same story: technically still
-// day but very little solar load, so it feels colder than the formula says.
-// Numbers are conservative since MRT proper requires globe-thermometer data
-// we don't have.
+// Solar elevation (degrees above horizon) from latitude, day-of-year and
+// local hour. Standard astronomy approximation, ignores equation-of-time
+// and longitude-within-timezone fudges (off by up to 15 min or so, fine).
+function solarElevation(latDeg, iso) {
+  const date = new Date(iso);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 0));
+  const dayOfYear = Math.floor((date.getTime() - yearStart.getTime()) / 86400000);
+  const decl = 23.45 * Math.sin(2 * Math.PI * (284 + dayOfYear) / 365) * Math.PI / 180;
+  const localHour = localHourOf(iso);
+  const hourAngle = (localHour - 12) * 15 * Math.PI / 180;
+  const lat = latDeg * Math.PI / 180;
+  const sinAlt = Math.sin(decl) * Math.sin(lat) + Math.cos(decl) * Math.cos(lat) * Math.cos(hourAngle);
+  return Math.asin(clamp(sinAlt, -1, 1)) * 180 / Math.PI;
+}
+
+// Replaces the previous UV-bucket cloudAdj. Uses real solar elevation:
+//  * elev <= -3deg: night, no effect
+//  * elev < 5deg: dusk/dawn cooling, scales from 0 to -2
+//  * elev >= 5deg: solar load, scales by sin(elev) * cloud transmission.
+//    Clear midday gives ~+1.3deg, overcast midday gives ~-0.2deg, dusk
+//    or just-past-sunset gives -2deg. Cloud transmission is 1 - (cloud%
+//    * 0.75), so 90% cloud lets through 32.5% of light.
 function cloudAdj(h) {
-  if (!h || !h.isDay) return 0;
+  if (!h) return 0;
+  const elev = solarElevation(LOCATION.lat, h.time || new Date().toISOString());
+  if (elev <= -3) return 0;
+  if (elev < 5) return clamp(-2 + elev * 0.4, -2, 0);
+  const sinElev = Math.sin(elev * Math.PI / 180);
   const cloud = num(h.cloud, 50);
-  const uv = num(h.uv, 0);
-  if (cloud <= 25 && uv >= 4) return 1;
-  if (uv < 1) return -2;
-  if (uv < 2) return -1;
-  if (cloud >= 80) return -0.5;
-  return 0;
+  const transmission = 1 - (cloud / 100) * 0.75;
+  const adj = sinElev * (transmission - 0.4) * 2.5;
+  return clamp(adj, -1, 1.5);
 }
 // BOM AT uses wind weakly above 10C, which doesn't match how people feel a
 // breeze on bare arms in t-shirt weather. Add a small extra penalty per
@@ -473,7 +488,31 @@ function feels(h) {
 
 function pickBand(c) { for (const b of CFG.bands) if (c >= b.min) return b.band; return "freezing"; }
 function bandIdx(b) { return CFG.bands.findIndex(x => x.band === b); }
-const effective = c => c + CFG.baselineOffset + CFG.activityOffset;
+const effective = c => c + CFG.baselineOffset + CFG.activityOffset + (CFG.adaptiveShift || 0);
+
+// ASHRAE 55-2017 adaptive comfort: people acclimate to recent climate. If
+// the running 7-day mean is warmer than a temperate reference (15deg), the
+// same temperature feels relatively cool to them; if recent mean is colder,
+// today feels relatively warm. Shift = 0.31 * (reference - mean), capped.
+// We use forecast as a proxy for recent climate (we don't store history).
+function adaptiveShift(allHours) {
+  if (!Array.isArray(allHours) || !allHours.length) return 0;
+  const tempsByDay = new Map();
+  for (const h of allHours) {
+    const d = localDateOf(h.time);
+    if (!tempsByDay.has(d)) tempsByDay.set(d, []);
+    tempsByDay.get(d).push(h.tempC);
+  }
+  const dailyMeans = [];
+  for (const [, temps] of tempsByDay) {
+    if (temps.length) dailyMeans.push(temps.reduce((s, t) => s + t, 0) / temps.length);
+  }
+  if (!dailyMeans.length) return 0;
+  const useMeans = dailyMeans.slice(0, 7);
+  const mean = useMeans.reduce((s, t) => s + t, 0) / useMeans.length;
+  const reference = 15;
+  return clamp(0.31 * (reference - mean), -3, 3);
+}
 
 const RECIPES = {
   scorching: { base: { ic: "🩱", v: "bathing suit or tank" }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts" }, footwear: { ic: "🩴", v: "sandals" }, acc: [] },
@@ -523,6 +562,7 @@ function recommend(input) {
   if (baseOff) adj.push(`baseline ${baseOff > 0 ? "+" : ""}${baseOff.toFixed(1)}°`);
   if (learned) adj.push(`learned ${learned > 0 ? "+" : ""}${learned.toFixed(1)}°`);
   if (CFG.activityOffset) adj.push(`activity +${CFG.activityOffset.toFixed(1)}°`);
+  if (CFG.adaptiveShift) adj.push(`adaptive ${CFG.adaptiveShift > 0 ? "+" : ""}${CFG.adaptiveShift.toFixed(1)}°`);
   rationale.push(`Engine-effective: ${eNow.toFixed(1)}°${adj.length ? ` (${adj.join(", ")})` : ""}.`);
   const cAdj = cloudAdj(c);
   if (cAdj > 0) rationale.push(`Clear sun adds about +${cAdj.toFixed(1)}° to perceived temp.`);
@@ -1148,6 +1188,7 @@ function pickInitialIdx(today) {
 }
 
 function render(weather) {
+  CFG.adaptiveShift = adaptiveShift(weather.allHours);
   const c = weather.current;
   const [cLabel] = wmo(c.code);
   const root = document.getElementById("root");
@@ -1167,7 +1208,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v33-evening</div>
+      <div class="footer">${esc(LOCATION.name)} . v34-adaptive</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1190,7 +1231,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v33-evening</div>
+    <div class="footer">${esc(LOCATION.name)} . v34-adaptive</div>
   `;
 
   // Scroll selected cell into center of strip.
