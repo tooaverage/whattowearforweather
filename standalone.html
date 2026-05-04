@@ -416,8 +416,9 @@ function cloudAdj(h) {
   const cloud = num(h.cloud, 50);
   const uv = num(h.uv, 0);
   if (cloud <= 25 && uv >= 4) return 1;
+  if (uv < 1) return -2;
+  if (uv < 2) return -1;
   if (cloud >= 80) return -0.5;
-  if (uv < 2) return -0.5;
   return 0;
 }
 function feels(h) {
@@ -986,7 +987,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v25-dusk</div>
+      <div class="footer">${esc(LOCATION.name)} . v26-dusk2</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1009,7 +1010,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v25-dusk</div>
+    <div class="footer">${esc(LOCATION.name)} . v26-dusk2</div>
   `;
 
   // Scroll selected cell into center of strip.
