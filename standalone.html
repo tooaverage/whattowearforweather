@@ -8,7 +8,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://api.open-meteo.com https://geocoding-api.open-meteo.com https://api.met.no; img-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://api.open-meteo.com https://geocoding-api.open-meteo.com https://archive-api.open-meteo.com https://api.met.no; img-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" />
 <title>What to wear in Vancouver</title>
 <style>
   :root { color-scheme: dark; }
@@ -244,6 +244,7 @@
   .trip-title { margin: 0; font-size: 1.1rem; color: #f8fafc; font-weight: 700; }
   .trip-bar-spacer { width: 4rem; }
   .trip-foot { font-size: .72rem; color: #64748b; margin: .25rem 0 0; line-height: 1.4; }
+  .trip-hist { font-size: .78rem; color: #fde68a; background: rgba(252,211,77,.06); border: 1px solid rgba(252,211,77,.2); padding: .55rem .75rem; border-radius: .5rem; margin: .5rem 0 0; line-height: 1.4; }
   .trip-section { display: flex; flex-direction: column; gap: .5rem; }
   .trip-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; font-weight: 600; }
   .trip-saved { display: flex; flex-wrap: wrap; gap: .35rem; }
@@ -911,6 +912,50 @@ async function fetchFromOpenMeteo(loc) {
 // Met Norway Locationforecast API. Free, no key. Returns timeseries with
 // instant air temp / humidity / wind / cloud / and next-hour precipitation.
 // Wind is m/s, we convert to km/h. UV not provided so we leave OM's value.
+// Open-Meteo archive API: same dates one year ago as a climatology proxy
+// for trips beyond the 16-day forecast horizon. Returned hour timestamps
+// are shifted forward by one year so downstream code (buildDailySummaries,
+// renderDayGraph) can treat the data as if it's for the user's actual
+// future dates. The result is flagged _historical so the UI can label it.
+async function fetchFromArchive(loc, plannedStartIso, plannedEndIso) {
+  const yearShift = 1;
+  const start = new Date(plannedStartIso + "T00:00:00Z");
+  const end = new Date(plannedEndIso + "T23:59:59Z");
+  const aStart = new Date(start); aStart.setUTCFullYear(start.getUTCFullYear() - yearShift);
+  const aEnd = new Date(end); aEnd.setUTCFullYear(end.getUTCFullYear() - yearShift);
+  const fmtD = d => d.toISOString().slice(0, 10);
+  const params = new URLSearchParams({
+    latitude: loc.lat, longitude: loc.lon, timezone: loc.tz || "auto",
+    start_date: fmtD(aStart), end_date: fmtD(aEnd),
+    hourly: "temperature_2m,relative_humidity_2m,precipitation,snowfall,weather_code,cloud_cover,wind_speed_10m,is_day",
+    wind_speed_unit: "kmh", temperature_unit: "celsius", precipitation_unit: "mm",
+  });
+  const r = await fetch("https://archive-api.open-meteo.com/v1/archive?" + params, { cache: "no-store", referrerPolicy: "no-referrer" });
+  if (!r.ok) throw new Error(`Archive ${r.status}`);
+  const d = await r.json();
+  const h = d && d.hourly;
+  if (!h || !Array.isArray(h.time)) throw new Error("Bad archive shape");
+  const allHours = [];
+  for (let i = 0; i < h.time.length; i++) {
+    const orig = new Date(h.time[i]);
+    orig.setUTCFullYear(orig.getUTCFullYear() + yearShift);
+    allHours.push({
+      time: orig.toISOString(),
+      tempC: num(h.temperature_2m && h.temperature_2m[i]),
+      rh: clamp(num(h.relative_humidity_2m && h.relative_humidity_2m[i]), 0, 100),
+      kph: Math.max(0, num(h.wind_speed_10m && h.wind_speed_10m[i])),
+      precipMm: Math.max(0, num(h.precipitation && h.precipitation[i])),
+      precipProb: 0,
+      uv: 0,
+      cloud: clamp(num(h.cloud_cover && h.cloud_cover[i]), 0, 100),
+      snowCm: Math.max(0, num(h.snowfall && h.snowfall[i])),
+      code: num(h.weather_code && h.weather_code[i]),
+      isDay: (h.is_day && h.is_day[i]) === 1,
+    });
+  }
+  return { current: null, allHours, _historical: true };
+}
+
 async function fetchFromMetNo() {
   const url = `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${LOCATION.lat.toFixed(4)}&lon=${LOCATION.lon.toFixed(4)}`;
   const r = await fetch(url, { cache: "no-store", referrerPolicy: "no-referrer" });
@@ -1376,7 +1421,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v41-trip-page</div>
+      <div class="footer">${esc(LOCATION.name)} . v42-far-future</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1399,7 +1444,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v41-trip-page</div>
+    <div class="footer">${esc(LOCATION.name)} . v42-far-future</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1908,7 +1953,7 @@ function openLocationModal() {
 function renderTripView() {
   const root = document.getElementById("root");
   const today = new Date();
-  const max = new Date(today.getTime() + 16 * 86400000);
+  const max = new Date(today.getTime() + 365 * 86400000);
   const fmtD = d => d.toISOString().slice(0, 10);
   if (!TRIP_STATE.startDate) TRIP_STATE.startDate = fmtD(today);
   if (!TRIP_STATE.endDate) TRIP_STATE.endDate = fmtD(new Date(today.getTime() + 3 * 86400000));
@@ -1950,7 +1995,7 @@ function renderTripView() {
           <span class="trip-arrow">→</span>
           <input type="date" data-trip-end min="${fmtD(today)}" max="${fmtD(max)}" value="${esc(TRIP_STATE.endDate)}" aria-label="End date" />
         </div>
-        <p class="trip-foot">Forecasts are available up to 16 days out. For dates further away, check back closer to your trip.</p>
+        <p class="trip-foot">Within 16 days = real forecast. Further out = same dates last year as a historical estimate, with a note on the result.</p>
       </div>
       <button type="button" class="trip-plan" data-trip-plan${planDisabled ? " disabled" : ""}>Plan it</button>
     </section>
@@ -2025,10 +2070,14 @@ function renderTripResults(weather, dest, startDate, endDate) {
   }).join("");
   const accRow = accSet.size ? `<div class="outfit-row"><span class="lbl">Plus</span><span class="val">${Array.from(accSet).map(n => esc(n)).join(", ")}</span></div>` : "";
   const dailyGraph = renderDayGraph(days, 3.6);
+  const histBanner = weather._historical
+    ? `<p class="trip-hist">Estimated from the same dates last year. Real forecast becomes available about 16 days before your trip.</p>`
+    : "";
   return `
     <section class="panel">
       <h2>${esc(dest.name)}</h2>
       <p class="trip-summary"><strong>${days.length}</strong> day${days.length === 1 ? "" : "s"} · ${fmt(tMin)} to ${fmt(tMax)}</p>
+      ${histBanner}
     </section>
     <section class="panel">
       <h2>Daily forecast</h2>
@@ -2615,13 +2664,20 @@ function exitTripMode() {
   window.scrollTo(0, 0);
 }
 async function runTripPlan() {
-  if (!TRIP_STATE.dest) return;
+  if (!TRIP_STATE.dest || !TRIP_STATE.startDate || !TRIP_STATE.endDate) return;
   TRIP_STATE.loading = true;
   TRIP_STATE.error = null;
   TRIP_STATE.weather = null;
   if (LAST_WEATHER) render(LAST_WEATHER);
   try {
-    TRIP_STATE.weather = await fetchFromOpenMeteo(TRIP_STATE.dest);
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const horizon = new Date(today.getTime() + 16 * 86400000);
+    const endParsed = new Date(TRIP_STATE.endDate + "T00:00:00");
+    if (endParsed <= horizon) {
+      TRIP_STATE.weather = await fetchFromOpenMeteo(TRIP_STATE.dest);
+    } else {
+      TRIP_STATE.weather = await fetchFromArchive(TRIP_STATE.dest, TRIP_STATE.startDate, TRIP_STATE.endDate);
+    }
   } catch (e) {
     TRIP_STATE.error = e && e.message || String(e);
   }
