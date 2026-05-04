@@ -11,7 +11,48 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://api.open-meteo.com https://geocoding-api.open-meteo.com https://archive-api.open-meteo.com https://api.met.no; img-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" />
 <title>What to wear in Vancouver</title>
 <style>
-  :root { color-scheme: dark; }
+  :root {
+    color-scheme: dark;
+    --bg: #020617;
+    --text: #f1f5f9;
+    --text-strong: #f8fafc;
+    --text-muted: #cbd5e1;
+    --text-faint: #94a3b8;
+    --text-fainter: #64748b;
+    --panel-bg: rgba(15,23,42,.7);
+    --panel-bg-solid: #0f172a;
+    --panel-border: rgba(255,255,255,.05);
+    --hairline: rgba(255,255,255,.06);
+    --chip-bg: #1e293b;
+    --chip-bg-hover: #273449;
+    --input-bg: #020617;
+    --input-border: rgba(255,255,255,.1);
+    --input-border-focus: rgba(255,255,255,.3);
+    --button-primary-bg: #f1f5f9;
+    --button-primary-text: #020617;
+    --shadow-card: 0 10px 25px rgba(0,0,0,.25);
+  }
+  [data-theme="light"] {
+    color-scheme: light;
+    --bg: #f8fafc;
+    --text: #0f172a;
+    --text-strong: #020617;
+    --text-muted: #475569;
+    --text-faint: #64748b;
+    --text-fainter: #94a3b8;
+    --panel-bg: #ffffff;
+    --panel-bg-solid: #ffffff;
+    --panel-border: rgba(15,23,42,.06);
+    --hairline: rgba(15,23,42,.07);
+    --chip-bg: #f1f5f9;
+    --chip-bg-hover: #e2e8f0;
+    --input-bg: #ffffff;
+    --input-border: rgba(15,23,42,.12);
+    --input-border-focus: rgba(15,23,42,.4);
+    --button-primary-bg: #0f172a;
+    --button-primary-text: #f8fafc;
+    --shadow-card: 0 1px 3px rgba(15,23,42,.06), 0 4px 12px rgba(15,23,42,.04);
+  }
   * { box-sizing: border-box; }
   *:focus { outline: none; }
   *:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
@@ -19,7 +60,7 @@
     *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
   }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
-  html, body { margin: 0; padding: 0; min-height: 100%; background: #020617; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  html, body { margin: 0; padding: 0; min-height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
   main { max-width: 28rem; margin: 0 auto; padding: 1rem 1rem 2.5rem; display: flex; flex-direction: column; gap: 1rem; }
   .hero { border-radius: 1.5rem; padding: 1.1rem 1.5rem 1.4rem; color: #020617; box-shadow: 0 10px 25px rgba(0,0,0,.25); }
   .hero.scorching { background: #ef4444; }
@@ -63,8 +104,8 @@
   .hc-point .hc-temp { font-size: .75rem; line-height: 1; font-variant-numeric: tabular-nums; color: #f1f5f9; font-weight: 600; }
   .hc-point .hc-icon { font-size: 1.05rem; line-height: 0; display: flex; align-items: center; justify-content: center; }
   .hc-point .hc-icon svg { width: 1.7rem; height: 1.7rem; display: block; }
-  .panel { border-radius: 1rem; padding: 1rem 1.1rem; background: rgba(15,23,42,.7); border: 1px solid rgba(255,255,255,.05); }
-  .panel h2 { margin: 0 0 .75rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; }
+  .panel { border-radius: 1rem; padding: 1rem 1.1rem; background: var(--panel-bg); border: 1px solid var(--panel-border); }
+  .panel h2 { margin: 0 0 .75rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: var(--text-muted); font-weight: 600; }
   .bring { background: rgba(252,211,77,.08); border-color: rgba(252,211,77,.2); }
   .bring h2 { color: #fcd34d; display: flex; align-items: center; gap: .4rem; }
   .bring h2 svg { width: 1.4rem; height: 1.4rem; }
@@ -809,6 +850,31 @@ function buildTimeline(weather) {
 
 const LOCATION_DEFAULT = { lat: 49.2497, lon: -123.1193, tz: "America/Vancouver", name: "Vancouver, BC" };
 let LOCATION = { ...LOCATION_DEFAULT };
+function getTheme() {
+  try { const t = localStorage.getItem("wtwfw-theme"); if (t === "light" || t === "dark") return t; } catch {}
+  return "system";
+}
+function applyTheme() {
+  const t = getTheme();
+  let resolved = t;
+  if (t === "system") {
+    try { resolved = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"; } catch { resolved = "dark"; }
+  }
+  document.documentElement.setAttribute("data-theme", resolved);
+  // Sync the meta theme-color so the iOS status bar matches.
+  try {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", resolved === "light" ? "#f8fafc" : "#0b1220");
+  } catch {}
+}
+function setTheme(t) {
+  try {
+    if (t === "system") localStorage.removeItem("wtwfw-theme");
+    else localStorage.setItem("wtwfw-theme", t);
+  } catch {}
+  applyTheme();
+}
+
 function loadLocation() {
   try {
     const s = localStorage.getItem("wtwfw-location");
@@ -1444,7 +1510,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v43-anticipate</div>
+      <div class="footer">${esc(LOCATION.name)} . v44-light</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1467,7 +1533,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v43-anticipate</div>
+    <div class="footer">${esc(LOCATION.name)} . v44-light</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1551,6 +1617,11 @@ function attachGlobalHandlers(root) {
     }
     const chip = e.target.closest(".chip");
     if (chip) {
+      if (chip.dataset.action === "set-theme") {
+        setTheme(chip.dataset.theme);
+        if (LAST_WEATHER) render(LAST_WEATHER);
+        return;
+      }
       if (chip.dataset.action === "reset-onb") {
         try { localStorage.removeItem("wtwfw-onboarded"); } catch {}
         if (LAST_WEATHER) render(LAST_WEATHER);
@@ -1560,7 +1631,7 @@ function attachGlobalHandlers(root) {
       if (chip.dataset.action === "wipe-data") {
         if (!confirm("This wipes your closet, snapshots, calibration, location, and settings from this browser. The forecast itself isn't affected. Continue?")) return;
         try {
-          for (const k of ["wtwfw-baseline", "wtwfw-activity", "wtwfw-learned", "wtwfw-location", "wtwfw-saved-locations", "wtwfw-closet", "wtwfw-overrides", "wtwfw-snapshots", "wtwfw-onboarded", "wtwfw-pro", "wtwfw-trial-expires"]) localStorage.removeItem(k);
+          for (const k of ["wtwfw-baseline", "wtwfw-activity", "wtwfw-learned", "wtwfw-location", "wtwfw-saved-locations", "wtwfw-closet", "wtwfw-overrides", "wtwfw-snapshots", "wtwfw-onboarded", "wtwfw-pro", "wtwfw-trial-expires", "wtwfw-theme"]) localStorage.removeItem(k);
         } catch {}
         loadLocation();
         applySettings();
@@ -2602,7 +2673,13 @@ function renderSettings() {
     return `<div class="pref-row"><span class="pref-label">${esc(def.label)}</span><div class="pref-chips">${chips}</div></div>`;
   };
   const reset = `<div class="pref-row"><span class="pref-label">Setup</span><div class="pref-chips"><button class="chip" type="button" data-action="reset-onb">Run setup again</button></div></div>`;
-  return `<section id="settings" class="panel"><h2>You</h2>${rowFor("baseline")}${rowFor("activity")}${reset}</section>`;
+  const curTheme = getTheme();
+  const themeChips = ["system", "light", "dark"].map(t => {
+    const label = { system: "Match system", light: "Light", dark: "Dark" }[t];
+    return `<button class="chip" type="button" data-action="set-theme" data-theme="${esc(t)}" aria-pressed="${t === curTheme ? "true" : "false"}">${esc(label)}</button>`;
+  }).join("");
+  const theme = `<div class="pref-row"><span class="pref-label">Theme</span><div class="pref-chips">${themeChips}</div></div>`;
+  return `<section id="settings" class="panel"><h2>You</h2>${rowFor("baseline")}${rowFor("activity")}${theme}${reset}</section>`;
 }
 
 function renderPro() {
@@ -2715,6 +2792,8 @@ function renderError(msg) {
 
 (async () => {
   try {
+    applyTheme();
+    try { window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => { if (getTheme() === "system") applyTheme(); }); } catch {}
     loadLocation();
     applySettings();
     LAST_WEATHER = await fetchWeather();

@@ -42,6 +42,7 @@ parentheses, or rewrite the sentence. This rule has no exceptions.**
 | `wtwfw-onboarded` | `"1"` | once set, onboarding doesn't re-show |
 | `wtwfw-pro` | `"trial"` \| `"active"` | Pro state on the web (iOS replaces with StoreKit) |
 | `wtwfw-trial-expires` | epoch ms | when the 14-day trial ends |
+| `wtwfw-theme` | `"light"` \| `"dark"` | omitted = follow system preference |
 
 ## Bands (warmest to coldest)
 
