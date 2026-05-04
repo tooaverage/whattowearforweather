@@ -8,7 +8,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://api.open-meteo.com https://geocoding-api.open-meteo.com; img-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://api.open-meteo.com https://geocoding-api.open-meteo.com https://api.met.no; img-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" />
 <title>What to wear in Vancouver</title>
 <style>
   :root { color-scheme: dark; }
@@ -30,10 +30,9 @@
   .hero-icons { display: flex; flex-wrap: wrap; gap: .55rem; align-items: center; justify-content: center; margin: 1.4rem 0 1.1rem; min-height: 4rem; }
   .hero-icons svg { width: 4rem; height: 4rem; display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,.18)); }
   .hero-plus { color: rgba(2,6,23,.4); font-weight: 700; font-size: 1.4rem; line-height: 1; }
-  .hero-summary { display: flex; gap: .55rem; align-items: baseline; flex-wrap: wrap; justify-content: center; font-size: .85rem; font-weight: 500; opacity: .9; font-variant-numeric: tabular-nums; }
-  .hero-summary .temp { font-size: 1.35rem; font-weight: 700; line-height: 1; letter-spacing: -.01em; }
-  .hero-summary .sep { opacity: .5; }
-  .hero-summary .cond { font-weight: 500; }
+  .hero-desc { font-size: 1rem; font-weight: 600; text-align: center; margin-top: .5rem; line-height: 1.3; letter-spacing: -.005em; }
+  .hero-temp-foot { display: flex; gap: .4rem; align-items: baseline; flex-wrap: wrap; justify-content: center; font-size: .72rem; font-weight: 500; opacity: .7; font-variant-numeric: tabular-nums; margin-top: .35rem; }
+  .hero-temp-foot .sep { opacity: .5; }
   .hero-for { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; opacity: .7; font-weight: 600; margin-top: .55rem; }
   .section-title { font-size: .72rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; padding: 0 .25rem; margin-top: .15rem; }
   .today-line { display: flex; gap: .5rem; flex-wrap: wrap; padding: 0 .25rem; font-size: .85rem; color: #cbd5e1; font-variant-numeric: tabular-nums; align-items: center; }
@@ -641,7 +640,7 @@ function saveLocation() {
   try { localStorage.setItem("wtwfw-location", JSON.stringify(LOCATION)); } catch {}
 }
 
-async function fetchWeather() {
+async function fetchFromOpenMeteo() {
   const params = new URLSearchParams({
     latitude: LOCATION.lat, longitude: LOCATION.lon, timezone: LOCATION.tz,
     current: "temperature_2m,relative_humidity_2m,is_day,precipitation,snowfall,weather_code,cloud_cover,wind_speed_10m,wind_gusts_10m,uv_index",
@@ -651,10 +650,9 @@ async function fetchWeather() {
   const r = await fetch("https://api.open-meteo.com/v1/forecast?" + params, { cache: "no-store", referrerPolicy: "no-referrer" });
   if (!r.ok) throw new Error(`Open-Meteo ${r.status}`);
   const d = await r.json();
-  if (!d || typeof d !== "object") throw new Error("Bad response shape");
+  if (!d || typeof d !== "object") throw new Error("Bad Open-Meteo response shape");
   const c = d.current, h = d.hourly;
-  if (!c || !h || !Array.isArray(h.time)) throw new Error("Bad response shape");
-
+  if (!c || !h || !Array.isArray(h.time)) throw new Error("Bad Open-Meteo response shape");
   const allHours = [];
   for (let i = 0; i < h.time.length; i++) {
     allHours.push({
@@ -675,7 +673,6 @@ async function fetchWeather() {
   let start = 0;
   for (let i = 0; i < allHours.length; i++) if (new Date(allHours[i].time).getTime() <= now) start = i; else break;
   const next12h = allHours.slice(start, start + 12);
-
   return {
     current: {
       time: String(c.time || ""),
@@ -690,6 +687,82 @@ async function fetchWeather() {
     next12h,
     allHours,
   };
+}
+
+// Met Norway Locationforecast API. Free, no key. Returns timeseries with
+// instant air temp / humidity / wind / cloud / and next-hour precipitation.
+// Wind is m/s, we convert to km/h. UV not provided so we leave OM's value.
+async function fetchFromMetNo() {
+  const url = `https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=${LOCATION.lat.toFixed(4)}&lon=${LOCATION.lon.toFixed(4)}`;
+  const r = await fetch(url, { cache: "no-store", referrerPolicy: "no-referrer" });
+  if (!r.ok) throw new Error(`Met Norway ${r.status}`);
+  const d = await r.json();
+  const series = d && d.properties && d.properties.timeseries;
+  if (!Array.isArray(series)) throw new Error("Bad Met Norway shape");
+  const hours = [];
+  for (const e of series) {
+    const inst = (e.data && e.data.instant && e.data.instant.details) || {};
+    const next1 = (e.data && e.data.next_1_hours && e.data.next_1_hours.details) || {};
+    hours.push({
+      time: String(e.time || ""),
+      tempC: num(inst.air_temperature),
+      rh: clamp(num(inst.relative_humidity), 0, 100),
+      kph: Math.max(0, num(inst.wind_speed) * 3.6),
+      cloud: clamp(num(inst.cloud_area_fraction), 0, 100),
+      precipMm: Math.max(0, num(next1.precipitation_amount)),
+    });
+  }
+  return { hours };
+}
+
+// Mean of two values when both finite, otherwise the finite one.
+function avg2(a, b) {
+  const aFin = Number.isFinite(a), bFin = Number.isFinite(b);
+  if (aFin && bFin) return (a + b) / 2;
+  if (aFin) return a;
+  if (bFin) return b;
+  return 0;
+}
+
+function blendWeather(om, mn) {
+  if (!mn || !Array.isArray(mn.hours)) return;
+  const byTime = new Map();
+  for (const h of mn.hours) byTime.set(h.time, h);
+  for (const h of om.allHours) {
+    const m = byTime.get(h.time);
+    if (!m) continue;
+    h.tempC = avg2(h.tempC, m.tempC);
+    h.rh = avg2(h.rh, m.rh);
+    h.kph = avg2(h.kph, m.kph);
+    h.cloud = avg2(h.cloud, m.cloud);
+    if (Number.isFinite(m.precipMm)) h.precipMm = Math.max(h.precipMm, m.precipMm);
+  }
+  // Blend current with the Met Norway hour closest to now.
+  const nowMs = Date.now();
+  let best = null, bestDiff = Infinity;
+  for (const h of mn.hours) {
+    const diff = Math.abs(new Date(h.time).getTime() - nowMs);
+    if (diff < bestDiff) { bestDiff = diff; best = h; }
+  }
+  if (best) {
+    om.current.tempC = avg2(om.current.tempC, best.tempC);
+    om.current.rh = avg2(om.current.rh, best.rh);
+    om.current.kph = avg2(om.current.kph, best.kph);
+    om.current.cloud = avg2(om.current.cloud, best.cloud);
+  }
+}
+
+async function fetchWeather() {
+  const om = await fetchFromOpenMeteo();
+  let mn = null;
+  try { mn = await fetchFromMetNo(); } catch (e) { console.warn("Met Norway failed:", e && e.message); }
+  if (mn) {
+    blendWeather(om, mn);
+    om._sources = ["Open-Meteo", "Met Norway"];
+  } else {
+    om._sources = ["Open-Meteo"];
+  }
+  return om;
 }
 
 function buildDailySummaries(allHours) {
@@ -813,13 +886,30 @@ const dayLabel = (isoDate) => {
 };
 const rainLevel = p => p >= 40 ? "wet" : p >= 10 ? "maybe" : "dry";
 
+function describeFeel(rec, c, cLabel) {
+  const parts = [];
+  const conds = rec.conditions || [];
+  if (conds.includes("rain")) parts.push("rainy");
+  else if (conds.includes("snow")) parts.push("snowy");
+  if (conds.includes("wind")) parts.push("breezy");
+  if (conds.includes("sun")) parts.push("sunny");
+  const uv = num(c.uv, 0);
+  if (c.isDay && uv < 1 && !parts.includes("breezy")) parts.push("low sun");
+  if (!parts.length && cLabel) parts.push(String(cLabel).toLowerCase());
+  if (!parts.length) return "";
+  const joined = parts.join(", ");
+  return joined.charAt(0).toUpperCase() + joined.slice(1) + ".";
+}
+
 function renderHero(rec, c, cLabel) {
   const layers = [rec.layers.outer, rec.layers.mid, rec.layers.base, rec.layers.bottom, rec.layers.footwear].filter(Boolean);
   const heroIconsHtml = layers.map(l => bigIcon(l.ic)).join('<span class="hero-plus">+</span>');
+  const desc = describeFeel(rec, c, cLabel);
   return `<section id="hero" class="hero ${esc(rec.band)}">
     <div class="hero-head"><button class="loc-btn" type="button" data-loc-open>${esc(LOCATION.name)} ▾</button><span class="hero-band">${esc(BAND_LABEL[rec.band] || "")}</span></div>
     <div class="hero-icons">${heroIconsHtml}</div>
-    <div class="hero-summary"><span class="temp">${fmt(c.tempC)}</span><span class="sep">·</span><span>feels ${fmt(rec.aNow)}</span><span class="sep">·</span><span class="cond">${esc(cLabel)}</span></div>
+    <div class="hero-desc">${esc(desc)}</div>
+    <div class="hero-temp-foot"><span>${fmt(c.tempC)}</span><span class="sep">·</span><span>feels ${fmt(rec.eNow)} for you</span></div>
   </section>`;
 }
 
@@ -1034,8 +1124,8 @@ function render(weather) {
       ${renderComing(weather)}
       ${renderCloset()}
       ${renderSettings()}
-      ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v28-breeze</div>
+      ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
+      <div class="footer">${esc(LOCATION.name)} . v29-multi</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1058,7 +1148,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v28-breeze</div>
+    <div class="footer">${esc(LOCATION.name)} . v29-multi</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1086,7 +1176,7 @@ function render(weather) {
     document.getElementById("hero").outerHTML = renderHero(r2, heroCtx, cLabel2);
     document.getElementById("bring").outerHTML = renderBring(r2);
     document.getElementById("wear").outerHTML = renderWear(r2);
-    document.getElementById("why").outerHTML = renderWhy(r2, "Open-Meteo");
+    document.getElementById("why").outerHTML = renderWhy(r2, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "));
   });
 
   attachToggleHandler(root);
