@@ -514,17 +514,29 @@ function adaptiveShift(allHours) {
   return clamp(0.31 * (reference - mean), -3, 3);
 }
 
+// clo values per layer per ASHRAE 55-2017 / ISO 9920 garment tables.
 const RECIPES = {
-  scorching: { base: { ic: "🩱", v: "bathing suit or tank" }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts" }, footwear: { ic: "🩴", v: "sandals" }, acc: [] },
-  hot: { base: { ic: "🎽", v: "tank top" }, mid: null, outer: null, bottom: { ic: "🩳", v: "athletic shorts" }, footwear: { ic: "🩴", v: "sandals or sneakers" }, acc: [] },
-  warm: { base: { ic: "👕", v: "breathable t-shirt" }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
-  mild: { base: { ic: "👕", v: "t-shirt" }, mid: null, outer: null, bottom: { ic: "👖", v: "light pants or jeans" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
-  cool: { base: { ic: "🥼", v: "thin long-sleeve shirt" }, mid: null, outer: null, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "sneakers" }, acc: [] },
-  chilly: { base: { ic: "👕", v: "long-sleeve shirt" }, mid: { ic: "🧥", v: "light sweater or fleece" }, outer: null, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "closed shoes" }, acc: [] },
-  cold: { base: { ic: "👕", v: "long-sleeve thermal top" }, mid: { ic: "🧥", v: "sweater or fleece" }, outer: { ic: "🧥", v: "insulated jacket" }, bottom: { ic: "👖", v: "pants" }, footwear: { ic: "👟", v: "closed shoes" }, acc: [] },
-  very_cold: { base: { ic: "👕", v: "thermal base layer" }, mid: { ic: "🧥", v: "mid-weight fleece or wool" }, outer: { ic: "🧥", v: "insulated winter jacket" }, bottom: { ic: "👖", v: "lined or thermal pants" }, footwear: { ic: "🥾", v: "insulated boots" }, acc: [{ ic: "🧢", v: "warm hat" }, { ic: "🧤", v: "gloves" }] },
-  freezing: { base: { ic: "👕", v: "heavy thermal base" }, mid: { ic: "🧥", v: "down or heavy fleece" }, outer: { ic: "🧥", v: "parka" }, bottom: { ic: "👖", v: "thermal pants under outer pants" }, footwear: { ic: "🥾", v: "insulated waterproof boots" }, acc: [{ ic: "🧢", v: "warm hat" }, { ic: "🧤", v: "insulated gloves" }, { ic: "🧣", v: "scarf or neck gaiter" }] },
+  scorching: { base: { ic: "🩱", v: "bathing suit or tank", clo: 0.04 }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts", clo: 0.06 }, footwear: { ic: "🩴", v: "sandals", clo: 0.02 }, acc: [] },
+  hot: { base: { ic: "🎽", v: "tank top", clo: 0.05 }, mid: null, outer: null, bottom: { ic: "🩳", v: "athletic shorts", clo: 0.05 }, footwear: { ic: "🩴", v: "sandals or sneakers", clo: 0.03 }, acc: [] },
+  warm: { base: { ic: "👕", v: "breathable t-shirt", clo: 0.10 }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts", clo: 0.06 }, footwear: { ic: "👟", v: "sneakers", clo: 0.04 }, acc: [] },
+  mild: { base: { ic: "👕", v: "t-shirt", clo: 0.10 }, mid: null, outer: null, bottom: { ic: "👖", v: "light pants or jeans", clo: 0.20 }, footwear: { ic: "👟", v: "sneakers", clo: 0.04 }, acc: [] },
+  cool: { base: { ic: "🥼", v: "thin long-sleeve shirt", clo: 0.20 }, mid: null, outer: null, bottom: { ic: "👖", v: "pants", clo: 0.24 }, footwear: { ic: "👟", v: "sneakers", clo: 0.04 }, acc: [] },
+  chilly: { base: { ic: "👕", v: "long-sleeve shirt", clo: 0.20 }, mid: { ic: "🧥", v: "light sweater or fleece", clo: 0.25 }, outer: null, bottom: { ic: "👖", v: "pants", clo: 0.24 }, footwear: { ic: "👟", v: "closed shoes", clo: 0.05 }, acc: [] },
+  cold: { base: { ic: "👕", v: "long-sleeve thermal top", clo: 0.25 }, mid: { ic: "🧥", v: "sweater or fleece", clo: 0.36 }, outer: { ic: "🧥", v: "insulated jacket", clo: 0.44 }, bottom: { ic: "👖", v: "pants", clo: 0.24 }, footwear: { ic: "👟", v: "closed shoes", clo: 0.05 }, acc: [] },
+  very_cold: { base: { ic: "👕", v: "thermal base layer", clo: 0.25 }, mid: { ic: "🧥", v: "mid-weight fleece or wool", clo: 0.36 }, outer: { ic: "🧥", v: "insulated winter jacket", clo: 0.66 }, bottom: { ic: "👖", v: "lined or thermal pants", clo: 0.28 }, footwear: { ic: "🥾", v: "insulated boots", clo: 0.10 }, acc: [{ ic: "🧢", v: "warm hat", clo: 0.05 }, { ic: "🧤", v: "gloves", clo: 0.05 }] },
+  freezing: { base: { ic: "👕", v: "heavy thermal base", clo: 0.30 }, mid: { ic: "🧥", v: "down or heavy fleece", clo: 0.45 }, outer: { ic: "🧥", v: "parka", clo: 0.70 }, bottom: { ic: "👖", v: "thermal pants under outer pants", clo: 0.32 }, footwear: { ic: "🥾", v: "insulated waterproof boots", clo: 0.12 }, acc: [{ ic: "🧢", v: "warm hat", clo: 0.05 }, { ic: "🧤", v: "insulated gloves", clo: 0.07 }, { ic: "🧣", v: "scarf or neck gaiter", clo: 0.05 }] },
 };
+
+function totalClo(layers) {
+  let sum = 0;
+  for (const l of [layers.outer, layers.mid, layers.base, layers.bottom, layers.footwear]) {
+    if (l && Number.isFinite(l.clo)) sum += l.clo;
+  }
+  for (const a of (layers.acc || [])) {
+    if (a && Number.isFinite(a.clo)) sum += a.clo;
+  }
+  return sum;
+}
 
 function summarizeArc(next) {
   if (!next.length) return { min: 0, max: 0, spread: 0, cross: false, minTime: "", maxTime: "", totalMm: 0, maxProb: 0, maxUv: 0, maxKph: 0, totalSnow: 0 };
@@ -621,7 +633,10 @@ function recommend(input) {
   if (arc.maxKph >= 15) conditions.push("wind");
   if ((arc.totalSnow || 0) >= 0.5) conditions.push("snow");
   if (c.isDay && num(c.cloud, 50) < 30) conditions.push("sun");
-  return { aNow, eNow, band, layers: { base: r.base, mid: r.mid, outer, bottom: r.bottom, footwear, acc }, bring, rationale, arc, conditions };
+  const layersOut = { base: r.base, mid: r.mid, outer, bottom: r.bottom, footwear, acc };
+  const clo = totalClo(layersOut);
+  rationale.push(`Outfit insulation: ~${clo.toFixed(2)} clo (ASHRAE 55 / ISO 9920 garment table).`);
+  return { aNow, eNow, band, layers: layersOut, bring, rationale, arc, conditions, clo };
 }
 
 function buildTimeline(weather) {
@@ -1208,7 +1223,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v34-adaptive</div>
+      <div class="footer">${esc(LOCATION.name)} . v35-clo</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1231,7 +1246,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v34-adaptive</div>
+    <div class="footer">${esc(LOCATION.name)} . v35-clo</div>
   `;
 
   // Scroll selected cell into center of strip.
