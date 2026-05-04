@@ -683,7 +683,7 @@ async function fetchFromOpenMeteo() {
   const now = Date.now();
   let start = 0;
   for (let i = 0; i < allHours.length; i++) if (new Date(allHours[i].time).getTime() <= now) start = i; else break;
-  const next12h = allHours.slice(start, start + 12);
+  const next12h = relevantNext(allHours, start, 10);
   return {
     current: {
       time: String(c.time || ""),
@@ -776,6 +776,20 @@ async function fetchWeather() {
   return om;
 }
 
+// Pull the next N hours out of allHours starting at startIdx, but only the
+// ones where the user is plausibly outside (6am-10pm local). So a 7pm cell
+// doesn't extrapolate based on 3am cooling, which the user won't experience.
+function relevantNext(allHours, startIdx, n) {
+  const out = [];
+  let i = startIdx;
+  while (out.length < n && i < allHours.length) {
+    const hr = localHourOf(allHours[i].time);
+    if (hr >= 6 && hr <= 22) out.push(allHours[i]);
+    i++;
+  }
+  return out;
+}
+
 function buildDailySummaries(allHours) {
   const byDay = new Map();
   for (const h of allHours) {
@@ -830,7 +844,7 @@ function buildTodayCells(weather) {
     const a = feels(h);
     const eff = effective(a);
     const band = pickBand(eff);
-    const next12h = allHours.slice(i, i + 12);
+    const next12h = relevantNext(allHours, i, 10);
     const rec = recommend({ current: h, next12h });
     return { ...h, apparent: a, eff, band, rec };
   });
@@ -1136,7 +1150,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v30-onb4</div>
+      <div class="footer">${esc(LOCATION.name)} . v31-waking</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1159,7 +1173,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v30-onb4</div>
+    <div class="footer">${esc(LOCATION.name)} . v31-waking</div>
   `;
 
   // Scroll selected cell into center of strip.
