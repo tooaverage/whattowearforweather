@@ -406,14 +406,18 @@ function apparentC(tempC, rh, kph) {
 // Open-Meteo's apparent temperature ignores radiant heat. In direct sun the
 // MRT is meaningfully higher than the air temp, so a clear UV-rich daytime
 // hour feels warmer than the formulas suggest. Overcast nudges the other way
-// because the sky no longer adds radiation. Numbers are conservative since
-// MRT proper requires globe-thermometer data we don't have.
+// because the sky no longer adds radiation. Low UV during the day (early
+// morning, dusk, sun behind buildings) is the same story: technically still
+// day but very little solar load, so it feels colder than the formula says.
+// Numbers are conservative since MRT proper requires globe-thermometer data
+// we don't have.
 function cloudAdj(h) {
   if (!h || !h.isDay) return 0;
   const cloud = num(h.cloud, 50);
   const uv = num(h.uv, 0);
   if (cloud <= 25 && uv >= 4) return 1;
   if (cloud >= 80) return -0.5;
+  if (uv < 2) return -0.5;
   return 0;
 }
 function feels(h) {
@@ -982,7 +986,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v24-tall</div>
+      <div class="footer">${esc(LOCATION.name)} . v25-dusk</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1005,7 +1009,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v24-tall</div>
+    <div class="footer">${esc(LOCATION.name)} . v25-dusk</div>
   `;
 
   // Scroll selected cell into center of strip.
