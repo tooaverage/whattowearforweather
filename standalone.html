@@ -238,6 +238,17 @@
   .onb-next:disabled { opacity: .5; cursor: not-allowed; }
   .onb-skip { background: transparent; color: #64748b; border: none; padding: .35rem; cursor: pointer; font-family: inherit; font-size: .75rem; align-self: flex-end; }
   .onb-skip:hover { color: #94a3b8; }
+  .onb-section { display: flex; flex-direction: column; gap: .5rem; }
+  .onb-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; font-weight: 600; }
+  .onb-science { background: #020617; border: 1px solid rgba(255,255,255,.05); border-radius: .65rem; padding: .65rem .9rem; font-size: .82rem; color: #cbd5e1; }
+  .onb-science summary { font-size: .82rem; color: #93c5fd; font-weight: 600; cursor: pointer; list-style: none; }
+  .onb-science summary::-webkit-details-marker { display: none; }
+  .onb-science summary::before { content: "🔬 "; }
+  .onb-science[open] summary { margin-bottom: .5rem; }
+  .onb-science p { margin: .35rem 0; line-height: 1.4; }
+  .onb-science ul { margin: .35rem 0; padding-left: 1.25rem; }
+  .onb-science li { margin: .15rem 0; line-height: 1.4; }
+  .onb-science .src { font-size: .7rem; color: #64748b; margin-top: .5rem; }
   .day-toggle { background: transparent; border: 1px solid rgba(255,255,255,.1); color: #cbd5e1; padding: .55rem 1rem; border-radius: .65rem; font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; cursor: pointer; margin-top: .85rem; width: 100%; font-weight: 600; font-family: inherit; }
   .day-toggle:hover { background: rgba(255,255,255,.04); }
   details summary { font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; padding: .55rem 0; align-items: center; }
@@ -1125,7 +1136,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v29-multi</div>
+      <div class="footer">${esc(LOCATION.name)} . v30-onb4</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1148,7 +1159,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v29-multi</div>
+    <div class="footer">${esc(LOCATION.name)} . v30-onb4</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1277,20 +1288,53 @@ function showOnboarding() {
   const overlay = document.createElement("div");
   overlay.className = "onb-overlay";
   document.body.appendChild(overlay);
+  const TOTAL = 4;
   const state = { step: 1, picked: new Set(), comfort: null };
   const close = () => overlay.remove();
   const finishSkip = () => { try { localStorage.setItem("wtwfw-onboarded", "1"); } catch {} close(); };
+
   function step1() {
     overlay.innerHTML = `<div class="onb-card">
-      <div class="onb-step">Step 1 of 3</div>
-      <h2>Where are you?</h2>
-      <p>We use your location to pull the local forecast. Default is Vancouver.</p>
-      <button class="onb-here" type="button" id="onb-locate">📍 Use my current location</button>
-      <button class="onb-here" type="button" id="onb-keep">Keep ${esc(LOCATION.name)}</button>
+      <div class="onb-step">Step 1 of ${TOTAL}</div>
+      <h2>Welcome.</h2>
+      <p>Most weather apps tell you the temperature. We tell you what to wear.</p>
+      <details class="onb-science">
+        <summary>How it works (the nerdy bit)</summary>
+        <p>We blend forecasts from <strong>Open-Meteo</strong> and <strong>Met Norway</strong>, then run them through published thermal-comfort science:</p>
+        <ul>
+          <li><strong>NWS Wind Chill</strong> when it's cold and windy.</li>
+          <li><strong>BOM Apparent Temperature</strong> in the in-between range.</li>
+          <li><strong>NOAA Heat Index</strong> when it's hot and humid.</li>
+          <li>Our own cloud + UV adjustments for sun, shade and dusk.</li>
+          <li>A breeze penalty for the warm-and-windy case the formulas miss.</li>
+        </ul>
+        <p>Then your personal calibration: body baseline, activity, learned offset from tap-to-teach, and item-level closet preferences.</p>
+        <p class="src">Sources: NWS, BOM, NOAA, ISO 7730 / ASHRAE 55, de Dear &amp; Brager 2002.</p>
+      </details>
+      <div class="onb-actions">
+        <button class="onb-next" type="button" id="onb-next">Let's go</button>
+      </div>
       <button class="onb-skip" type="button" id="onb-skip">Skip setup</button>
     </div>`;
     overlay.querySelector("#onb-skip").onclick = finishSkip;
-    overlay.querySelector("#onb-keep").onclick = () => { state.step = 2; render(); };
+    overlay.querySelector("#onb-next").onclick = () => { state.step = 2; render(); };
+  }
+
+  function step2() {
+    overlay.innerHTML = `<div class="onb-card">
+      <div class="onb-step">Step 2 of ${TOTAL}</div>
+      <h2>Where are you?</h2>
+      <p>So we pull the right forecast. You can change this any time.</p>
+      <button class="onb-here" type="button" id="onb-locate">📍 Use my current location</button>
+      <button class="onb-here" type="button" id="onb-keep">Keep ${esc(LOCATION.name)}</button>
+      <div class="onb-actions">
+        <button class="onb-back" type="button" id="onb-back">Back</button>
+      </div>
+      <button class="onb-skip" type="button" id="onb-skip">Skip setup</button>
+    </div>`;
+    overlay.querySelector("#onb-skip").onclick = finishSkip;
+    overlay.querySelector("#onb-back").onclick = () => { state.step = 1; render(); };
+    overlay.querySelector("#onb-keep").onclick = () => { state.step = 3; render(); };
     overlay.querySelector("#onb-locate").onclick = (e) => {
       const btn = e.currentTarget;
       if (!navigator.geolocation) { btn.textContent = "Geolocation not supported"; return; }
@@ -1300,7 +1344,7 @@ function showOnboarding() {
         const tz = (Intl.DateTimeFormat().resolvedOptions() || {}).timeZone || "auto";
         LOCATION = { lat: pos.coords.latitude, lon: pos.coords.longitude, tz, name: "Current location" };
         saveLocation();
-        state.step = 2;
+        state.step = 3;
         refreshWeather().then(() => render());
       }, () => {
         btn.disabled = false;
@@ -1308,14 +1352,26 @@ function showOnboarding() {
       }, { timeout: 10000, maximumAge: 60000 });
     };
   }
-  function step2() {
-    const tempLine = `Right now in ${esc(LOCATION.name)} it's ${fmt(c.tempC)}, feels like ${fmt(aNow)}.`;
-    const chips = ONB_OUTFIT.map(o => `<button type="button" class="onb-chip" data-v="${esc(o.v)}" aria-pressed="${state.picked.has(o.v) ? "true" : "false"}">${esc(o.label)}</button>`).join("");
+
+  function step3() {
+    const actChips = PREFS.activity.options.map(o =>
+      `<button type="button" class="onb-chip" data-pref="activity" data-v="${esc(o.val)}" aria-pressed="${getPref("activity") === o.val ? "true" : "false"}">${esc(o.label)}</button>`
+    ).join("");
+    const baseChips = PREFS.baseline.options.map(o =>
+      `<button type="button" class="onb-chip" data-pref="baseline" data-v="${esc(o.val)}" aria-pressed="${getPref("baseline") === o.val ? "true" : "false"}">${esc(o.label)}</button>`
+    ).join("");
     overlay.innerHTML = `<div class="onb-card">
-      <div class="onb-step">Step 2 of 3</div>
-      <h2>What are you wearing right now?</h2>
-      <p>${tempLine} Pick everything you have on. We'll add these to your closet.</p>
-      <div class="onb-chips">${chips}</div>
+      <div class="onb-step">Step 3 of ${TOTAL}</div>
+      <h2>A bit about you</h2>
+      <p>Two questions so we don't dress you for the wrong situation.</p>
+      <div class="onb-section">
+        <div class="onb-label">When you're outside, you're usually</div>
+        <div class="onb-chips">${actChips}</div>
+      </div>
+      <div class="onb-section">
+        <div class="onb-label">Your body</div>
+        <div class="onb-chips">${baseChips}</div>
+      </div>
       <div class="onb-actions">
         <button class="onb-back" type="button" id="onb-back">Back</button>
         <button class="onb-next" type="button" id="onb-next">Next</button>
@@ -1323,8 +1379,44 @@ function showOnboarding() {
       <button class="onb-skip" type="button" id="onb-skip">Skip setup</button>
     </div>`;
     overlay.querySelector("#onb-skip").onclick = finishSkip;
-    overlay.querySelector("#onb-back").onclick = () => { state.step = 1; render(); };
-    overlay.querySelector("#onb-next").onclick = () => { state.step = 3; render(); };
+    overlay.querySelector("#onb-back").onclick = () => { state.step = 2; render(); };
+    overlay.querySelector("#onb-next").onclick = () => { state.step = 4; render(); };
+    overlay.querySelectorAll(".onb-chip").forEach(btn => {
+      btn.onclick = () => {
+        const pref = btn.dataset.pref;
+        const v = btn.dataset.v;
+        setPref(pref, v);
+        applySettings();
+        overlay.querySelectorAll(`[data-pref="${pref}"]`).forEach(b => b.setAttribute("aria-pressed", b.dataset.v === v ? "true" : "false"));
+      };
+    });
+  }
+
+  function step4() {
+    const tempLine = `It's ${fmt(c.tempC)} in ${esc(LOCATION.name)}, feels ${fmt(aNow)} for you.`;
+    const chips = ONB_OUTFIT.map(o => `<button type="button" class="onb-chip" data-v="${esc(o.v)}" aria-pressed="${state.picked.has(o.v) ? "true" : "false"}">${esc(o.label)}</button>`).join("");
+    overlay.innerHTML = `<div class="onb-card">
+      <div class="onb-step">Step 4 of ${TOTAL}</div>
+      <h2>What are you wearing right now?</h2>
+      <p>${tempLine} Tap everything you have on (we'll save these to your closet).</p>
+      <div class="onb-chips">${chips}</div>
+      <div class="onb-section">
+        <div class="onb-label">And how does it feel?</div>
+        <div class="onb-comfort">
+          <button type="button" data-c="cold" class="${state.comfort === "cold" ? "on" : ""}"><span class="em">${bigIcon("🥶")}</span><span>Too cold</span></button>
+          <button type="button" data-c="right" class="${state.comfort === "right" ? "on" : ""}"><span class="em">${bigIcon("👌")}</span><span>Just right</span></button>
+          <button type="button" data-c="warm" class="${state.comfort === "warm" ? "on" : ""}"><span class="em">${bigIcon("🥵")}</span><span>Too warm</span></button>
+        </div>
+      </div>
+      <div class="onb-actions">
+        <button class="onb-back" type="button" id="onb-back">Back</button>
+        <button class="onb-next" type="button" id="onb-finish">Finish</button>
+      </div>
+      <button class="onb-skip" type="button" id="onb-skip">Skip setup</button>
+    </div>`;
+    overlay.querySelector("#onb-skip").onclick = finishSkip;
+    overlay.querySelector("#onb-back").onclick = () => { state.step = 3; render(); };
+    overlay.querySelector("#onb-finish").onclick = finish;
     overlay.querySelectorAll(".onb-chip").forEach(btn => {
       btn.onclick = () => {
         const v = btn.dataset.v;
@@ -1332,42 +1424,26 @@ function showOnboarding() {
         btn.setAttribute("aria-pressed", state.picked.has(v) ? "true" : "false");
       };
     });
-  }
-  function step3() {
-    overlay.innerHTML = `<div class="onb-card">
-      <div class="onb-step">Step 3 of 3</div>
-      <h2>How does that feel?</h2>
-      <p>This sets your starting point. You can fine-tune anytime with the buttons under Wear.</p>
-      <div class="onb-comfort">
-        <button type="button" data-c="cold"><span class="em">🥶</span><span>Too cold</span></button>
-        <button type="button" data-c="right"><span class="em">👌</span><span>Just right</span></button>
-        <button type="button" data-c="warm"><span class="em">🥵</span><span>Too warm</span></button>
-      </div>
-      <div class="onb-actions">
-        <button class="onb-back" type="button" id="onb-back">Back</button>
-      </div>
-      <button class="onb-skip" type="button" id="onb-skip">Skip setup</button>
-    </div>`;
-    overlay.querySelector("#onb-skip").onclick = finishSkip;
-    overlay.querySelector("#onb-back").onclick = () => { state.step = 2; render(); };
     overlay.querySelectorAll(".onb-comfort button").forEach(btn => {
-      btn.onclick = () => { state.comfort = btn.dataset.c; finish(); };
+      btn.onclick = () => {
+        state.comfort = btn.dataset.c;
+        overlay.querySelectorAll(".onb-comfort button").forEach(b => b.classList.remove("on"));
+        btn.classList.add("on");
+      };
     });
   }
+
   function finish() {
-    const seedClosetFromOnboarding = () => {
-      const closet = getCloset();
-      for (const v of state.picked) {
-        const opt = ONB_OUTFIT.find(o => o.v === v);
-        if (!opt) continue;
-        if (!Array.isArray(closet[opt.slot])) closet[opt.slot] = [];
-        if (!closet[opt.slot].some(it => it.name.toLowerCase() === opt.label.toLowerCase())) {
-          closet[opt.slot].push({ name: opt.label });
-        }
+    const closet = getCloset();
+    for (const v of state.picked) {
+      const opt = ONB_OUTFIT.find(o => o.v === v);
+      if (!opt) continue;
+      if (!Array.isArray(closet[opt.slot])) closet[opt.slot] = [];
+      if (!closet[opt.slot].some(it => it.name.toLowerCase() === opt.label.toLowerCase())) {
+        closet[opt.slot].push({ name: opt.label, minTemp: null, maxTemp: null, conditions: [] });
       }
-      setCloset(closet);
-    };
-    seedClosetFromOnboarding();
+    }
+    setCloset(closet);
     if (state.comfort === "cold") setLearned(getLearned() - 1.5);
     else if (state.comfort === "warm") setLearned(getLearned() + 1.5);
     try { localStorage.setItem("wtwfw-onboarded", "1"); } catch {}
@@ -1375,7 +1451,13 @@ function showOnboarding() {
     close();
     if (LAST_WEATHER) window.render(LAST_WEATHER);
   }
-  function render() { state.step === 1 ? step1() : state.step === 2 ? step2() : step3(); }
+
+  function render() {
+    if (state.step === 1) step1();
+    else if (state.step === 2) step2();
+    else if (state.step === 3) step3();
+    else step4();
+  }
   render();
 }
 
