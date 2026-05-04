@@ -147,6 +147,30 @@
   .snap-empty { font-size: .8rem; color: #64748b; }
   .snap-extra { background: #020617; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .55rem .75rem; color: #f1f5f9; font: inherit; -webkit-appearance: none; }
   .snap-extra:focus { outline: none; border-color: rgba(255,255,255,.3); }
+  .outfit-row.tappable { cursor: pointer; transition: background .12s; border-radius: .5rem; margin: 0 -.35rem; padding-left: .35rem; padding-right: .35rem; }
+  .outfit-row.tappable:hover, .outfit-row.tappable:active { background: rgba(255,255,255,.04); }
+  .outfit-row .override-badge { font-size: .55rem; text-transform: uppercase; letter-spacing: .08em; color: #6ee7b7; background: rgba(110,231,183,.12); padding: .15rem .35rem; border-radius: 999px; font-weight: 600; margin-left: .35rem; vertical-align: middle; }
+  .ov-overlay { position: fixed; inset: 0; background: rgba(2,6,23,.92); z-index: 220; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem 1rem; overflow-y: auto; }
+  .ov-card { background: #0f172a; border-radius: 1rem; padding: 1.25rem; width: 100%; max-width: 24rem; display: flex; flex-direction: column; gap: 1rem; border: 1px solid rgba(255,255,255,.08); }
+  .ov-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+  .ov-card h3 { margin: 0; font-size: 1.05rem; color: #f8fafc; line-height: 1.3; }
+  .ov-close { background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 0 .25rem; }
+  .ov-close:hover { color: #f1f5f9; }
+  .ov-hint { margin: 0; font-size: .8rem; color: #cbd5e1; line-height: 1.4; }
+  .ov-current { font-size: .75rem; color: #94a3b8; }
+  .ov-current strong { color: #f1f5f9; }
+  .ov-chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .ov-chip { display: inline-flex; align-items: center; gap: .35rem; background: #1e293b; color: #cbd5e1; padding: .35rem .65rem .35rem .35rem; border-radius: 999px; font-size: .82rem; font-weight: 500; border: 1px solid transparent; cursor: pointer; font-family: inherit; }
+  .ov-chip svg { width: 1.4rem; height: 1.4rem; }
+  .ov-chip.on { background: #f1f5f9; color: #020617; border-color: #f1f5f9; font-weight: 600; }
+  .ov-empty { font-size: .8rem; color: #64748b; }
+  .ov-extra { background: #020617; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .55rem .75rem; color: #f1f5f9; font: inherit; -webkit-appearance: none; }
+  .ov-extra:focus { outline: none; border-color: rgba(255,255,255,.3); }
+  .ov-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .ov-action { flex: 1; min-width: 9rem; background: transparent; border: 1px solid rgba(255,255,255,.1); color: #cbd5e1; padding: .5rem .75rem; border-radius: .5rem; cursor: pointer; font-family: inherit; font-size: .82rem; }
+  .ov-action:hover { background: rgba(255,255,255,.04); }
+  .ov-save { background: #f1f5f9; color: #020617; border: none; padding: .65rem 1rem; border-radius: .65rem; font-family: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; }
+  .ov-save:disabled { opacity: .5; cursor: not-allowed; }
   .snap-when { display: flex; gap: .35rem; flex-wrap: wrap; }
   .snap-when-btn { background: #1e293b; color: #cbd5e1; padding: .35rem .65rem; border-radius: .5rem; font-size: .75rem; font-weight: 600; border: 1px solid transparent; cursor: pointer; font-family: inherit; }
   .snap-when-btn.on { background: #f1f5f9; color: #020617; border-color: #f1f5f9; }
@@ -774,7 +798,7 @@ const dayLabel = (isoDate) => {
     const today = new Date(todayDateLocal() + "T12:00:00");
     const diffDays = Math.round((d.getTime() - today.getTime()) / 86400000);
     if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Tomorrow";
+    if (diffDays === 1) return "Tomo";
     return d.toLocaleDateString("en-US", { weekday: "short", timeZone: LOCATION.tz });
   } catch { return ""; }
 };
@@ -821,15 +845,30 @@ function renderWear(rec) {
     rec.layers.footwear && { ic: rec.layers.footwear.ic, label: "Shoes", value: rec.layers.footwear.v, slot: "footwear", skip: false },
   ].filter(Boolean);
   const layerRows = wearRows.map(r => {
-    const all = !r.skip && Array.isArray(closet[r.slot]) ? closet[r.slot] : [];
-    const items = all.filter(it => itemMatchesItem(it, refTemp, conds));
-    let icon = r.ic, value = r.value, hint = "";
-    if (items.length) {
-      icon = iconForName(items[0].name) || SLOT_ICON[r.slot] || r.ic;
-      value = items.map(it => it.name).join(", ");
-      hint = `<span class="your-items">Engine suggests ${esc(r.value)}</span>`;
+    const ov = getOverride(rec.band, conds, r.slot);
+    let icon = r.ic, value = r.value, hint = "", isOverride = false, isSkip = r.skip;
+    if (ov === "__skip__") {
+      isSkip = true;
+      value = "skipped";
+      hint = `<span class="your-items">You set this. Engine suggests ${esc(r.value)}</span>`;
+      isOverride = true;
+    } else if (typeof ov === "string" && ov) {
+      icon = iconForName(ov) || SLOT_ICON[r.slot] || r.ic;
+      value = ov;
+      hint = `<span class="your-items">You set this. Engine suggests ${esc(r.value)}</span>`;
+      isOverride = true;
+      isSkip = false;
+    } else {
+      const all = !r.skip && Array.isArray(closet[r.slot]) ? closet[r.slot] : [];
+      const items = all.filter(it => itemMatchesItem(it, refTemp, conds));
+      if (items.length) {
+        icon = iconForName(items[0].name) || SLOT_ICON[r.slot] || r.ic;
+        value = items.map(it => it.name).join(", ");
+        hint = `<span class="your-items">Engine suggests ${esc(r.value)}</span>`;
+      }
     }
-    return `<div class="outfit-row${r.skip ? " skip" : ""}"><span class="ic">${bigIcon(icon)}</span><span class="lbl">${esc(r.label)}</span><div class="val-cell"><span class="val">${esc(value)}</span>${hint}</div></div>`;
+    const badge = isOverride ? `<span class="override-badge">yours</span>` : "";
+    return `<div class="outfit-row tappable${isSkip ? " skip" : ""}" data-row-slot="${esc(r.slot)}" data-current-value="${esc(typeof ov === "string" ? ov : "")}"><span class="ic">${bigIcon(icon)}</span><span class="lbl">${esc(r.label)}${badge}</span><div class="val-cell"><span class="val">${esc(value)}</span>${hint}</div></div>`;
   }).join("");
   const umbrellaItem = rec.layers.acc.find(a => a.v.includes("umbrella"));
   const visibleAcc = rec.layers.acc.filter(a => a !== umbrellaItem);
@@ -987,7 +1026,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v26-dusk2</div>
+      <div class="footer">${esc(LOCATION.name)} . v27-override</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1010,7 +1049,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v26-dusk2</div>
+    <div class="footer">${esc(LOCATION.name)} . v27-override</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1075,6 +1114,11 @@ function attachGlobalHandlers(root) {
     }
     if (e.target.closest("[data-loc-open]")) { openLocationModal(); return; }
     if (e.target.closest("[data-snap-open]")) { openSnapshotModal(); return; }
+    const row = e.target.closest("[data-row-slot]");
+    if (row) {
+      openOverridePicker(row.dataset.rowSlot, row.dataset.currentValue || null);
+      return;
+    }
   });
   root.addEventListener("submit", e => {
     const form = e.target.closest("#closet-form");
@@ -1399,6 +1443,38 @@ function getCloset() {
   return { outer: [], mid: [], base: [], bottom: [], footwear: [] };
 }
 function setCloset(c) { try { localStorage.setItem("wtwfw-closet", JSON.stringify(c)); } catch {} }
+function getOverrides() {
+  try {
+    const s = localStorage.getItem("wtwfw-overrides");
+    if (s) {
+      const obj = JSON.parse(s);
+      if (obj && typeof obj === "object") return obj;
+    }
+  } catch {}
+  return {};
+}
+function setOverrides(o) { try { localStorage.setItem("wtwfw-overrides", JSON.stringify(o)); } catch {} }
+function overrideKey(band, conds) {
+  const sorted = (Array.isArray(conds) ? conds.slice() : []).sort();
+  return band + "|" + sorted.join(",");
+}
+function setOverride(band, conds, slot, value) {
+  const o = getOverrides();
+  const key = overrideKey(band, conds);
+  if (!o[key]) o[key] = {};
+  if (value === null || value === undefined) {
+    delete o[key][slot];
+    if (!Object.keys(o[key]).length) delete o[key];
+  } else {
+    o[key][slot] = value;
+  }
+  setOverrides(o);
+}
+function getOverride(band, conds, slot) {
+  const o = getOverrides();
+  const key = overrideKey(band, conds);
+  return o[key] ? o[key][slot] : undefined;
+}
 function addClosetItem(slot, name, minTemp, maxTemp, conditions) {
   if (!CLOSET_SLOTS[slot]) return;
   const trimmed = String(name || "").trim().slice(0, 40);
@@ -1480,6 +1556,85 @@ function saveSnapshot(state) {
     addClosetItem(slot, snap.extra, null, null, []);
   }
   applySettings();
+}
+
+function openOverridePicker(slot, currentValue) {
+  if (document.querySelector(".ov-overlay")) return;
+  if (!LAST_WEATHER || !LAST_WEATHER._lastRec) return;
+  const rec = LAST_WEATHER._lastRec;
+  const closet = getCloset();
+  const slotItems = (closet[slot] || []);
+  const label = { outer: "Jacket", mid: "Mid layer", base: "Top", bottom: "Bottom", footwear: "Shoes" }[slot] || slot;
+  const bandLabel = BAND_LABEL[rec.band] || rec.band;
+  const condStr = (rec.conditions || []).length ? ` ${(rec.conditions || []).map(c => CONDITION_LABEL[c] || c).join(" + ").toLowerCase()}` : "";
+  const chipsHtml = slotItems.length
+    ? slotItems.map(it => {
+      const sel = it.name === currentValue ? " on" : "";
+      return `<button type="button" class="ov-chip${sel}" data-name="${esc(it.name)}">${bigIcon(iconForName(it.name) || SLOT_ICON[slot] || "👕")}<span>${esc(it.name)}</span></button>`;
+    }).join("")
+    : `<span class="ov-empty">No items in this slot yet. Type a new one below or add some in My closet.</span>`;
+  const overlay = document.createElement("div");
+  overlay.className = "ov-overlay";
+  overlay.innerHTML = `
+    <div class="ov-card" role="dialog" aria-label="Customize ${esc(label)}">
+      <div class="ov-header">
+        <h3>${esc(label)} for ${esc(bandLabel.toLowerCase())}${esc(condStr)}</h3>
+        <button type="button" class="ov-close" aria-label="Close">×</button>
+      </div>
+      <p class="ov-hint">What you pick here becomes your usual ${esc(label.toLowerCase())} when it's ${esc(bandLabel.toLowerCase())}${esc(condStr)}.</p>
+      <div class="ov-chips">${chipsHtml}</div>
+      <input type="text" class="ov-extra" placeholder="Or type a new item" maxlength="40" />
+      <div class="ov-actions">
+        <button type="button" class="ov-action" data-action="default">Use engine default</button>
+        <button type="button" class="ov-action" data-action="skip">Skip this layer</button>
+      </div>
+      <button type="button" class="ov-save" disabled>Save</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  let pendingValue = null;
+  let pendingNewName = "";
+  const saveBtn = overlay.querySelector(".ov-save");
+  const refresh = () => { saveBtn.disabled = pendingValue === null && !pendingNewName.trim(); };
+  overlay.addEventListener("click", e => { if (e.target === overlay) overlay.remove(); });
+  overlay.querySelector(".ov-close").onclick = () => overlay.remove();
+  overlay.querySelectorAll(".ov-chip").forEach(btn => {
+    btn.onclick = () => {
+      pendingValue = btn.dataset.name;
+      pendingNewName = "";
+      overlay.querySelectorAll(".ov-chip").forEach(b => b.classList.remove("on"));
+      btn.classList.add("on");
+      overlay.querySelector(".ov-extra").value = "";
+      refresh();
+    };
+  });
+  overlay.querySelector(".ov-extra").addEventListener("input", e => {
+    pendingNewName = e.target.value;
+    pendingValue = null;
+    overlay.querySelectorAll(".ov-chip").forEach(b => b.classList.remove("on"));
+    refresh();
+  });
+  overlay.querySelector('[data-action="default"]').onclick = () => {
+    setOverride(rec.band, rec.conditions || [], slot, null);
+    overlay.remove();
+    if (LAST_WEATHER) render(LAST_WEATHER);
+  };
+  overlay.querySelector('[data-action="skip"]').onclick = () => {
+    setOverride(rec.band, rec.conditions || [], slot, "__skip__");
+    overlay.remove();
+    if (LAST_WEATHER) render(LAST_WEATHER);
+  };
+  saveBtn.onclick = () => {
+    let name = pendingValue;
+    if (!name && pendingNewName.trim()) {
+      name = pendingNewName.trim().slice(0, 40);
+      addClosetItem(slot, name, null, null, []);
+    }
+    if (name) {
+      setOverride(rec.band, rec.conditions || [], slot, name);
+      overlay.remove();
+      if (LAST_WEATHER) render(LAST_WEATHER);
+    }
+  };
 }
 
 function openSnapshotModal() {
