@@ -673,9 +673,32 @@ function recommend(input) {
   else if (cAdj < 0) rationale.push(`Overcast trims about ${cAdj.toFixed(1)}° from perceived temp.`);
   rationale.push(`Selected band: ${band.replace("_", " ")}.`);
 
-  const acc = r.acc.map(a => ({ ...a }));
+  let acc = r.acc.map(a => ({ ...a }));
   let outer = r.outer ? { ...r.outer } : null;
+  let mid = r.mid ? { ...r.mid } : null;
+  let base = r.base;
+  let bottom = r.bottom;
   let footwear = { ...r.footwear };
+
+  // Warm-day anticipation: when the day will warm into a notably warmer
+  // band AND it's still morning, dress for the peak with a shed-able
+  // outer for the cool start. People dressed for 16C in the morning when
+  // it'll be 26C by afternoon look overdressed by 11am.
+  const peakBand = pickBand(effective(arc.max));
+  const peakIdx = bandIdx(peakBand);
+  const nowIdx = bandIdx(band);
+  const localHour = c.time ? localHourOf(c.time) : new Date().getHours();
+  const isMorning = localHour >= 6 && localHour < 12;
+  if ((nowIdx - peakIdx) >= 2 && arc.spread >= 5 && isMorning) {
+    const peakR = RECIPES[peakBand];
+    base = peakR.base;
+    bottom = peakR.bottom;
+    mid = peakR.mid ? { ...peakR.mid } : null;
+    footwear = { ...peakR.footwear };
+    acc = peakR.acc.map(a => ({ ...a }));
+    if (!outer) outer = { ic: "🧥", v: "light cardigan or zip-up", clo: 0.30 };
+    rationale.push(`Warms to ${Math.round(arc.max)}° around ${hour(arc.maxTime)}. Dressing for the warm part with a layer to shed.`);
+  }
 
   if (arc.maxKph >= CFG.windLayerKph && !outer && eNow < CFG.windShellMaxEffC) {
     outer = { ic: "🧥", v: "wind-resistant shell" };
@@ -725,7 +748,7 @@ function recommend(input) {
   if (arc.maxKph >= 15) conditions.push("wind");
   if ((arc.totalSnow || 0) >= 0.5) conditions.push("snow");
   if (c.isDay && num(c.cloud, 50) < 30) conditions.push("sun");
-  const layersOut = { base: r.base, mid: r.mid, outer, bottom: r.bottom, footwear, acc };
+  const layersOut = { base, mid, outer, bottom, footwear, acc };
   const clo = totalClo(layersOut);
   rationale.push(`Outfit insulation: ~${clo.toFixed(2)} clo (ASHRAE 55 / ISO 9920 garment table).`);
   return { aNow, eNow, band, layers: layersOut, bring, rationale, arc, conditions, clo };
@@ -1421,7 +1444,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v42-far-future</div>
+      <div class="footer">${esc(LOCATION.name)} . v43-anticipate</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1444,7 +1467,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v42-far-future</div>
+    <div class="footer">${esc(LOCATION.name)} . v43-anticipate</div>
   `;
 
   // Scroll selected cell into center of strip.
