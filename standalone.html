@@ -236,6 +236,46 @@
   .loc-chip.on .loc-chip-x:hover { color: #020617; }
   .loc-save-current { background: transparent; color: #93c5fd; border: 1px dashed rgba(147,197,253,.4); border-radius: 999px; padding: .35rem .8rem; font-family: inherit; font-size: .82rem; cursor: pointer; font-weight: 500; }
   .loc-save-current:hover { background: rgba(147,197,253,.08); }
+  .loc-plan-trip { background: transparent; border: 1px solid rgba(147,197,253,.4); color: #93c5fd; padding: .55rem 1rem; border-radius: .65rem; cursor: pointer; font-family: inherit; font-size: .85rem; font-weight: 600; }
+  .loc-plan-trip:hover { background: rgba(147,197,253,.08); }
+  .trip-overlay { position: fixed; inset: 0; background: rgba(2,6,23,.92); z-index: 220; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem 1rem; overflow-y: auto; }
+  .trip-card { background: #0f172a; border-radius: 1rem; padding: 1.25rem; width: 100%; max-width: 26rem; display: flex; flex-direction: column; gap: 1rem; border: 1px solid rgba(255,255,255,.08); }
+  .trip-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+  .trip-card h3 { margin: 0; font-size: 1.1rem; color: #f8fafc; line-height: 1.3; }
+  .trip-close { background: transparent; border: none; color: #94a3b8; font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 0 .25rem; }
+  .trip-hint { margin: 0; font-size: .82rem; color: #cbd5e1; line-height: 1.4; }
+  .trip-section { display: flex; flex-direction: column; gap: .5rem; }
+  .trip-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: #94a3b8; font-weight: 600; }
+  .trip-saved { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .trip-chip { background: #1e293b; color: #cbd5e1; padding: .4rem .85rem; border-radius: 999px; font-family: inherit; font-size: .82rem; font-weight: 500; border: 1px solid transparent; cursor: pointer; }
+  .trip-chip.on { background: #f1f5f9; color: #020617; border-color: #f1f5f9; font-weight: 600; }
+  .trip-search { background: #020617; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .55rem .75rem; color: #f1f5f9; font-family: inherit; font-size: .9rem; -webkit-appearance: none; }
+  .trip-search:focus { outline: none; border-color: rgba(255,255,255,.3); }
+  .trip-results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .25rem; }
+  .trip-result-btn { background: #1e293b; border-radius: .5rem; cursor: pointer; font-family: inherit; font-size: .85rem; color: #e2e8f0; border: none; text-align: left; padding: .55rem .85rem; width: 100%; }
+  .trip-result-btn:hover { background: #273449; }
+  .trip-dates { display: flex; gap: .5rem; align-items: center; }
+  .trip-dates input { flex: 1 1 0; min-width: 0; background: #020617; border: 1px solid rgba(255,255,255,.1); border-radius: .5rem; padding: .55rem .75rem; color: #f1f5f9; font-family: inherit; font-size: .9rem; -webkit-appearance: none; }
+  .trip-arrow { color: #64748b; }
+  .trip-plan { background: #f1f5f9; color: #020617; border: none; padding: .7rem 1rem; border-radius: .65rem; font-family: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; }
+  .trip-plan:disabled { opacity: .5; cursor: not-allowed; }
+  .trip-close-btn { background: transparent; border: 1px solid rgba(255,255,255,.1); color: #cbd5e1; padding: .55rem 1rem; border-radius: .65rem; cursor: pointer; font-family: inherit; font-size: .85rem; }
+  .trip-result { display: flex; flex-direction: column; gap: .85rem; }
+  .trip-result:empty { display: none; }
+  .trip-summary { font-size: .82rem; color: #cbd5e1; }
+  .trip-days { display: flex; gap: .35rem; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: .25rem; margin: 0 -.25rem; }
+  .trip-day { flex: 0 0 4.6rem; background: rgba(15,23,42,.6); border: 1px solid rgba(255,255,255,.05); border-radius: .65rem; padding: .55rem .35rem; display: flex; flex-direction: column; align-items: center; gap: .2rem; text-align: center; }
+  .trip-day-name { font-size: .65rem; text-transform: uppercase; letter-spacing: .04em; color: #94a3b8; font-weight: 600; }
+  .trip-day-ic svg { width: 1.6rem; height: 1.6rem; }
+  .trip-day-temps { font-size: .82rem; color: #f1f5f9; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .trip-day-temps span { color: #94a3b8; font-weight: 400; margin-left: .15rem; }
+  .trip-day-band { font-size: .55rem; text-transform: uppercase; letter-spacing: .04em; color: #cbd5e1; font-weight: 500; }
+  .trip-pack { display: flex; flex-direction: column; gap: .45rem; padding-top: .85rem; border-top: 1px solid rgba(255,255,255,.06); }
+  .trip-pack-title { font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; }
+  .trip-pack-row { display: grid; grid-template-columns: 4rem 1fr; gap: .65rem; align-items: baseline; font-size: .85rem; }
+  .trip-pack-slot { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; font-weight: 600; }
+  .trip-pack-items { color: #f1f5f9; line-height: 1.4; }
+  .trip-error { font-size: .82rem; color: #fca5a5; }
   .loc-close:hover { background: rgba(255,255,255,.04); }
   .onb-overlay { position: fixed; inset: 0; background: rgba(2,6,23,.92); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem 1rem; overflow-y: auto; }
   .onb-card { background: #0f172a; border-radius: 1rem; padding: 1.5rem 1.25rem; width: 100%; max-width: 22rem; display: flex; flex-direction: column; gap: 1rem; border: 1px solid rgba(255,255,255,.08); }
@@ -761,9 +801,10 @@ function saveLocation() {
   try { localStorage.setItem("wtwfw-location", JSON.stringify(LOCATION)); } catch {}
 }
 
-async function fetchFromOpenMeteo() {
+async function fetchFromOpenMeteo(loc) {
+  const where = loc || LOCATION;
   const params = new URLSearchParams({
-    latitude: LOCATION.lat, longitude: LOCATION.lon, timezone: LOCATION.tz,
+    latitude: where.lat, longitude: where.lon, timezone: where.tz || "auto",
     current: "temperature_2m,relative_humidity_2m,is_day,precipitation,snowfall,weather_code,cloud_cover,wind_speed_10m,wind_gusts_10m,uv_index",
     hourly: "temperature_2m,relative_humidity_2m,precipitation_probability,precipitation,snowfall,weather_code,cloud_cover,wind_speed_10m,wind_gusts_10m,uv_index,is_day",
     wind_speed_unit: "kmh", temperature_unit: "celsius", precipitation_unit: "mm", forecast_days: "16",
@@ -1276,7 +1317,7 @@ function render(weather) {
       ${renderSettings()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v37-saved</div>
+      <div class="footer">${esc(LOCATION.name)} . v38-trip</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1299,7 +1340,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v37-saved</div>
+    <div class="footer">${esc(LOCATION.name)} . v38-trip</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1630,6 +1671,7 @@ function openLocationModal() {
       <button class="loc-here" type="button">📍 Use my current location</button>
       <input class="loc-search" type="search" placeholder="Search a city" autocomplete="off" />
       <ul class="loc-results"></ul>
+      <button class="loc-plan-trip" type="button" data-action="open-trip">Plan a trip →</button>
       <button class="loc-close" type="button">Close</button>
     </div>`;
   document.body.appendChild(overlay);
@@ -1638,6 +1680,7 @@ function openLocationModal() {
   overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
   card.addEventListener("click", e => e.stopPropagation());
   overlay.querySelector(".loc-close").addEventListener("click", close);
+  overlay.querySelector(".loc-plan-trip").addEventListener("click", () => { close(); openTripModal(); });
 
   const savedRow = overlay.querySelector(".loc-saved");
   const renderSaved = () => {
@@ -1746,6 +1789,192 @@ function openLocationModal() {
       }
     }, 250);
   });
+}
+
+function openTripModal() {
+  if (document.querySelector(".trip-overlay")) return;
+  const overlay = document.createElement("div");
+  overlay.className = "trip-overlay";
+  overlay.innerHTML = `
+    <div class="trip-card" role="dialog" aria-label="Plan a trip">
+      <div class="trip-header">
+        <h3>Plan a trip</h3>
+        <button type="button" class="trip-close" aria-label="Close">×</button>
+      </div>
+      <p class="trip-hint">Pick a destination and dates and we'll show you the forecast and a pack list.</p>
+      <div class="trip-section">
+        <div class="trip-label">Where</div>
+        <div class="trip-saved" id="trip-saved"></div>
+        <input type="search" class="trip-search" placeholder="Or search a city" autocomplete="off" />
+        <ul class="trip-results" id="trip-results"></ul>
+      </div>
+      <div class="trip-section">
+        <div class="trip-label">When</div>
+        <div class="trip-dates">
+          <input type="date" name="start" />
+          <span class="trip-arrow">→</span>
+          <input type="date" name="end" />
+        </div>
+      </div>
+      <button type="button" class="trip-plan" disabled>Plan it</button>
+      <div class="trip-result" id="trip-result"></div>
+      <button type="button" class="trip-close-btn">Close</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  const card = overlay.querySelector(".trip-card");
+  const close = () => overlay.remove();
+  overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+  card.addEventListener("click", e => e.stopPropagation());
+  overlay.querySelector(".trip-close").onclick = close;
+  overlay.querySelector(".trip-close-btn").onclick = close;
+
+  const today = new Date();
+  const max = new Date(today.getTime() + 16 * 86400000);
+  const fmt = d => d.toISOString().slice(0, 10);
+  const startInp = overlay.querySelector('input[name="start"]');
+  const endInp = overlay.querySelector('input[name="end"]');
+  startInp.min = fmt(today);
+  startInp.max = fmt(max);
+  endInp.min = fmt(today);
+  endInp.max = fmt(max);
+  startInp.value = fmt(today);
+  endInp.value = fmt(new Date(today.getTime() + 3 * 86400000));
+
+  const state = { dest: null };
+  const planBtn = overlay.querySelector(".trip-plan");
+  function refreshPlan() {
+    planBtn.disabled = !state.dest || !startInp.value || !endInp.value || endInp.value < startInp.value;
+  }
+
+  const savedRow = overlay.querySelector("#trip-saved");
+  function renderSaved() {
+    const list = [LOCATION, ...getSavedLocations().filter(l => !(l.name === LOCATION.name && Math.abs(l.lat - LOCATION.lat) < 0.05))];
+    savedRow.innerHTML = list.map(l => {
+      const isSel = state.dest && state.dest.name === l.name && Math.abs(state.dest.lat - l.lat) < 0.05;
+      return `<button type="button" class="trip-chip${isSel ? " on" : ""}" data-lat="${l.lat}" data-lon="${l.lon}" data-tz="${esc(l.tz || "auto")}" data-name="${esc(l.name)}">${esc(l.name)}</button>`;
+    }).join("");
+  }
+  renderSaved();
+  savedRow.addEventListener("click", e => {
+    const chip = e.target.closest(".trip-chip");
+    if (!chip) return;
+    state.dest = {
+      lat: num(chip.dataset.lat),
+      lon: num(chip.dataset.lon),
+      tz: chip.dataset.tz,
+      name: chip.dataset.name,
+    };
+    savedRow.querySelectorAll(".trip-chip").forEach(b => b.classList.remove("on"));
+    chip.classList.add("on");
+    refreshPlan();
+  });
+
+  const search = overlay.querySelector(".trip-search");
+  const results = overlay.querySelector("#trip-results");
+  let timer = null;
+  search.addEventListener("input", () => {
+    clearTimeout(timer);
+    const q = search.value.trim();
+    if (q.length < 2) { results.innerHTML = ""; return; }
+    timer = setTimeout(async () => {
+      try {
+        const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en&format=json`;
+        const r = await fetch(url, { cache: "no-store", referrerPolicy: "no-referrer" });
+        const d = await r.json();
+        results.innerHTML = "";
+        for (const item of (d.results || [])) {
+          const li = document.createElement("li");
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "trip-result-btn";
+          const parts = [item.name, item.admin1, item.country].filter(Boolean);
+          btn.textContent = parts.join(", ");
+          btn.onclick = () => {
+            state.dest = {
+              lat: num(item.latitude),
+              lon: num(item.longitude),
+              tz: item.timezone || "auto",
+              name: parts.slice(0, 2).join(", ") || item.name,
+            };
+            results.innerHTML = "";
+            search.value = "";
+            renderSaved();
+            const sel = savedRow.querySelector(".trip-chip");
+            if (sel && sel.dataset.name === state.dest.name) sel.classList.add("on");
+            refreshPlan();
+          };
+          li.appendChild(btn);
+          results.appendChild(li);
+        }
+      } catch {}
+    }, 250);
+  });
+
+  startInp.addEventListener("change", refreshPlan);
+  endInp.addEventListener("change", refreshPlan);
+
+  planBtn.onclick = async () => {
+    planBtn.disabled = true;
+    planBtn.textContent = "Fetching forecast...";
+    try {
+      const w = await fetchFromOpenMeteo(state.dest);
+      renderTripResult(overlay.querySelector("#trip-result"), w, state.dest, startInp.value, endInp.value);
+      planBtn.textContent = "Plan it";
+      planBtn.disabled = false;
+    } catch (e) {
+      planBtn.textContent = "Try again";
+      planBtn.disabled = false;
+      overlay.querySelector("#trip-result").innerHTML = `<p class="trip-error">Couldn't fetch the forecast: ${esc(e.message || String(e))}</p>`;
+    }
+  };
+}
+
+function renderTripResult(root, weather, dest, startDate, endDate) {
+  const days = buildDailySummaries(weather.allHours).filter(d => d.date >= startDate && d.date <= endDate);
+  if (!days.length) {
+    root.innerHTML = `<p class="trip-error">No forecast available for those dates.</p>`;
+    return;
+  }
+  const closet = getCloset();
+  const dayCards = days.map(d => {
+    const [, ic] = wmo(d.code);
+    return `<div class="trip-day"><div class="trip-day-name">${esc(dayLabel(d.date))}</div><div class="trip-day-ic">${bigIcon(ic)}</div><div class="trip-day-temps">${fmt(d.hi)} <span>${fmt(d.lo)}</span></div><div class="trip-day-band">${esc(BAND_LABEL[d.band] || d.band)}</div></div>`;
+  }).join("");
+  // Pack list: union of recipe items + matching closet items
+  const slots = ["outer", "mid", "base", "bottom", "footwear"];
+  const packBySlot = { outer: new Set(), mid: new Set(), base: new Set(), bottom: new Set(), footwear: new Set() };
+  const accSet = new Set();
+  const tempsSeen = days.map(d => d.hi).concat(days.map(d => d.lo));
+  const tMin = Math.min(...tempsSeen);
+  const tMax = Math.max(...tempsSeen);
+  const bandsNeeded = new Set(days.map(d => d.band));
+  for (const band of bandsNeeded) {
+    const r = RECIPES[band];
+    for (const slot of slots) {
+      if (r[slot]) packBySlot[slot].add(r[slot].v);
+    }
+    for (const a of (r.acc || [])) accSet.add(a.v);
+  }
+  // Closet items that overlap the trip's temp range
+  for (const slot of slots) {
+    const items = closet[slot] || [];
+    for (const it of items) {
+      const minOK = it.minTemp === null || it.minTemp <= tMax;
+      const maxOK = it.maxTemp === null || it.maxTemp >= tMin;
+      if (minOK && maxOK) packBySlot[slot].add(it.name + " (yours)");
+    }
+  }
+  const packRows = slots.map(slot => {
+    const list = Array.from(packBySlot[slot]);
+    if (!list.length) return "";
+    const label = { outer: "Jackets", mid: "Mid", base: "Tops", bottom: "Bottoms", footwear: "Shoes" }[slot];
+    return `<div class="trip-pack-row"><span class="trip-pack-slot">${esc(label)}</span><span class="trip-pack-items">${list.map(n => esc(n)).join(", ")}</span></div>`;
+  }).join("");
+  const accRow = accSet.size ? `<div class="trip-pack-row"><span class="trip-pack-slot">Plus</span><span class="trip-pack-items">${Array.from(accSet).map(n => esc(n)).join(", ")}</span></div>` : "";
+  root.innerHTML = `
+    <div class="trip-summary">${esc(dest.name)}, ${days.length} day${days.length === 1 ? "" : "s"}: ${fmt(tMin)}-${fmt(tMax)}</div>
+    <div class="trip-days">${dayCards}</div>
+    <div class="trip-pack"><div class="trip-pack-title">Pack list</div>${packRows}${accRow}</div>`;
 }
 
 function attachToggleHandler(root) {
