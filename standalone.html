@@ -443,6 +443,10 @@ function bigIcon(ch) { const k = String(ch || "").replace(/\uFE0F/g, ""); return
 function iconForName(name) {
   const n = String(name || "").toLowerCase();
   if (n.includes("tank")) return "\uD83C\uDFBD";
+  if (n.includes("toque") || n.includes("tuque") || n.includes("beanie")) return "\uD83D\uDC52";
+  if (n.includes("nylons") || n.includes("tights") || n.includes("stockings")) return "\uD83E\uDDE6";
+  if (n.includes("overalls") || n.includes("dungaree") || n.includes("jumpsuit") || n.includes("romper")) return "\uD83D\uDC58";
+  if (n.includes("puffer")) return "\uD83E\uDDE5";
   if (n.includes("blouse")) return "\uD83D\uDC5A";
   if (n.includes("dress")) return "\uD83D\uDC57";
   if (n.includes("kimono") || n.includes("robe")) return "\uD83D\uDC58";
@@ -1371,7 +1375,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v39-pro</div>
+      <div class="footer">${esc(LOCATION.name)} . v40-clothes</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1394,7 +1398,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v39-pro</div>
+    <div class="footer">${esc(LOCATION.name)} . v40-clothes</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1527,18 +1531,45 @@ async function refreshWeather() {
 }
 
 const ONB_OUTFIT = [
-  { v: "tank", label: "Tank top", slot: "base" },
-  { v: "tshirt", label: "T-shirt", slot: "base" },
-  { v: "longsleeve", label: "Long sleeve", slot: "base" },
-  { v: "sweater", label: "Sweater", slot: "mid" },
-  { v: "ljacket", label: "Light jacket", slot: "outer" },
-  { v: "hcoat", label: "Heavy coat", slot: "outer" },
-  { v: "shorts", label: "Shorts", slot: "bottom" },
-  { v: "pants", label: "Pants or jeans", slot: "bottom" },
-  { v: "skirt", label: "Skirt or dress", slot: "bottom" },
-  { v: "sneakers", label: "Sneakers", slot: "footwear" },
-  { v: "boots", label: "Boots", slot: "footwear" },
-  { v: "sandals", label: "Sandals", slot: "footwear" },
+  // Tops
+  { v: "tank", label: "Tank top", slot: "base", minTemp: 22, maxTemp: 35 },
+  { v: "tshirt", label: "T-shirt", slot: "base", minTemp: 16, maxTemp: 28 },
+  { v: "polo", label: "Polo shirt", slot: "base", minTemp: 16, maxTemp: 28 },
+  { v: "blouse", label: "Blouse", slot: "base", minTemp: 14, maxTemp: 26 },
+  { v: "longsleeve", label: "Long sleeve", slot: "base", minTemp: 8, maxTemp: 20 },
+  // Mid layers
+  { v: "hoodie", label: "Hoodie", slot: "mid", minTemp: 8, maxTemp: 18 },
+  { v: "cardigan", label: "Cardigan", slot: "mid", minTemp: 10, maxTemp: 20 },
+  { v: "sweater", label: "Sweater", slot: "mid", minTemp: 4, maxTemp: 14 },
+  { v: "fleece", label: "Fleece", slot: "mid", minTemp: 0, maxTemp: 14 },
+  // Outer layers
+  { v: "vestpuffer", label: "Puffer vest", slot: "outer", minTemp: 4, maxTemp: 14 },
+  { v: "ljacket", label: "Light jacket", slot: "outer", minTemp: 8, maxTemp: 16 },
+  { v: "leatherjacket", label: "Leather jacket", slot: "outer", minTemp: 6, maxTemp: 15 },
+  { v: "trench", label: "Trench coat", slot: "outer", minTemp: 6, maxTemp: 16 },
+  { v: "rainshell", label: "Rain shell", slot: "outer", minTemp: 5, maxTemp: 22, conditions: ["rain"] },
+  { v: "puffer", label: "Puffer jacket", slot: "outer", minTemp: -5, maxTemp: 8 },
+  { v: "hcoat", label: "Heavy coat", slot: "outer", minTemp: -8, maxTemp: 6 },
+  { v: "parka", label: "Parka", slot: "outer", minTemp: -15, maxTemp: 4 },
+  // Bottoms
+  { v: "shorts", label: "Shorts", slot: "bottom", minTemp: 20, maxTemp: 35 },
+  { v: "skirt", label: "Skirt", slot: "bottom", minTemp: 16, maxTemp: 28 },
+  { v: "shortdress", label: "Short dress", slot: "bottom", minTemp: 18, maxTemp: 30 },
+  { v: "longdress", label: "Long dress", slot: "bottom", minTemp: 14, maxTemp: 25 },
+  { v: "jumpsuit", label: "Jumpsuit", slot: "bottom", minTemp: 16, maxTemp: 25 },
+  { v: "yogapants", label: "Yoga pants", slot: "bottom", minTemp: 8, maxTemp: 22 },
+  { v: "leggings", label: "Leggings", slot: "bottom", minTemp: 0, maxTemp: 18 },
+  { v: "nylons", label: "Tights or nylons", slot: "bottom", minTemp: 5, maxTemp: 16 },
+  { v: "pants", label: "Pants or jeans", slot: "bottom", minTemp: 5, maxTemp: 22 },
+  { v: "sweatpants", label: "Sweat pants", slot: "bottom", minTemp: 0, maxTemp: 18 },
+  { v: "overalls", label: "Overalls", slot: "bottom", minTemp: 5, maxTemp: 18 },
+  // Footwear
+  { v: "sandals", label: "Sandals", slot: "footwear", minTemp: 18, maxTemp: 35 },
+  { v: "flats", label: "Flats", slot: "footwear", minTemp: 8, maxTemp: 24 },
+  { v: "heels", label: "Heels", slot: "footwear", minTemp: 8, maxTemp: 28 },
+  { v: "sneakers", label: "Sneakers", slot: "footwear", minTemp: 5, maxTemp: 28 },
+  { v: "boots", label: "Boots", slot: "footwear", minTemp: -5, maxTemp: 14 },
+  { v: "snowboots", label: "Snow boots", slot: "footwear", minTemp: -25, maxTemp: 4, conditions: ["snow"] },
 ];
 
 function maybeShowOnboarding() {
@@ -1706,7 +1737,7 @@ function showOnboarding() {
       if (!opt) continue;
       if (!Array.isArray(closet[opt.slot])) closet[opt.slot] = [];
       if (!closet[opt.slot].some(it => it.name.toLowerCase() === opt.label.toLowerCase())) {
-        closet[opt.slot].push({ name: opt.label, minTemp: null, maxTemp: null, conditions: [] });
+        closet[opt.slot].push({ name: opt.label, minTemp: opt.minTemp ?? null, maxTemp: opt.maxTemp ?? null, conditions: opt.conditions || [] });
       }
     }
     setCloset(closet);
