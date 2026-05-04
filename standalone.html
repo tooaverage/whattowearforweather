@@ -225,6 +225,17 @@
   .loc-result:hover { background: #273449; }
   .loc-empty { color: #64748b; font-size: .8rem; text-align: center; padding: .5rem; }
   .loc-close { background: transparent; border: 1px solid rgba(255,255,255,.1); color: #cbd5e1; padding: .5rem 1rem; border-radius: .65rem; cursor: pointer; font-family: inherit; font-size: .85rem; margin-top: .25rem; }
+  .loc-saved { display: flex; flex-wrap: wrap; gap: .35rem; }
+  .loc-chip { display: inline-flex; align-items: center; gap: .15rem; background: #1e293b; border-radius: 999px; }
+  .loc-chip.on { background: #f1f5f9; }
+  .loc-chip-pick { background: transparent; color: #e2e8f0; padding: .4rem .25rem .4rem .85rem; border: none; cursor: pointer; font-family: inherit; font-size: .82rem; font-weight: 500; }
+  .loc-chip.on .loc-chip-pick { color: #020617; font-weight: 600; }
+  .loc-chip-x { background: transparent; color: #94a3b8; border: none; cursor: pointer; padding: 0 .55rem 0 .15rem; font-size: 1.05rem; line-height: 1; border-radius: 999px; font-family: inherit; }
+  .loc-chip-x:hover { color: #f1f5f9; }
+  .loc-chip.on .loc-chip-x { color: rgba(2,6,23,.5); }
+  .loc-chip.on .loc-chip-x:hover { color: #020617; }
+  .loc-save-current { background: transparent; color: #93c5fd; border: 1px dashed rgba(147,197,253,.4); border-radius: 999px; padding: .35rem .8rem; font-family: inherit; font-size: .82rem; cursor: pointer; font-weight: 500; }
+  .loc-save-current:hover { background: rgba(147,197,253,.08); }
   .loc-close:hover { background: rgba(255,255,255,.04); }
   .onb-overlay { position: fixed; inset: 0; background: rgba(2,6,23,.92); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem 1rem; overflow-y: auto; }
   .onb-card { background: #0f172a; border-radius: 1rem; padding: 1.5rem 1.25rem; width: 100%; max-width: 22rem; display: flex; flex-direction: column; gap: 1rem; border: 1px solid rgba(255,255,255,.08); }
@@ -722,6 +733,30 @@ function loadLocation() {
     }
   } catch {}
 }
+function getSavedLocations() {
+  try {
+    const s = localStorage.getItem("wtwfw-saved-locations");
+    if (s) {
+      const arr = JSON.parse(s);
+      if (Array.isArray(arr)) return arr.filter(l => l && Number.isFinite(l.lat) && Number.isFinite(l.lon) && l.name).slice(0, 12);
+    }
+  } catch {}
+  return [];
+}
+function setSavedLocations(arr) { try { localStorage.setItem("wtwfw-saved-locations", JSON.stringify(arr)); } catch {} }
+function addSavedLocation(loc) {
+  if (!loc || !Number.isFinite(loc.lat) || !Number.isFinite(loc.lon) || !loc.name) return;
+  const list = getSavedLocations();
+  if (list.some(l => l.name === loc.name && Math.abs(l.lat - loc.lat) < 0.05)) return;
+  if (list.length >= 12) return;
+  list.push({ lat: loc.lat, lon: loc.lon, tz: loc.tz || "auto", name: String(loc.name).slice(0, 60) });
+  setSavedLocations(list);
+}
+function removeSavedLocation(name, lat) {
+  const list = getSavedLocations().filter(l => !(l.name === name && Math.abs(l.lat - lat) < 0.05));
+  setSavedLocations(list);
+}
+
 function saveLocation() {
   try { localStorage.setItem("wtwfw-location", JSON.stringify(LOCATION)); } catch {}
 }
@@ -1241,7 +1276,7 @@ function render(weather) {
       ${renderSettings()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v36-prod</div>
+      <div class="footer">${esc(LOCATION.name)} . v37-saved</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1264,7 +1299,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v36-prod</div>
+    <div class="footer">${esc(LOCATION.name)} . v37-saved</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1591,6 +1626,7 @@ function openLocationModal() {
   overlay.innerHTML = `
     <div class="loc-card" role="dialog" aria-label="Change location">
       <h3>Change location</h3>
+      <div class="loc-saved" aria-label="Saved locations"></div>
       <button class="loc-here" type="button">📍 Use my current location</button>
       <input class="loc-search" type="search" placeholder="Search a city" autocomplete="off" />
       <ul class="loc-results"></ul>
@@ -1602,6 +1638,53 @@ function openLocationModal() {
   overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
   card.addEventListener("click", e => e.stopPropagation());
   overlay.querySelector(".loc-close").addEventListener("click", close);
+
+  const savedRow = overlay.querySelector(".loc-saved");
+  const renderSaved = () => {
+    const saved = getSavedLocations();
+    const cur = LOCATION;
+    const inSaved = saved.some(l => l.name === cur.name && Math.abs(l.lat - cur.lat) < 0.05);
+    const chips = saved.map(l => {
+      const isCurrent = l.name === cur.name && Math.abs(l.lat - cur.lat) < 0.05;
+      return `<span class="loc-chip${isCurrent ? " on" : ""}">
+        <button type="button" class="loc-chip-pick" data-lat="${l.lat}" data-lon="${l.lon}" data-tz="${esc(l.tz || "auto")}" data-name="${esc(l.name)}">${esc(l.name)}</button>
+        <button type="button" class="loc-chip-x" data-lat="${l.lat}" data-name="${esc(l.name)}" aria-label="Remove ${esc(l.name)}">×</button>
+      </span>`;
+    }).join("");
+    const saveCurBtn = inSaved
+      ? ""
+      : `<button type="button" class="loc-save-current" data-name="${esc(cur.name)}">+ Save ${esc(cur.name)}</button>`;
+    savedRow.innerHTML = `${chips}${saveCurBtn}` || `<span class="loc-empty">No saved locations yet. Search below to add.</span>`;
+  };
+  renderSaved();
+
+  savedRow.addEventListener("click", e => {
+    const pick = e.target.closest(".loc-chip-pick");
+    if (pick) {
+      LOCATION = {
+        lat: num(pick.dataset.lat),
+        lon: num(pick.dataset.lon),
+        tz: pick.dataset.tz || "auto",
+        name: pick.dataset.name,
+      };
+      saveLocation();
+      close();
+      refreshWeather();
+      return;
+    }
+    const x = e.target.closest(".loc-chip-x");
+    if (x) {
+      removeSavedLocation(x.dataset.name, num(x.dataset.lat));
+      renderSaved();
+      return;
+    }
+    const save = e.target.closest(".loc-save-current");
+    if (save) {
+      addSavedLocation(LOCATION);
+      renderSaved();
+      return;
+    }
+  });
 
   const here = overlay.querySelector(".loc-here");
   here.addEventListener("click", () => {
@@ -1643,12 +1726,14 @@ function openLocationModal() {
           const parts = [item.name, item.admin1, item.country].filter(Boolean);
           btn.textContent = parts.join(", ");
           btn.addEventListener("click", () => {
-            LOCATION = {
+            const newLoc = {
               lat: num(item.latitude),
               lon: num(item.longitude),
               tz: item.timezone || "auto",
               name: parts.slice(0, 2).join(", ") || item.name,
             };
+            addSavedLocation(newLoc);
+            LOCATION = newLoc;
             saveLocation();
             close();
             refreshWeather();
@@ -1661,8 +1746,6 @@ function openLocationModal() {
       }
     }, 250);
   });
-
-  search.focus();
 }
 
 function attachToggleHandler(root) {
