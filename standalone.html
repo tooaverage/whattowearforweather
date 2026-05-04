@@ -445,8 +445,17 @@ function cloudAdj(h) {
   if (cloud >= 80) return -0.5;
   return 0;
 }
+// BOM AT uses wind weakly above 10C, which doesn't match how people feel a
+// breeze on bare arms in t-shirt weather. Add a small extra penalty per
+// km/h above 10 km/h, capped, only when temp > 10C (otherwise NWS wind chill
+// is already handling it).
+function breezeAdj(tempC, kph) {
+  if (tempC <= 10) return 0;
+  if (kph < 10) return 0;
+  return -Math.min(2.5, (kph - 10) * 0.2);
+}
 function feels(h) {
-  return apparentC(num(h.tempC), num(h.rh), num(h.kph)) + cloudAdj(h);
+  return apparentC(num(h.tempC), num(h.rh), num(h.kph)) + cloudAdj(h) + breezeAdj(num(h.tempC), num(h.kph));
 }
 
 function pickBand(c) { for (const b of CFG.bands) if (c >= b.min) return b.band; return "freezing"; }
@@ -1026,7 +1035,7 @@ function render(weather) {
       ${renderCloset()}
       ${renderSettings()}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">${esc(LOCATION.name)} . v27-override</div>
+      <div class="footer">${esc(LOCATION.name)} . v28-breeze</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1049,7 +1058,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v27-override</div>
+    <div class="footer">${esc(LOCATION.name)} . v28-breeze</div>
   `;
 
   // Scroll selected cell into center of strip.
