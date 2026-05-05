@@ -49,9 +49,10 @@ function attrsToString(props) {
   return parts.join(" ");
 }
 
-// Hugeicons ships at strokeWidth 1.5, which renders too thin next to the
-// Figma fill silhouettes. Bump to 2.4 so the optical weight matches better.
-const STROKE_WIDTH_OVERRIDE = "2.4";
+// Hugeicons free ships at strokeWidth 1.5. The Figma fashion set is
+// outline-style (filled paths that trace edges) and reads thinner than a
+// thick stroke, so we keep Hugeicons at the original weight.
+const STROKE_WIDTH_OVERRIDE = "1.5";
 
 function tupleToSvg(tuples) {
   const inner = tuples
