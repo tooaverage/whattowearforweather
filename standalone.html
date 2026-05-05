@@ -128,6 +128,10 @@
   .hero-desc { font-size: 1rem; font-weight: 600; text-align: center; margin-top: .5rem; line-height: 1.3; letter-spacing: -.005em; }
   .hero-temp-foot { display: flex; gap: .4rem; align-items: baseline; flex-wrap: wrap; justify-content: center; font-size: .72rem; font-weight: 500; opacity: .7; font-variant-numeric: tabular-nums; margin-top: .35rem; }
   .hero-temp-foot .sep { opacity: .5; }
+  .hero-factors { display: flex; gap: .35rem; flex-wrap: wrap; justify-content: center; margin-top: .45rem; font-variant-numeric: tabular-nums; }
+  .hero-factors .hf { font-size: .68rem; font-weight: 600; padding: .15rem .5rem; border-radius: 999px; background: rgba(15,23,42,.18); letter-spacing: .01em; }
+  .hero-factors .hf.up { background: rgba(249,115,22,.22); }
+  .hero-factors .hf.down { background: rgba(56,189,248,.22); }
   .hero-for { font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; opacity: .7; font-weight: 600; margin-top: .55rem; }
   .section-title { font-size: .72rem; text-transform: uppercase; letter-spacing: .15em; color: var(--text-muted); font-weight: 600; padding: 0 .25rem; margin-top: .15rem; }
   .today-line { display: flex; gap: .5rem; flex-wrap: wrap; padding: 0 .25rem; font-size: .85rem; color: var(--text-muted); font-variant-numeric: tabular-nums; align-items: center; }
@@ -455,8 +459,8 @@ const CFG = {
   snowBootsCm: 0.5, snowHeavyCm: 5,
   uvProtectionIndex: 3, uvSunscreenIndex: 6, bringLayerSpreadC: 5,
   bands: [
-    { band: "scorching", min: 30 }, { band: "hot", min: 25 }, { band: "warm", min: 20 }, { band: "mild", min: 15 },
-    { band: "cool", min: 11 }, { band: "chilly", min: 7 }, { band: "cold", min: 2 }, { band: "very_cold", min: -5 },
+    { band: "scorching", min: 30 }, { band: "hot", min: 24 }, { band: "warm", min: 19 }, { band: "mild", min: 14 },
+    { band: "cool", min: 10 }, { band: "chilly", min: 6 }, { band: "cold", min: 1 }, { band: "very_cold", min: -5 },
     { band: "freezing", min: -Infinity },
   ],
   baselineOffset: 0,
@@ -557,7 +561,7 @@ function iconForName(name) {
   if (n.includes("goggle")) return "\uD83E\uDD7D";
   if (n.includes("vest")) return "\uD83E\uDDBA";
   if (n.includes("lab coat")) return "\uD83E\uDD7C";
-  if (n.includes("long sleeve") || n.includes("longsleeve")) return "\uD83D\uDC55";
+  if (n.includes("long sleeve") || n.includes("longsleeve")) return "\uD83E\uDD7C";
   if (n.includes("coat") || n.includes("parka") || n.includes("jacket") || n.includes("hoodie") || n.includes("sweater") || n.includes("fleece") || n.includes("cardigan") || n.includes("blazer") || n.includes("anorak") || n.includes("shell")) return "\uD83E\uDDE5";
   if (n.includes("polo") || n.includes("t-shirt") || n.includes("tshirt") || n.includes("tee") || n.includes("shirt")) return "\uD83D\uDC55";
   if (n.includes("shorts")) return "\uD83E\uDE73";
@@ -701,7 +705,7 @@ const RECIPES = {
   hot: { base: { ic: "🎽", v: "tank top", clo: 0.05 }, mid: null, outer: null, bottom: { ic: "🩳", v: "athletic shorts", clo: 0.05 }, footwear: { ic: "🩴", v: "sandals or sneakers", clo: 0.03 }, acc: [] },
   warm: { base: { ic: "👕", v: "breathable t-shirt", clo: 0.10 }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts", clo: 0.06 }, footwear: { ic: "👟", v: "sneakers", clo: 0.04 }, acc: [] },
   mild: { base: { ic: "👕", v: "t-shirt", clo: 0.10 }, mid: null, outer: null, bottom: { ic: "👖", v: "light pants or jeans", clo: 0.20 }, footwear: { ic: "👟", v: "sneakers", clo: 0.04 }, acc: [] },
-  cool: { base: { ic: "👕", v: "thin long-sleeve shirt", clo: 0.20 }, mid: null, outer: null, bottom: { ic: "👖", v: "pants", clo: 0.24 }, footwear: { ic: "👟", v: "sneakers", clo: 0.04 }, acc: [] },
+  cool: { base: { ic: "🥼", v: "thin long-sleeve shirt", clo: 0.20 }, mid: null, outer: null, bottom: { ic: "👖", v: "pants", clo: 0.24 }, footwear: { ic: "👟", v: "sneakers", clo: 0.04 }, acc: [] },
   chilly: { base: { ic: "👕", v: "long-sleeve shirt", clo: 0.20 }, mid: { ic: "🧥", v: "light sweater or fleece", clo: 0.25 }, outer: null, bottom: { ic: "👖", v: "pants", clo: 0.24 }, footwear: { ic: "👟", v: "closed shoes", clo: 0.05 }, acc: [] },
   cold: { base: { ic: "👕", v: "long-sleeve thermal top", clo: 0.25 }, mid: { ic: "🧥", v: "sweater or fleece", clo: 0.36 }, outer: { ic: "🧥", v: "insulated jacket", clo: 0.44 }, bottom: { ic: "👖", v: "pants", clo: 0.24 }, footwear: { ic: "👟", v: "closed shoes", clo: 0.05 }, acc: [] },
   very_cold: { base: { ic: "👕", v: "thermal base layer", clo: 0.25 }, mid: { ic: "🧥", v: "mid-weight fleece or wool", clo: 0.36 }, outer: { ic: "🧥", v: "insulated winter jacket", clo: 0.66 }, bottom: { ic: "👖", v: "lined or thermal pants", clo: 0.28 }, footwear: { ic: "🥾", v: "insulated boots", clo: 0.10 }, acc: [{ ic: "🧢", v: "warm hat", clo: 0.05 }, { ic: "🧤", v: "gloves", clo: 0.05 }] },
@@ -741,6 +745,9 @@ function summarizeArc(next) {
 
 function recommend(input) {
   const c = input.current;
+  const apparentRaw = apparentC(num(c.tempC), num(c.rh), num(c.kph));
+  const cAdj = cloudAdj(c);
+  const bAdj = breezeAdj(num(c.tempC), num(c.kph));
   const aNow = feels(c);
   const eNow = effective(aNow);
   const band = pickBand(eNow);
@@ -756,11 +763,25 @@ function recommend(input) {
   if (learned) adj.push(`learned ${learned > 0 ? "+" : ""}${learned.toFixed(1)}°`);
   if (CFG.activityOffset) adj.push(`activity +${CFG.activityOffset.toFixed(1)}°`);
   if (CFG.adaptiveShift) adj.push(`adaptive ${CFG.adaptiveShift > 0 ? "+" : ""}${CFG.adaptiveShift.toFixed(1)}°`);
-  rationale.push(`Engine-effective: ${eNow.toFixed(1)}°${adj.length ? ` (${adj.join(", ")})` : ""}.`);
-  const cAdj = cloudAdj(c);
+  rationale.push(`Adjusted for you: ${eNow.toFixed(1)}°${adj.length ? ` (${adj.join(", ")})` : ""}.`);
   if (cAdj > 0) rationale.push(`Clear sun adds about +${cAdj.toFixed(1)}° to perceived temp.`);
   else if (cAdj < 0) rationale.push(`Overcast trims about ${cAdj.toFixed(1)}° from perceived temp.`);
   rationale.push(`Selected band: ${band.replace("_", " ")}.`);
+
+  // Surface the calc so users see this isn't just air temp. Each factor is
+  // its own delta in deg, with a short label. Hero renders them inline.
+  const factors = [];
+  const apparentDelta = apparentRaw - num(c.tempC);
+  if (Math.abs(apparentDelta) >= 0.4) {
+    let lab = "humidity";
+    if (c.tempC <= CFG.windChillTempC && c.kph > CFG.windChillMinWindKph) lab = "wind chill";
+    else if (c.tempC >= CFG.heatIndexTempC) lab = "humidity";
+    factors.push({ label: lab, delta: apparentDelta });
+  }
+  if (Math.abs(cAdj) >= 0.4) factors.push({ label: cAdj > 0 ? "sun" : "shade", delta: cAdj });
+  if (Math.abs(bAdj) >= 0.4) factors.push({ label: "breeze", delta: bAdj });
+  const personalSum = baseOff + learned + (CFG.activityOffset || 0) + (CFG.adaptiveShift || 0);
+  if (Math.abs(personalSum) >= 0.4) factors.push({ label: "you", delta: personalSum });
 
   let acc = r.acc.map(a => ({ ...a }));
   let outer = r.outer ? { ...r.outer } : null;
@@ -840,7 +861,7 @@ function recommend(input) {
   const layersOut = { base, mid, outer, bottom, footwear, acc };
   const clo = totalClo(layersOut);
   rationale.push(`Outfit insulation: ~${clo.toFixed(2)} clo (ASHRAE 55 / ISO 9920 garment table).`);
-  return { aNow, eNow, band, layers: layersOut, bring, rationale, arc, conditions, clo };
+  return { aNow, eNow, band, layers: layersOut, bring, rationale, arc, conditions, clo, factors };
 }
 
 function buildTimeline(weather) {
@@ -1325,11 +1346,19 @@ function renderHero(rec, c, cLabel) {
   const layers = [rec.layers.outer, rec.layers.mid, rec.layers.base, rec.layers.bottom, rec.layers.footwear].filter(Boolean);
   const heroIconsHtml = layers.map(l => bigIcon(l.ic)).join('<span class="hero-plus">+</span>');
   const desc = describeFeel(rec, c, cLabel);
+  const factorsHtml = (rec.factors && rec.factors.length)
+    ? `<div class="hero-factors" title="Why ${fmt(rec.eNow)} and not ${fmt(c.tempC)}: each factor below shifts how it feels.">${rec.factors.map(f => {
+        const sign = f.delta > 0 ? "+" : "";
+        const cls = f.delta > 0 ? "up" : "down";
+        return `<span class="hf ${cls}">${sign}${f.delta.toFixed(1)}° ${esc(f.label)}</span>`;
+      }).join("")}</div>`
+    : "";
   return `<section id="hero" class="hero ${esc(rec.band)}">
     <div class="hero-head"><button class="loc-btn" type="button" data-loc-open>${esc(LOCATION.name)} ▾</button><span class="hero-band">${esc(BAND_LABEL[rec.band] || "")}</span></div>
     <div class="hero-icons">${heroIconsHtml}</div>
     <div class="hero-desc">${esc(desc)}</div>
     <div class="hero-temp-foot"><span>${fmt(c.tempC)}</span><span class="sep">·</span><span>feels ${fmt(rec.eNow)} for you</span></div>
+    ${factorsHtml}
   </section>`;
 }
 
@@ -1369,12 +1398,12 @@ function renderWear(rec) {
     if (ov === "__skip__") {
       isSkip = true;
       value = "skipped";
-      hint = `<span class="your-items">You set this. Engine suggests ${esc(r.value)}</span>`;
+      hint = `<span class="your-items">You set this. Default is ${esc(r.value)}</span>`;
       isOverride = true;
     } else if (typeof ov === "string" && ov) {
       icon = iconForName(ov) || SLOT_ICON[r.slot] || r.ic;
       value = ov;
-      hint = `<span class="your-items">You set this. Engine suggests ${esc(r.value)}</span>`;
+      hint = `<span class="your-items">You set this. Default is ${esc(r.value)}</span>`;
       isOverride = true;
       isSkip = false;
     } else {
@@ -1383,7 +1412,7 @@ function renderWear(rec) {
       if (items.length) {
         icon = iconForName(items[0].name) || SLOT_ICON[r.slot] || r.ic;
         value = items.map(it => it.name).join(", ");
-        hint = `<span class="your-items">Engine suggests ${esc(r.value)}</span>`;
+        hint = `<span class="your-items">Default is ${esc(r.value)}</span>`;
       }
     }
     const badge = isOverride ? `<span class="override-badge">yours</span>` : "";
@@ -1415,7 +1444,7 @@ function renderWear(rec) {
 function renderWhy(rec, source) {
   return `<section id="why" class="panel">
     <details><summary>Why this</summary><ul>${rec.rationale.map(r => `<li>${esc(r)}</li>`).join("")}</ul></details>
-    <p class="src">Data: ${esc(source || "Open-Meteo")} . Engine: rules-based</p>
+    <p class="src">Data: ${esc(source || "Open-Meteo")} . Rules-based, no AI guessing.</p>
   </section>`;
 }
 
@@ -1555,7 +1584,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v47-paul-feedback</div>
+      <div class="footer">${esc(LOCATION.name)} . v48-show-the-why</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1578,7 +1607,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v47-paul-feedback</div>
+    <div class="footer">${esc(LOCATION.name)} . v48-show-the-why</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1785,8 +1814,8 @@ function showOnboarding() {
   const overlay = document.createElement("div");
   overlay.className = "onb-overlay";
   document.body.appendChild(overlay);
-  const TOTAL = 4;
-  const state = { step: 1, picked: new Set(), comfort: null };
+  const TOTAL = 5;
+  const state = { step: 1, owned: new Set(), wearing: new Set(), comfort: null };
   const close = () => overlay.remove();
   const finishSkip = () => { try { localStorage.setItem("wtwfw-onboarded", "1"); } catch {} close(); };
 
@@ -1889,16 +1918,16 @@ function showOnboarding() {
     });
   }
 
+  const SLOT_GROUPS = [
+    { slot: "base", label: "Tops" },
+    { slot: "mid", label: "Mid layers" },
+    { slot: "outer", label: "Outer layers" },
+    { slot: "bottom", label: "Bottoms" },
+    { slot: "footwear", label: "Shoes" },
+  ];
+
   function step4() {
-    const tempLine = `It's ${fmt(c.tempC)} in ${esc(LOCATION.name)}, feels ${fmt(aNow)} for you.`;
-    const SLOT_GROUPS = [
-      { slot: "base", label: "Top (base layer)" },
-      { slot: "mid", label: "Mid layer" },
-      { slot: "outer", label: "Outer layer" },
-      { slot: "bottom", label: "Bottoms" },
-      { slot: "footwear", label: "Shoes" },
-    ];
-    const chipFor = o => `<button type="button" class="onb-chip" data-v="${esc(o.v)}" aria-pressed="${state.picked.has(o.v) ? "true" : "false"}">${esc(o.label)}</button>`;
+    const chipFor = o => `<button type="button" class="onb-chip" data-v="${esc(o.v)}" aria-pressed="${state.owned.has(o.v) ? "true" : "false"}">${esc(o.label)}</button>`;
     const groups = SLOT_GROUPS.map(g => {
       const items = ONB_OUTFIT.filter(o => o.slot === g.slot);
       if (!items.length) return "";
@@ -1909,8 +1938,54 @@ function showOnboarding() {
     }).join("");
     overlay.innerHTML = `<div class="onb-card">
       <div class="onb-step">Step 4 of ${TOTAL}</div>
+      <h2>What's in your closet?</h2>
+      <p>Tap anything you own. We'll only suggest things you actually have.</p>
+      ${groups}
+      <div class="onb-actions">
+        <button class="onb-back" type="button" id="onb-back">Back</button>
+        <button class="onb-next" type="button" id="onb-next">Next</button>
+      </div>
+      <button class="onb-skip" type="button" id="onb-skip">Skip setup</button>
+    </div>`;
+    overlay.querySelector("#onb-skip").onclick = finishSkip;
+    overlay.querySelector("#onb-back").onclick = () => { state.step = 3; render(); };
+    overlay.querySelector("#onb-next").onclick = () => { state.step = 5; render(); };
+    overlay.querySelectorAll(".onb-chip").forEach(btn => {
+      btn.onclick = () => {
+        const v = btn.dataset.v;
+        if (state.owned.has(v)) {
+          state.owned.delete(v);
+          state.wearing.delete(v);
+        } else {
+          state.owned.add(v);
+        }
+        btn.setAttribute("aria-pressed", state.owned.has(v) ? "true" : "false");
+      };
+    });
+  }
+
+  function step5() {
+    const tempLine = `It's ${fmt(c.tempC)} in ${esc(LOCATION.name)}, feels ${fmt(aNow)} for you.`;
+    const ownedList = state.owned.size
+      ? ONB_OUTFIT.filter(o => state.owned.has(o.v))
+      : ONB_OUTFIT;
+    const emptyHint = state.owned.size
+      ? ""
+      : `<p class="onb-hint">You skipped your closet, so here are common items.</p>`;
+    const chipFor = o => `<button type="button" class="onb-chip" data-v="${esc(o.v)}" aria-pressed="${state.wearing.has(o.v) ? "true" : "false"}">${esc(o.label)}</button>`;
+    const groups = SLOT_GROUPS.map(g => {
+      const items = ownedList.filter(o => o.slot === g.slot);
+      if (!items.length) return "";
+      return `<div class="onb-section">
+        <div class="onb-label">${esc(g.label)}</div>
+        <div class="onb-chips">${items.map(chipFor).join("")}</div>
+      </div>`;
+    }).join("");
+    overlay.innerHTML = `<div class="onb-card">
+      <div class="onb-step">Step 5 of ${TOTAL}</div>
       <h2>What are you wearing right now?</h2>
-      <p>${tempLine} Tap everything you have on (we'll save these to your closet).</p>
+      <p>${tempLine} Tap what you've got on so we can calibrate.</p>
+      ${emptyHint}
       ${groups}
       <div class="onb-section">
         <div class="onb-label">And how does it feel?</div>
@@ -1927,13 +2002,13 @@ function showOnboarding() {
       <button class="onb-skip" type="button" id="onb-skip">Skip setup</button>
     </div>`;
     overlay.querySelector("#onb-skip").onclick = finishSkip;
-    overlay.querySelector("#onb-back").onclick = () => { state.step = 3; render(); };
+    overlay.querySelector("#onb-back").onclick = () => { state.step = 4; render(); };
     overlay.querySelector("#onb-finish").onclick = finish;
     overlay.querySelectorAll(".onb-chip").forEach(btn => {
       btn.onclick = () => {
         const v = btn.dataset.v;
-        if (state.picked.has(v)) state.picked.delete(v); else state.picked.add(v);
-        btn.setAttribute("aria-pressed", state.picked.has(v) ? "true" : "false");
+        if (state.wearing.has(v)) state.wearing.delete(v); else state.wearing.add(v);
+        btn.setAttribute("aria-pressed", state.wearing.has(v) ? "true" : "false");
       };
     });
     overlay.querySelectorAll(".onb-comfort button").forEach(btn => {
@@ -1947,7 +2022,10 @@ function showOnboarding() {
 
   function finish() {
     const closet = getCloset();
-    for (const v of state.picked) {
+    // Owned items go in the closet. Anything tapped in the wearing step that
+    // wasn't already marked owned (e.g. step 4 was skipped) also lands here.
+    const toSave = new Set([...state.owned, ...state.wearing]);
+    for (const v of toSave) {
       const opt = ONB_OUTFIT.find(o => o.v === v);
       if (!opt) continue;
       if (!Array.isArray(closet[opt.slot])) closet[opt.slot] = [];
@@ -1968,7 +2046,8 @@ function showOnboarding() {
     if (state.step === 1) step1();
     else if (state.step === 2) step2();
     else if (state.step === 3) step3();
-    else step4();
+    else if (state.step === 4) step4();
+    else step5();
   }
   render();
 }
@@ -2519,7 +2598,7 @@ function openOverridePicker(slot, currentValue) {
       <div class="ov-chips">${chipsHtml}</div>
       <input type="text" class="ov-extra" placeholder="Or type a new item" maxlength="40" />
       <div class="ov-actions">
-        <button type="button" class="ov-action" data-action="default">Use engine default</button>
+        <button type="button" class="ov-action" data-action="default">Use the default</button>
         <button type="button" class="ov-action" data-action="skip">Skip this layer</button>
       </div>
       <button type="button" class="ov-save" disabled>Save</button>
@@ -2781,7 +2860,7 @@ function openUpsellModal(featureName, onConfirm) {
         <li><strong>Trip planner</strong> with pack list</li>
         <li><strong>Unlimited saved locations</strong></li>
         <li><strong>iOS widgets + notifications</strong> when the app ships</li>
-        <li>The full personal-calibration engine in either tier</li>
+        <li>Full personal calibration in either tier</li>
       </ul>
       <button type="button" class="upsell-go" data-action="start-trial-confirm">Start 14-day free trial</button>
       <button type="button" class="upsell-skip">Maybe later</button>
