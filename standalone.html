@@ -626,7 +626,7 @@ function bigIcon(ch) {
 // remain on the gap list for the Figma manual import pass.
 function iconForName(name) {
   const n = String(name || "").toLowerCase();
-  if (n.includes("tank")) return "tank-top";
+  if (n.includes("tank")) return "fig-t-shirt";
   if (n.includes("toque") || n.includes("tuque") || n.includes("beanie")) return "fig-beanie";
   if (n.includes("nylons") || n.includes("tights") || n.includes("stockings")) return "fig-socks";
   if (n.includes("overalls") || n.includes("dungaree")) return "fig-jogging-suit";
@@ -639,8 +639,8 @@ function iconForName(name) {
   if (n.includes("long dress") || n.includes("maxi")) return "fig-cocktail-dress";
   if (n.includes("dress")) return "fig-dress";
   if (n.includes("kimono") || n.includes("robe")) return "fig-dress";
-  if (n.includes("bikini")) return "tank-top";
-  if (n.includes("swim") || n.includes("bathing")) return "tank-top";
+  if (n.includes("bikini")) return "fig-t-shirt";
+  if (n.includes("swim") || n.includes("bathing")) return "fig-t-shirt";
   if (n.includes("scarf")) return "fig-scarf";
   if (n.includes("mitten")) return "fig-mittens";
   if (n.includes("glove")) return "fig-gloves";
@@ -707,7 +707,7 @@ function iconForName(name) {
 const SLOT_ICON = { outer: "fig-jacket", mid: "fig-cardigan", base: "fig-shirt", bottom: "fig-pants", footwear: "running-shoes" };
 
 const BAND_ICON = {
-  scorching: "tank-top", hot: "tank-top", warm: "fig-t-shirt", mild: "fig-shirt",
+  scorching: "fig-t-shirt", hot: "fig-t-shirt", warm: "fig-t-shirt", mild: "fig-shirt",
   cool: "fig-long-sleeve", chilly: "fig-cardigan", cold: "fig-jacket", very_cold: "fig-coat", freezing: "fig-parka",
 };
 
@@ -823,8 +823,8 @@ function adaptiveShift(allHours) {
 
 // clo values per layer per ASHRAE 55-2017 / ISO 9920 garment tables.
 const RECIPES = {
-  scorching: { base: { ic: "tank-top", v: "bathing suit or tank", clo: 0.04 }, mid: null, outer: null, bottom: { ic: "fig-shorts", v: "shorts", clo: 0.06 }, footwear: { ic: "sandals", v: "sandals", clo: 0.02 }, acc: [] },
-  hot: { base: { ic: "tank-top", v: "tank top", clo: 0.05 }, mid: null, outer: null, bottom: { ic: "fig-shorts", v: "athletic shorts", clo: 0.05 }, footwear: { ic: "sandals", v: "sandals or sneakers", clo: 0.03 }, acc: [] },
+  scorching: { base: { ic: "fig-t-shirt", v: "bathing suit or tank", clo: 0.04 }, mid: null, outer: null, bottom: { ic: "fig-shorts", v: "shorts", clo: 0.06 }, footwear: { ic: "sandals", v: "sandals", clo: 0.02 }, acc: [] },
+  hot: { base: { ic: "fig-t-shirt", v: "tank top", clo: 0.05 }, mid: null, outer: null, bottom: { ic: "fig-shorts", v: "athletic shorts", clo: 0.05 }, footwear: { ic: "sandals", v: "sandals or sneakers", clo: 0.03 }, acc: [] },
   warm: { base: { ic: "fig-t-shirt", v: "breathable t-shirt", clo: 0.10 }, mid: null, outer: null, bottom: { ic: "fig-shorts", v: "shorts", clo: 0.06 }, footwear: { ic: "running-shoes", v: "sneakers", clo: 0.04 }, acc: [] },
   mild: { base: { ic: "fig-t-shirt", v: "t-shirt", clo: 0.10 }, mid: null, outer: null, bottom: { ic: "fig-pants", v: "light pants or jeans", clo: 0.20 }, footwear: { ic: "running-shoes", v: "sneakers", clo: 0.04 }, acc: [] },
   cool: { base: { ic: "fig-long-sleeve", v: "thin long-sleeve shirt", clo: 0.20 }, mid: null, outer: null, bottom: { ic: "fig-pants", v: "pants", clo: 0.24 }, footwear: { ic: "running-shoes", v: "sneakers", clo: 0.04 }, acc: [] },
@@ -1716,7 +1716,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v53-revert-stroke</div>
+      <div class="footer">${esc(LOCATION.name)} . v54-no-tank-icon</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1739,7 +1739,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v53-revert-stroke</div>
+    <div class="footer">${esc(LOCATION.name)} . v54-no-tank-icon</div>
   `;
 
   // Scroll selected cell into center of strip.
