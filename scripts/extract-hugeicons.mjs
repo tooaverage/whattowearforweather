@@ -50,15 +50,24 @@ function attrsToString(props) {
 }
 
 // Hugeicons free ships at strokeWidth 1.5. The Figma fashion set is
-// outline-style (filled paths that trace edges) and reads thinner than a
-// thick stroke, so we keep Hugeicons at the original weight.
-const STROKE_WIDTH_OVERRIDE = "1.0";
+// outline-style (filled paths that trace edges) which reads lighter than a
+// stroke at the same nominal width. 1.0 is the default for general icons.
+// Footwear has more internal detail (laces, soles, ankle lines) so the
+// strokes pile up visually; bump those down to 0.6.
+const STROKE_WIDTH_DEFAULT = "1.0";
+const STROKE_WIDTH_PER_KEY = {
+  "armored-boot": "0.6",
+  "running-shoes": "0.6",
+  "sandals": "0.6",
+  "high-heels-01": "0.6",
+};
 
-function tupleToSvg(tuples) {
+function tupleToSvg(tuples, key) {
+  const sw = STROKE_WIDTH_PER_KEY[key] || STROKE_WIDTH_DEFAULT;
   const inner = tuples
     .map(([tag, props]) => {
       const next = { ...props };
-      if (next.strokeWidth) next.strokeWidth = STROKE_WIDTH_OVERRIDE;
+      if (next.strokeWidth) next.strokeWidth = sw;
       return `<${tag} ${attrsToString(next)} />`;
     })
     .join("");
@@ -91,7 +100,7 @@ for (const [kebab, mod] of Object.entries(WANTED)) {
     missing.push(`${kebab}: parse error ${e.message}`);
     continue;
   }
-  out[kebab] = tupleToSvg(tuples);
+  out[kebab] = tupleToSvg(tuples, kebab);
 }
 
 if (missing.length) {
