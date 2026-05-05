@@ -455,8 +455,8 @@ const CFG = {
   snowBootsCm: 0.5, snowHeavyCm: 5,
   uvProtectionIndex: 3, uvSunscreenIndex: 6, bringLayerSpreadC: 5,
   bands: [
-    { band: "scorching", min: 30 }, { band: "hot", min: 24 }, { band: "warm", min: 19 }, { band: "mild", min: 14 },
-    { band: "cool", min: 10 }, { band: "chilly", min: 6 }, { band: "cold", min: 1 }, { band: "very_cold", min: -5 },
+    { band: "scorching", min: 30 }, { band: "hot", min: 25 }, { band: "warm", min: 20 }, { band: "mild", min: 15 },
+    { band: "cool", min: 11 }, { band: "chilly", min: 7 }, { band: "cold", min: 2 }, { band: "very_cold", min: -5 },
     { band: "freezing", min: -Infinity },
   ],
   baselineOffset: 0,
@@ -557,7 +557,7 @@ function iconForName(name) {
   if (n.includes("goggle")) return "\uD83E\uDD7D";
   if (n.includes("vest")) return "\uD83E\uDDBA";
   if (n.includes("lab coat")) return "\uD83E\uDD7C";
-  if (n.includes("long sleeve") || n.includes("longsleeve")) return "\uD83E\uDD7C";
+  if (n.includes("long sleeve") || n.includes("longsleeve")) return "\uD83D\uDC55";
   if (n.includes("coat") || n.includes("parka") || n.includes("jacket") || n.includes("hoodie") || n.includes("sweater") || n.includes("fleece") || n.includes("cardigan") || n.includes("blazer") || n.includes("anorak") || n.includes("shell")) return "\uD83E\uDDE5";
   if (n.includes("polo") || n.includes("t-shirt") || n.includes("tshirt") || n.includes("tee") || n.includes("shirt")) return "\uD83D\uDC55";
   if (n.includes("shorts")) return "\uD83E\uDE73";
@@ -701,7 +701,7 @@ const RECIPES = {
   hot: { base: { ic: "🎽", v: "tank top", clo: 0.05 }, mid: null, outer: null, bottom: { ic: "🩳", v: "athletic shorts", clo: 0.05 }, footwear: { ic: "🩴", v: "sandals or sneakers", clo: 0.03 }, acc: [] },
   warm: { base: { ic: "👕", v: "breathable t-shirt", clo: 0.10 }, mid: null, outer: null, bottom: { ic: "🩳", v: "shorts", clo: 0.06 }, footwear: { ic: "👟", v: "sneakers", clo: 0.04 }, acc: [] },
   mild: { base: { ic: "👕", v: "t-shirt", clo: 0.10 }, mid: null, outer: null, bottom: { ic: "👖", v: "light pants or jeans", clo: 0.20 }, footwear: { ic: "👟", v: "sneakers", clo: 0.04 }, acc: [] },
-  cool: { base: { ic: "🥼", v: "thin long-sleeve shirt", clo: 0.20 }, mid: null, outer: null, bottom: { ic: "👖", v: "pants", clo: 0.24 }, footwear: { ic: "👟", v: "sneakers", clo: 0.04 }, acc: [] },
+  cool: { base: { ic: "👕", v: "thin long-sleeve shirt", clo: 0.20 }, mid: null, outer: null, bottom: { ic: "👖", v: "pants", clo: 0.24 }, footwear: { ic: "👟", v: "sneakers", clo: 0.04 }, acc: [] },
   chilly: { base: { ic: "👕", v: "long-sleeve shirt", clo: 0.20 }, mid: { ic: "🧥", v: "light sweater or fleece", clo: 0.25 }, outer: null, bottom: { ic: "👖", v: "pants", clo: 0.24 }, footwear: { ic: "👟", v: "closed shoes", clo: 0.05 }, acc: [] },
   cold: { base: { ic: "👕", v: "long-sleeve thermal top", clo: 0.25 }, mid: { ic: "🧥", v: "sweater or fleece", clo: 0.36 }, outer: { ic: "🧥", v: "insulated jacket", clo: 0.44 }, bottom: { ic: "👖", v: "pants", clo: 0.24 }, footwear: { ic: "👟", v: "closed shoes", clo: 0.05 }, acc: [] },
   very_cold: { base: { ic: "👕", v: "thermal base layer", clo: 0.25 }, mid: { ic: "🧥", v: "mid-weight fleece or wool", clo: 0.36 }, outer: { ic: "🧥", v: "insulated winter jacket", clo: 0.66 }, bottom: { ic: "👖", v: "lined or thermal pants", clo: 0.28 }, footwear: { ic: "🥾", v: "insulated boots", clo: 0.10 }, acc: [{ ic: "🧢", v: "warm hat", clo: 0.05 }, { ic: "🧤", v: "gloves", clo: 0.05 }] },
@@ -1301,7 +1301,6 @@ const dayLabel = (isoDate) => {
     const today = new Date(todayDateLocal() + "T12:00:00");
     const diffDays = Math.round((d.getTime() - today.getTime()) / 86400000);
     if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "Tomo";
     return d.toLocaleDateString("en-US", { weekday: "short", timeZone: LOCATION.tz });
   } catch { return ""; }
 };
@@ -1556,7 +1555,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v46-stay-today</div>
+      <div class="footer">${esc(LOCATION.name)} . v47-paul-feedback</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1579,7 +1578,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v46-stay-today</div>
+    <div class="footer">${esc(LOCATION.name)} . v47-paul-feedback</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1892,12 +1891,27 @@ function showOnboarding() {
 
   function step4() {
     const tempLine = `It's ${fmt(c.tempC)} in ${esc(LOCATION.name)}, feels ${fmt(aNow)} for you.`;
-    const chips = ONB_OUTFIT.map(o => `<button type="button" class="onb-chip" data-v="${esc(o.v)}" aria-pressed="${state.picked.has(o.v) ? "true" : "false"}">${esc(o.label)}</button>`).join("");
+    const SLOT_GROUPS = [
+      { slot: "base", label: "Top (base layer)" },
+      { slot: "mid", label: "Mid layer" },
+      { slot: "outer", label: "Outer layer" },
+      { slot: "bottom", label: "Bottoms" },
+      { slot: "footwear", label: "Shoes" },
+    ];
+    const chipFor = o => `<button type="button" class="onb-chip" data-v="${esc(o.v)}" aria-pressed="${state.picked.has(o.v) ? "true" : "false"}">${esc(o.label)}</button>`;
+    const groups = SLOT_GROUPS.map(g => {
+      const items = ONB_OUTFIT.filter(o => o.slot === g.slot);
+      if (!items.length) return "";
+      return `<div class="onb-section">
+        <div class="onb-label">${esc(g.label)}</div>
+        <div class="onb-chips">${items.map(chipFor).join("")}</div>
+      </div>`;
+    }).join("");
     overlay.innerHTML = `<div class="onb-card">
       <div class="onb-step">Step 4 of ${TOTAL}</div>
       <h2>What are you wearing right now?</h2>
       <p>${tempLine} Tap everything you have on (we'll save these to your closet).</p>
-      <div class="onb-chips">${chips}</div>
+      ${groups}
       <div class="onb-section">
         <div class="onb-label">And how does it feel?</div>
         <div class="onb-comfort">
