@@ -214,25 +214,33 @@
   .chip[aria-pressed="true"] { background: var(--button-primary-bg); color: var(--button-primary-text); border-color: var(--text); font-weight: 600; }
   .outfit-row .val-cell { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
   .your-items { font-size: .72rem; color: var(--good); line-height: 1.3; }
+  .wear-bring { margin: .85rem 0 0; padding: .55rem .8rem; background: rgba(148,163,184,.06); border: 1px solid var(--panel-border); border-radius: .65rem; }
+  .wear-bring p { margin: 0; padding: .15rem 0; display: flex; align-items: center; gap: .5rem; font-size: .82rem; color: var(--text-muted); line-height: 1.4; }
+  .wear-bring p + p { border-top: 1px solid var(--hairline-soft); padding-top: .35rem; margin-top: .35rem; }
+  .wear-bring .ic { flex: 0 0 1.1rem; line-height: 0; color: var(--warn-text); }
+  .wear-bring .ic svg { width: 1.1rem; height: 1.1rem; }
   .hist-hint { font-size: .8rem; color: var(--text-muted); line-height: 1.45; margin: .85rem 0 0; padding: .65rem .8rem; background: rgba(148,163,184,.06); border: 1px solid var(--panel-border); border-radius: .65rem; }
   .hist-hint strong { color: var(--text); }
   .hist-when { color: var(--text-faint); font-size: .72rem; }
   .closet-hint { font-size: .78rem; color: var(--text-faint); margin: -.4rem 0 .65rem; line-height: 1.4; }
   .toast { position: fixed; left: 50%; bottom: 1.25rem; transform: translateX(-50%); max-width: 22rem; background: var(--panel-bg-solid); color: var(--text-strong); border: 1px solid var(--input-border); border-radius: .65rem; padding: .65rem 1rem; font-size: .82rem; z-index: 200; box-shadow: 0 4px 18px rgba(0,0,0,.18); animation: toast-in .18s ease; }
   @keyframes toast-in { from { opacity: 0; transform: translate(-50%, .35rem); } to { opacity: 1; transform: translate(-50%, 0); } }
-  .closet-form { display: flex; gap: .35rem; flex-wrap: wrap; margin-bottom: .85rem; padding-bottom: .85rem; border-bottom: 1px solid var(--hairline); }
-  .closet-form input[type="text"] { flex: 1 1 100%; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: .5rem; padding: .55rem .75rem; color: var(--text); font: inherit; -webkit-appearance: none; }
+  .closet-form { display: grid; grid-template-columns: 1fr 1fr; gap: .35rem; margin-bottom: .85rem; padding-bottom: .85rem; border-bottom: 1px solid var(--hairline); font-size: .82rem; }
+  .closet-form input[type="text"], .closet-form select, .range-row input, .closet-form button { font-family: inherit; font-size: .82rem; }
+  .closet-form input[type="text"] { grid-column: 1 / -1; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: .5rem; padding: .45rem .65rem; color: var(--text); -webkit-appearance: none; }
+  .closet-form input[type="text"]::placeholder { color: var(--text-fainter); }
   .closet-form input[type="text"]:focus { outline: none; border-color: var(--input-border-focus); }
-  .closet-form select { flex: 1 1 100%; background: var(--chip-bg); border: 1px solid var(--input-border); border-radius: .5rem; padding: .55rem .75rem; color: var(--text); font: inherit; -webkit-appearance: none; }
-  .closet-form button { flex: 1 1 100%; background: var(--button-primary-bg); color: var(--button-primary-text); border: none; padding: .55rem 1rem; border-radius: .5rem; font: inherit; font-weight: 600; cursor: pointer; }
-  .range-row { display: flex; gap: .35rem; flex: 1 1 100%; min-width: 0; }
-  .range-row input { flex: 1 1 0; min-width: 0; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: .5rem; padding: .55rem .75rem; color: var(--text); font: inherit; -webkit-appearance: none; -moz-appearance: textfield; }
+  .closet-form select { grid-column: 1 / -1; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: .5rem; padding: .45rem .65rem; color: var(--text); -webkit-appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--text-faint) 50%), linear-gradient(135deg, var(--text-faint) 50%, transparent 50%); background-position: calc(100% - 14px) 50%, calc(100% - 9px) 50%; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; padding-right: 1.6rem; }
+  .closet-form button { grid-column: 1 / -1; background: var(--button-primary-bg); color: var(--button-primary-text); border: none; padding: .55rem 1rem; border-radius: .5rem; font-weight: 600; cursor: pointer; margin-top: .15rem; }
+  .range-row { display: contents; }
+  .range-row input { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: .5rem; padding: .45rem .65rem; color: var(--text); -webkit-appearance: none; -moz-appearance: textfield; }
+  .range-row input::placeholder { color: var(--text-fainter); }
   .range-row input::-webkit-outer-spin-button, .range-row input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .range-row input:focus { outline: none; border-color: var(--input-border-focus); }
-  .cond-row { display: flex; gap: .35rem; flex-wrap: wrap; flex: 1 1 100%; }
+  .cond-row { display: flex; gap: .3rem; flex-wrap: wrap; grid-column: 1 / -1; margin-top: .15rem; }
   .cond-chip { display: inline-flex; align-items: center; cursor: pointer; user-select: none; }
   .cond-chip input { position: absolute; opacity: 0; pointer-events: none; }
-  .cond-chip span { background: var(--chip-bg); color: var(--text-muted); padding: .4rem .75rem; border-radius: 999px; font-size: .8rem; font-weight: 500; border: 1px solid transparent; }
+  .cond-chip span { background: var(--chip-bg); color: var(--text-muted); padding: .3rem .65rem; border-radius: 999px; font-size: .75rem; font-weight: 500; border: 1px solid transparent; }
   .cond-chip input:checked + span { background: var(--button-primary-bg); color: var(--button-primary-text); border-color: var(--text); font-weight: 600; }
   .closet-name { flex: 1; }
   .closet-band { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); background: var(--hairline); padding: .15rem .45rem; border-radius: 999px; font-weight: 600; }
@@ -686,7 +694,7 @@ function iconForName(name) {
   if (n.includes("skinny")) return "fig-skinny-jeans";
   if (n.includes("jeggings")) return "fig-jeggings";
   if (n.includes("legging")) return "fig-leggings";
-  if (n.includes("joggers") || n.includes("sweatpants") || n.includes("sweat pants") || n.includes("yoga")) return "fig-joggers";
+  if (n.includes("joggers") || n.includes("sweatpants") || n.includes("sweat pants")) return "fig-joggers";
   if (n.includes("jean") || n.includes("denim")) return "fig-jeans";
   if (n.includes("pant") || n.includes("trouser") || n.includes("chino")) return "fig-pants";
   if (n.includes("skirt")) return "fig-skirt";
@@ -1484,13 +1492,19 @@ function renderHero(rec, c, cLabel) {
   </section>`;
 }
 
-function renderBring(rec) {
+// Bring-with-you lines render inline inside the Wear panel now (see
+// renderWear). This stub stays so existing render plumbing still finds a
+// #bring node to swap in/out without conditional branches; it's hidden.
+function renderBring(_rec) {
+  return `<section id="bring" hidden></section>`;
+}
+
+function bringLines(rec) {
   const umbrellaItem = rec.layers.acc.find(a => a.v.includes("umbrella"));
   const lines = [];
   if (umbrellaItem) lines.push({ ic: "umbrella", text: "Bring a compact umbrella. Rain is possible." });
   if (rec.bring) lines.push({ ic: "🎒", text: rec.bring });
-  if (!lines.length) return `<section id="bring" hidden></section>`;
-  return `<section id="bring" class="panel bring"><h2>${bigIcon("📌")}Bring with you</h2>${lines.map(l => `<p>${bigIcon(l.ic)}<span>${esc(l.text)}</span></p>`).join("")}</section>`;
+  return lines;
 }
 
 function itemMatchesItem(it, refTemp, currentConds) {
@@ -1558,7 +1572,11 @@ function renderWear(rec) {
     if (histSnap.extra) items.push(histSnap.extra);
     return `<p class="hist-hint">When it felt like this <span class="hist-when">${esc(relativeDay(histSnap.ts))}</span>, you wore <strong>${esc(items.join(", "))}</strong> (was ${esc(comfortLabel(histSnap.comfort || 0))}).</p>`;
   })() : "";
-  return `<section id="wear" class="panel" aria-live="polite" aria-atomic="true"><h2>Wear</h2>${layerRows}${histLine}${accs}${fb}</section>`;
+  const bring = bringLines(rec);
+  const bringHtml = bring.length
+    ? `<div class="wear-bring">${bring.map(l => `<p><span class="ic">${bigIcon(l.ic)}</span><span>${esc(l.text)}</span></p>`).join("")}</div>`
+    : "";
+  return `<section id="wear" class="panel" aria-live="polite" aria-atomic="true"><h2>Wear</h2>${layerRows}${bringHtml}${histLine}${accs}${fb}</section>`;
 }
 
 function renderWhy(rec, source) {
@@ -1714,7 +1732,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v57-thin-shoes</div>
+      <div class="footer">${esc(LOCATION.name)} . v58-tidy-closet</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1737,7 +1755,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v57-thin-shoes</div>
+    <div class="footer">${esc(LOCATION.name)} . v58-tidy-closet</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1923,7 +1941,6 @@ const ONB_OUTFIT = [
   { v: "shortdress", label: "Short dress", slot: "bottom", minTemp: 18, maxTemp: 30 },
   { v: "longdress", label: "Long dress", slot: "bottom", minTemp: 14, maxTemp: 25 },
   { v: "jumpsuit", label: "Jumpsuit", slot: "bottom", minTemp: 16, maxTemp: 25 },
-  { v: "yogapants", label: "Yoga pants", slot: "bottom", minTemp: 8, maxTemp: 22 },
   { v: "leggings", label: "Leggings", slot: "bottom", minTemp: 0, maxTemp: 18 },
   { v: "nylons", label: "Tights or nylons", slot: "bottom", minTemp: 5, maxTemp: 16 },
   { v: "pants", label: "Pants or jeans", slot: "bottom", minTemp: 5, maxTemp: 22 },
