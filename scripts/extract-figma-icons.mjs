@@ -44,7 +44,7 @@ const MANIFEST = {
   "fig-windbreaker": "midlayer/windbreaker- (1).svg",
 
   // Bottoms
-  "fig-shorts": "shorts/shorts- (1).svg",
+  "fig-shorts": "shorts/shorts- (9).svg",
   "fig-trunks": "shorts/trunks- (1).svg",
   "fig-pants": "jeans/pants.svg",
   "fig-jeans": "jeans/jeans.svg",
