@@ -49,9 +49,17 @@ function attrsToString(props) {
   return parts.join(" ");
 }
 
+// Hugeicons ships at strokeWidth 1.5, which renders too thin next to the
+// Figma fill silhouettes. Bump to 2.4 so the optical weight matches better.
+const STROKE_WIDTH_OVERRIDE = "2.4";
+
 function tupleToSvg(tuples) {
   const inner = tuples
-    .map(([tag, props]) => `<${tag} ${attrsToString(props)} />`)
+    .map(([tag, props]) => {
+      const next = { ...props };
+      if (next.strokeWidth) next.strokeWidth = STROKE_WIDTH_OVERRIDE;
+      return `<${tag} ${attrsToString(next)} />`;
+    })
     .join("");
   return `<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">${inner}</svg>`;
 }
