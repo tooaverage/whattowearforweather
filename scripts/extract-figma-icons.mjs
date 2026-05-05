@@ -19,7 +19,7 @@ const MANIFEST = {
   "fig-shirt": "shirt.svg",
   "fig-blouse": "blouse-.svg",
   "fig-loose-blouse": "cardigansandlongsleeve/loose-fitting-blouse-.svg",
-  "fig-long-sleeve": "cardigansandlongsleeve/long-sleeved-shirt.svg",
+  "fig-long-sleeve": "cardigansandlongsleeve/longsleeve.svg",
 
   // Mid layers
   "fig-cardigan": "cardigansandlongsleeve/cardigan- (1).svg",
