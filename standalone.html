@@ -368,6 +368,10 @@
   .trip-plan { background: var(--button-primary-bg); color: var(--button-primary-text); border: none; padding: .7rem 1rem; border-radius: .65rem; font-family: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; }
   .trip-plan:disabled { opacity: .5; cursor: not-allowed; }
   .trip-close-btn { background: transparent; border: 1px solid var(--input-border); color: var(--text-muted); padding: .55rem 1rem; border-radius: .65rem; cursor: pointer; font-family: inherit; font-size: .85rem; }
+  .trip-selected { display: flex; align-items: center; gap: .55rem; padding: .55rem .75rem; background: var(--accent-bg); border: 1px solid var(--accent-border); border-radius: .65rem; margin-top: .15rem; }
+  .trip-selected-lab { font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); font-weight: 600; }
+  .trip-selected-name { flex: 1; font-size: .9rem; color: var(--text-strong); font-weight: 500; }
+  .trip-selected-clear { background: transparent; border: 1px solid var(--accent-border); color: var(--accent); padding: .25rem .65rem; border-radius: 999px; font-family: inherit; font-size: .75rem; font-weight: 600; cursor: pointer; }
   .trip-result { display: flex; flex-direction: column; gap: .85rem; }
   .trip-result:empty { display: none; }
   .trip-summary { font-size: .82rem; color: var(--text-muted); }
@@ -681,8 +685,11 @@ function iconForName(name) {
   if (n.includes("long dress") || n.includes("maxi")) return "fig-cocktail-dress";
   if (n.includes("dress")) return "fig-dress";
   if (n.includes("kimono") || n.includes("robe")) return "fig-dress";
-  if (n.includes("bikini")) return "fig-t-shirt";
-  if (n.includes("swim") || n.includes("bathing")) return "fig-t-shirt";
+  // No Figma swimsuit; using OpenMoji bikini/one-piece glyphs gives a
+  // visual distinction from a regular t-shirt. Multicolor mismatch with
+  // the rest is the lesser evil for now.
+  if (n.includes("bikini")) return "👙";
+  if (n.includes("swim") || n.includes("bathing")) return "🩱";
   if (n.includes("scarf")) return "fig-scarf";
   if (n.includes("mitten")) return "fig-mittens";
   if (n.includes("glove")) return "fig-gloves";
@@ -1766,7 +1773,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v65-onb-icons-stale-weather</div>
+      <div class="footer">${esc(LOCATION.name)} . v66-trip-fixes</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1789,7 +1796,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v65-onb-icons-stale-weather</div>
+    <div class="footer">${esc(LOCATION.name)} . v66-trip-fixes</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1839,6 +1846,18 @@ function attachGlobalHandlers(root) {
         tz: tripPick.dataset.tz || "auto",
         name: tripPick.dataset.name,
       };
+      // Clear loaded weather so the previous result panel doesn't sit there
+      // claiming to be for a different destination.
+      TRIP_STATE.weather = null;
+      TRIP_STATE.error = null;
+      if (LAST_WEATHER) render(LAST_WEATHER);
+      return;
+    }
+    const tripClearDest = e.target.closest("[data-trip-clear-dest]");
+    if (tripClearDest) {
+      TRIP_STATE.dest = null;
+      TRIP_STATE.weather = null;
+      TRIP_STATE.error = null;
       if (LAST_WEATHER) render(LAST_WEATHER);
       return;
     }
@@ -1951,6 +1970,7 @@ async function refreshWeather() {
 const ONB_OUTFIT = [
   // Tops
   { v: "tank", label: "Tank top", slot: "base", minTemp: 22, maxTemp: 35 },
+  { v: "swimsuit", label: "Bathing suit", slot: "base", minTemp: 24, maxTemp: 40, conditions: ["sun"] },
   { v: "tshirt", label: "T-shirt", slot: "base", minTemp: 16, maxTemp: 28 },
   { v: "polo", label: "Polo shirt", slot: "base", minTemp: 16, maxTemp: 28 },
   { v: "blouse", label: "Blouse", slot: "base", minTemp: 14, maxTemp: 26 },
@@ -2494,10 +2514,19 @@ function renderTripView() {
   if (!TRIP_STATE.endDate) TRIP_STATE.endDate = fmtD(new Date(today.getTime() + 3 * 86400000));
 
   const savedList = [LOCATION, ...getSavedLocations().filter(l => !(l.name === LOCATION.name && Math.abs(l.lat - LOCATION.lat) < 0.05))];
+  const isSavedDest = d => savedList.some(l => l.name === d.name && Math.abs(l.lat - d.lat) < 0.05);
   const savedChips = savedList.map(l => {
     const isSel = TRIP_STATE.dest && TRIP_STATE.dest.name === l.name && Math.abs(TRIP_STATE.dest.lat - l.lat) < 0.05;
     return `<button type="button" class="trip-chip${isSel ? " on" : ""}" data-trip-pick data-lat="${l.lat}" data-lon="${l.lon}" data-tz="${esc(l.tz || "auto")}" data-name="${esc(l.name)}">${esc(l.name)}</button>`;
   }).join("");
+
+  // Searched destinations don't appear in the saved chip strip, so show
+  // a clear 'Selected: X' banner with a Change button so users know the
+  // pick took effect.
+  const showSelected = TRIP_STATE.dest && !isSavedDest(TRIP_STATE.dest);
+  const selectedBanner = showSelected
+    ? `<div class="trip-selected"><span class="trip-selected-lab">Selected</span><span class="trip-selected-name">${esc(TRIP_STATE.dest.name)}</span><button type="button" class="trip-selected-clear" data-trip-clear-dest>Change</button></div>`
+    : "";
 
   let resultHtml = "";
   if (TRIP_STATE.loading) {
@@ -2522,15 +2551,16 @@ function renderTripView() {
         <div class="trip-saved">${savedChips}</div>
         <input type="search" class="trip-search" placeholder="Or search a city" autocomplete="off" />
         <ul class="trip-results" data-trip-results></ul>
+        ${selectedBanner}
       </div>
       <div class="trip-section">
         <div class="trip-label">When</div>
         <div class="trip-dates">
           <input type="date" data-trip-start min="${fmtD(today)}" max="${fmtD(max)}" value="${esc(TRIP_STATE.startDate)}" aria-label="Start date" />
           <span class="trip-arrow">→</span>
-          <input type="date" data-trip-end min="${fmtD(today)}" max="${fmtD(max)}" value="${esc(TRIP_STATE.endDate)}" aria-label="End date" />
+          <input type="date" data-trip-end min="${esc(TRIP_STATE.startDate)}" max="${fmtD(max)}" value="${esc(TRIP_STATE.endDate)}" aria-label="End date" />
         </div>
-        <p class="trip-foot">Within 16 days = real forecast. Further out = same dates last year as a historical estimate, with a note on the result.</p>
+        <p class="trip-foot">Within 16 days = real forecast. Further out = same dates last year as a historical estimate.</p>
       </div>
       <button type="button" class="trip-plan" data-trip-plan${planDisabled ? " disabled" : ""}>Plan it</button>
     </section>
@@ -2569,8 +2599,18 @@ function attachTripPageHandlers(root) {
   }
   const startInp = root.querySelector("[data-trip-start]");
   const endInp = root.querySelector("[data-trip-end]");
-  if (startInp) startInp.addEventListener("change", () => { TRIP_STATE.startDate = startInp.value; if (LAST_WEATHER) render(LAST_WEATHER); });
-  if (endInp) endInp.addEventListener("change", () => { TRIP_STATE.endDate = endInp.value; if (LAST_WEATHER) render(LAST_WEATHER); });
+  if (startInp) startInp.addEventListener("change", () => {
+    TRIP_STATE.startDate = startInp.value;
+    // Auto-advance end date if it now sits before start.
+    if (TRIP_STATE.endDate && TRIP_STATE.endDate < TRIP_STATE.startDate) {
+      TRIP_STATE.endDate = TRIP_STATE.startDate;
+    }
+    if (LAST_WEATHER) render(LAST_WEATHER);
+  });
+  if (endInp) endInp.addEventListener("change", () => {
+    TRIP_STATE.endDate = endInp.value;
+    if (LAST_WEATHER) render(LAST_WEATHER);
+  });
 }
 
 function renderTripResults(weather, dest, startDate, endDate) {
@@ -2616,6 +2656,36 @@ function renderTripResults(weather, dest, startDate, endDate) {
         packBySlot[slot].push({ name: it.name, ic: iconForName(it.name) || SLOT_ICON[slot], mine: true });
       }
     }
+  }
+
+  // Condition-driven accessories. The recipe-level acc list only carries
+  // band-specific items (warm hat in cold, etc); UV / rain / snow items
+  // come from the recommend() pass which we don't run here. Compute trip-
+  // wide stats and add the matching accessories so the pack list isn't
+  // missing sunscreen on a hot trip or an umbrella on a wet one.
+  const allHours = (weather.allHours || []).filter(h => {
+    const d = localDateOf(h.time);
+    return d >= startDate && d <= endDate;
+  });
+  const maxUv = allHours.reduce((m, h) => Math.max(m, num(h.uv)), 0);
+  const maxRainProb = allHours.reduce((m, h) => Math.max(m, num(h.precipProb)), 0);
+  const totalRainMm = allHours.reduce((s, h) => s + Math.max(0, num(h.precipMm)), 0);
+  const totalSnowCm = allHours.reduce((s, h) => s + Math.max(0, num(h.snowCm)), 0);
+  const pushAcc = (v, ic) => {
+    if (accSeen.has(v)) return;
+    accSeen.add(v);
+    accList.push({ name: v, ic });
+  };
+  if (maxUv >= CFG.uvProtectionIndex) pushAcc("sunglasses", "sunglasses");
+  if (maxUv >= CFG.uvProtectionIndex + 1) pushAcc("brimmed hat", "fig-hat");
+  if (maxUv >= CFG.uvSunscreenIndex) pushAcc("sunscreen", "🧴");
+  if (maxRainProb >= CFG.rainShellProbabilityPct || totalRainMm >= CFG.rainShellTotalMm) {
+    pushAcc("compact umbrella", "umbrella");
+  }
+  if (totalSnowCm >= CFG.snowBootsCm) {
+    pushAcc("warm hat", "fig-beanie");
+    pushAcc("gloves", "fig-gloves");
+    pushAcc("scarf or neck gaiter", "fig-scarf");
   }
 
   const packRows = slots.map(slot => {
