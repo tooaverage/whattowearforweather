@@ -273,6 +273,8 @@
   .outfit-row.tappable { cursor: pointer; transition: background .12s; border-radius: .5rem; margin: 0 -.35rem; padding-left: .35rem; padding-right: .35rem; }
   .outfit-row.tappable:hover, .outfit-row.tappable:active { background: var(--hairline-soft); }
   .outfit-row .override-badge { font-size: .55rem; text-transform: uppercase; letter-spacing: .08em; color: var(--good); background: var(--good-bg); padding: .15rem .35rem; border-radius: 999px; font-weight: 600; margin-left: .35rem; vertical-align: middle; }
+  .outfit-row .hist-badge { display: inline-block; margin-left: .35rem; color: var(--accent); font-size: .85rem; vertical-align: middle; line-height: 1; }
+  .outfit-row.from-hist .your-items { color: var(--accent); }
   .ov-overlay { position: fixed; inset: 0; background: var(--overlay-bg); z-index: 220; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem 1rem; overflow-y: auto; }
   .ov-card { background: var(--panel-bg-solid); border-radius: 1rem; padding: 1.25rem; width: 100%; max-width: 24rem; display: flex; flex-direction: column; gap: 1rem; border: 1px solid var(--input-border); }
   .ov-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
@@ -1880,16 +1882,43 @@ function renderWear(rec) {
   const closet = getCloset();
   const conds = rec.conditions || [];
   const refTemp = rec.aNow;
-  const wearRows = [
-    rec.layers.outer && { ic: rec.layers.outer.ic, label: "Jacket", value: rec.layers.outer.v, slot: "outer", skip: false },
-    rec.layers.mid && { ic: rec.layers.mid.ic, label: "Mid", value: rec.layers.mid.v, slot: "mid", skip: false },
-    rec.layers.base && { ic: rec.layers.base.ic, label: "Top", value: rec.layers.base.v, slot: "base", skip: false },
-    rec.layers.bottom && { ic: rec.layers.bottom.ic, label: "Bottom", value: rec.layers.bottom.v, slot: "bottom", skip: false },
-    rec.layers.footwear && { ic: rec.layers.footwear.ic, label: "Shoes", value: rec.layers.footwear.v, slot: "footwear", skip: false },
-  ].filter(Boolean);
+
+  // Snapshot-based wear suggestions: when the user logged a 'just right'
+  // snapshot for similar conditions, prefer those items over the recipe
+  // default. Cover slots the recipe didn't include too (e.g. mid layer
+  // for a cool band where the engine says no mid is needed but the user
+  // actually wore a sweater).
+  const histSnap = findMatchingSnapshot(rec);
+  const useHist = histSnap && (histSnap.comfort === 0);
+  const histItemsBySlot = {};
+  if (useHist) {
+    const allItems = histSnap.worn.slice();
+    if (histSnap.extra) allItems.push(histSnap.extra);
+    for (const name of allItems) {
+      const slot = guessSlotFromName(name);
+      if (!histItemsBySlot[slot]) histItemsBySlot[slot] = [];
+      histItemsBySlot[slot].push(name);
+    }
+  }
+
+  const SLOT_ORDER = ["outer", "mid", "base", "bottom", "footwear"];
+  const SLOT_LABEL = { outer: "Jacket", mid: "Mid", base: "Top", bottom: "Bottom", footwear: "Shoes" };
+  const wearRows = SLOT_ORDER.map(slot => {
+    const layer = rec.layers[slot];
+    const histItems = histItemsBySlot[slot];
+    if (!layer && !histItems) return null;
+    return {
+      slot,
+      label: SLOT_LABEL[slot],
+      ic: layer ? layer.ic : SLOT_ICON[slot],
+      value: layer ? layer.v : null,
+      skip: false,
+      histItems: histItems || null,
+    };
+  }).filter(Boolean);
   const layerRows = wearRows.map(r => {
     const ov = getOverride(rec.band, conds, r.slot);
-    let icon = r.ic, value = r.value, hint = "", isOverride = false, isSkip = r.skip;
+    let icon = r.ic, value = r.value || "", hint = "", isOverride = false, isSkip = r.skip, isHist = false;
     if (ov === "__skip__") {
       isSkip = true;
       value = "skipped";
@@ -1901,6 +1930,13 @@ function renderWear(rec) {
       hint = `<span class="your-items">You set this. Default is ${esc(r.value)}</span>`;
       isOverride = true;
       isSkip = false;
+    } else if (r.histItems && r.histItems.length) {
+      // Use the snapshot the user logged as 'just right' for this band.
+      icon = iconForName(r.histItems[0]) || SLOT_ICON[r.slot] || r.ic;
+      value = r.histItems.join(", ");
+      const defaultNote = r.value ? `. Default is ${esc(r.value)}` : "";
+      hint = `<span class="your-items">You wore this last time, felt right${defaultNote}</span>`;
+      isHist = true;
     } else {
       const all = !r.skip && Array.isArray(closet[r.slot]) ? closet[r.slot] : [];
       const items = all.filter(it => itemMatchesItem(it, refTemp, conds));
@@ -1908,10 +1944,12 @@ function renderWear(rec) {
         icon = iconForName(items[0].name) || SLOT_ICON[r.slot] || r.ic;
         value = items.map(it => it.name).join(", ");
         hint = `<span class="your-items">Default is ${esc(r.value)}</span>`;
+      } else if (!value && r.value) {
+        value = r.value;
       }
     }
-    const badge = isOverride ? `<span class="override-badge">yours</span>` : "";
-    return `<div class="outfit-row tappable${isSkip ? " skip" : ""}" data-row-slot="${esc(r.slot)}" data-current-value="${esc(typeof ov === "string" ? ov : "")}"><span class="ic">${bigIcon(icon)}</span><span class="lbl">${esc(r.label)}${badge}</span><div class="val-cell"><span class="val">${esc(value)}</span>${hint}</div></div>`;
+    const badge = isOverride ? `<span class="override-badge">yours</span>` : (isHist ? `<span class="hist-badge" aria-label="From your last just-right log">✦</span>` : "");
+    return `<div class="outfit-row tappable${isSkip ? " skip" : ""}${isHist ? " from-hist" : ""}" data-row-slot="${esc(r.slot)}" data-current-value="${esc(typeof ov === "string" ? ov : "")}"><span class="ic">${bigIcon(icon)}</span><span class="lbl">${esc(r.label)}${badge}</span><div class="val-cell"><span class="val">${esc(value)}</span>${hint}</div></div>`;
   }).join("");
   const umbrellaItem = rec.layers.acc.find(a => a.v.includes("umbrella"));
   const visibleAcc = rec.layers.acc.filter(a => a !== umbrellaItem);
@@ -1927,8 +1965,11 @@ function renderWear(rec) {
     `<button class="fb-btn" type="button" data-fb="warm"><span class="fb-emoji">${bigIcon("🥵")}</span><span>Too warm</span></button>` +
     `<button class="snap-link" type="button" data-snap-open>Log what I'm actually wearing →</button>` +
     `</div>`;
-  const histSnap = findMatchingSnapshot(rec);
-  const histLine = histSnap ? (() => {
+  // Show the prose history hint only when the matching snapshot was NOT
+  // 'just right' (e.g. you logged 'a bit cold' last time). For just-right
+  // matches we already used the worn items as the row values, so the
+  // prose hint is redundant.
+  const histLine = (histSnap && !useHist) ? (() => {
     const items = histSnap.worn.slice();
     if (histSnap.extra) items.push(histSnap.extra);
     return `<p class="hist-hint">When it felt like this <span class="hist-when">${esc(relativeDay(histSnap.ts))}</span>, you wore <strong>${esc(items.join(", "))}</strong> (was ${esc(comfortLabel(histSnap.comfort || 0))}).</p>`;
@@ -2120,7 +2161,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v77-icons-all-stats-quiet</div>
+      <div class="footer">${esc(LOCATION.name)} . v78-snapshot-drives-wear</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2144,7 +2185,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v77-icons-all-stats-quiet</div>
+    <div class="footer">${esc(LOCATION.name)} . v78-snapshot-drives-wear</div>
   `;
 
   // Scroll selected cell into center of strip.
