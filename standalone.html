@@ -371,6 +371,23 @@
   .trip-result { display: flex; flex-direction: column; gap: .85rem; }
   .trip-result:empty { display: none; }
   .trip-summary { font-size: .82rem; color: var(--text-muted); }
+  .trip-overview h2 { margin-bottom: .65rem; }
+  .trip-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .45rem; }
+  .trip-stat { background: var(--chip-bg); border: 1px solid var(--input-border); border-radius: .65rem; padding: .65rem .5rem; text-align: center; display: flex; flex-direction: column; gap: .15rem; }
+  .trip-stat .ts-num { font-size: 1.2rem; font-weight: 700; color: var(--text-strong); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .trip-stat .ts-lab { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-faint); font-weight: 600; }
+  .pack-section { display: flex; flex-direction: column; gap: .35rem; padding: .55rem 0; border-bottom: 1px solid var(--hairline); }
+  .pack-section:last-child { border-bottom: none; padding-bottom: 0; }
+  .pack-section:first-of-type { padding-top: .15rem; }
+  .pack-hint { font-size: .78rem; color: var(--text-faint); margin: -.4rem 0 .35rem; line-height: 1.4; }
+  .pack-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; color: var(--text-faint); font-weight: 600; }
+  .pack-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .25rem; }
+  .pack-item { display: flex; align-items: center; gap: .55rem; font-size: .9rem; color: var(--text); padding: .25rem 0; }
+  .pack-item .pack-ic { flex: 0 0 1.5rem; line-height: 0; color: var(--text-muted); }
+  .pack-item .pack-ic svg { width: 1.5rem; height: 1.5rem; }
+  .pack-item .pack-name { flex: 1; }
+  .pack-item.mine .pack-name { color: var(--text-strong); font-weight: 500; }
+  .pack-item .pack-tag { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: var(--good); background: rgba(74,222,128,.12); padding: .15rem .45rem; border-radius: 999px; font-weight: 600; }
   .trip-days { display: flex; gap: .35rem; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: .25rem; margin: 0 -.25rem; }
   .trip-day { flex: 0 0 4.6rem; background: var(--chip-bg); border: 1px solid var(--panel-border); border-radius: .65rem; padding: .55rem .35rem; display: flex; flex-direction: column; align-items: center; gap: .2rem; text-align: center; }
   .trip-day-name { font-size: .65rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-faint); font-weight: 600; }
@@ -1748,7 +1765,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v63-onboarding-refactor</div>
+      <div class="footer">${esc(LOCATION.name)} . v64-trip-polish</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1771,7 +1788,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v63-onboarding-refactor</div>
+    <div class="footer">${esc(LOCATION.name)} . v64-trip-polish</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -2554,40 +2571,80 @@ function renderTripResults(weather, dest, startDate, endDate) {
   if (!days.length) return `<section class="panel"><p class="trip-error">No forecast available for those dates.</p></section>`;
   const closet = getCloset();
   const slots = ["outer", "mid", "base", "bottom", "footwear"];
-  const packBySlot = { outer: new Set(), mid: new Set(), base: new Set(), bottom: new Set(), footwear: new Set() };
-  const accSet = new Set();
+  const packBySlot = { outer: [], mid: [], base: [], bottom: [], footwear: [] };
+  const seenBySlot = { outer: new Set(), mid: new Set(), base: new Set(), bottom: new Set(), footwear: new Set() };
+  const accList = [];
+  const accSeen = new Set();
   const tempsSeen = days.map(d => d.hi).concat(days.map(d => d.lo));
   const tMin = Math.min(...tempsSeen);
   const tMax = Math.max(...tempsSeen);
   const bandsNeeded = new Set(days.map(d => d.band));
+
+  // Recipe defaults first, then overlay items the user owns that fit the
+  // trip range. Each entry tracks (name, ic, mine) so the row can render
+  // the icon and badge yours-vs-default.
   for (const band of bandsNeeded) {
     const r = RECIPES[band];
-    for (const slot of slots) { if (r[slot]) packBySlot[slot].add(r[slot].v); }
-    for (const a of (r.acc || [])) accSet.add(a.v);
+    for (const slot of slots) {
+      const layer = r[slot];
+      if (layer && !seenBySlot[slot].has(layer.v)) {
+        seenBySlot[slot].add(layer.v);
+        packBySlot[slot].push({ name: layer.v, ic: layer.ic, mine: false });
+      }
+    }
+    for (const a of (r.acc || [])) {
+      if (!accSeen.has(a.v)) {
+        accSeen.add(a.v);
+        accList.push({ name: a.v, ic: a.ic });
+      }
+    }
   }
   for (const slot of slots) {
     const items = closet[slot] || [];
     for (const it of items) {
       const minOK = it.minTemp === null || it.minTemp <= tMax;
       const maxOK = it.maxTemp === null || it.maxTemp >= tMin;
-      if (minOK && maxOK) packBySlot[slot].add(it.name + " (yours)");
+      if (minOK && maxOK && !seenBySlot[slot].has(it.name.toLowerCase())) {
+        seenBySlot[slot].add(it.name.toLowerCase());
+        packBySlot[slot].push({ name: it.name, ic: iconForName(it.name) || SLOT_ICON[slot], mine: true });
+      }
     }
   }
+
   const packRows = slots.map(slot => {
-    const list = Array.from(packBySlot[slot]);
+    const list = packBySlot[slot];
     if (!list.length) return "";
     const label = { outer: "Jacket", mid: "Mid", base: "Top", bottom: "Bottom", footwear: "Shoes" }[slot];
-    return `<div class="outfit-row"><span class="lbl">${esc(label)}</span><span class="val">${list.map(n => esc(n)).join(", ")}</span></div>`;
+    const items = list.map(item =>
+      `<li class="pack-item${item.mine ? " mine" : ""}"><span class="pack-ic">${bigIcon(item.ic)}</span><span class="pack-name">${esc(item.name)}</span>${item.mine ? `<span class="pack-tag">yours</span>` : ""}</li>`
+    ).join("");
+    return `<div class="pack-section"><div class="pack-label">${esc(label)}</div><ul class="pack-list">${items}</ul></div>`;
   }).join("");
-  const accRow = accSet.size ? `<div class="outfit-row"><span class="lbl">Plus</span><span class="val">${Array.from(accSet).map(n => esc(n)).join(", ")}</span></div>` : "";
+  const accRow = accList.length
+    ? `<div class="pack-section"><div class="pack-label">Plus</div><ul class="pack-list">${accList.map(a => `<li class="pack-item"><span class="pack-ic">${bigIcon(a.ic)}</span><span class="pack-name">${esc(a.name)}</span></li>`).join("")}</ul></div>`
+    : "";
+
+  // Trip-level summary stats: total rain mm, max UV, max wind, range.
+  const totalRain = days.reduce((s, d) => s + Math.max(0, num(d.maxProb)), 0);
+  const wetDays = days.filter(d => (d.maxProb || 0) >= 40).length;
+  const lo = Math.min(...days.map(d => d.lo));
+  const hi = Math.max(...days.map(d => d.hi));
+  const stats = [
+    `<div class="trip-stat"><div class="ts-num">${days.length}</div><div class="ts-lab">day${days.length === 1 ? "" : "s"}</div></div>`,
+    `<div class="trip-stat"><div class="ts-num">${fmt(lo)}–${fmt(hi)}</div><div class="ts-lab">range</div></div>`,
+    wetDays > 0
+      ? `<div class="trip-stat"><div class="ts-num">${wetDays}</div><div class="ts-lab">rainy day${wetDays === 1 ? "" : "s"}</div></div>`
+      : `<div class="trip-stat"><div class="ts-num">0</div><div class="ts-lab">rainy days</div></div>`,
+  ].join("");
+
   const dailyGraph = renderDayGraph(days, 3.6);
   const histBanner = weather._historical
     ? `<p class="trip-hist">Estimated from the same dates last year. Real forecast becomes available about 16 days before your trip.</p>`
     : "";
   return `
-    <section class="panel">
+    <section class="panel trip-overview">
       <h2>${esc(dest.name)}</h2>
-      <p class="trip-summary"><strong>${days.length}</strong> day${days.length === 1 ? "" : "s"} · ${fmt(tMin)} to ${fmt(tMax)}</p>
+      <div class="trip-stats">${stats}</div>
       ${histBanner}
     </section>
     <section class="panel">
@@ -2596,6 +2653,7 @@ function renderTripResults(weather, dest, startDate, endDate) {
     </section>
     <section class="panel">
       <h2>Pack list</h2>
+      <p class="pack-hint">Defaults plus what's in your closet that fits this range.</p>
       ${packRows}${accRow}
     </section>
   `;
