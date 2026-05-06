@@ -397,6 +397,8 @@
   .saved-trip-rm { background: transparent; border: 1px solid var(--input-border); color: var(--text-fainter); width: 2.4rem; border-radius: .65rem; cursor: pointer; font-family: inherit; font-size: 1rem; line-height: 1; }
   .saved-trip-rm:hover { color: var(--text); border-color: var(--text-faint); }
   .trip-hourly { display: flex; flex-direction: column; gap: .55rem; }
+  .trip-hourly-extra { display: none; }
+  .trip-hourly.expanded .trip-hourly-extra { display: flex; }
   .trip-hourly-row { display: flex; align-items: center; gap: .65rem; padding: .25rem 0; border-bottom: 1px solid var(--hairline); }
   .trip-hourly-row:last-child { border-bottom: none; }
   .trip-hourly-row .th-day { flex: 0 0 3rem; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-faint); font-weight: 600; }
@@ -1860,7 +1862,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v68-trip-polish</div>
+      <div class="footer">${esc(LOCATION.name)} . v69-hourly-collapsed</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1884,7 +1886,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v68-trip-polish</div>
+    <div class="footer">${esc(LOCATION.name)} . v69-hourly-collapsed</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -2053,6 +2055,17 @@ function attachGlobalHandlers(root) {
     if (e.target.closest("[data-loc-open]")) { openLocationModal(); return; }
     const tripCta = e.target.closest('.trip-cta[data-action="open-trip"]');
     if (tripCta) { gateTripPlanner(); return; }
+    const tripHourlyToggle = e.target.closest("[data-trip-hourly-toggle]");
+    if (tripHourlyToggle) {
+      const list = document.getElementById("trip-hourly-list");
+      if (list) {
+        const open = list.classList.toggle("expanded");
+        tripHourlyToggle.setAttribute("aria-expanded", String(open));
+        const totalDays = list.querySelectorAll(".trip-hourly-row").length;
+        tripHourlyToggle.textContent = open ? "Show fewer days" : `Show all ${totalDays} days`;
+      }
+      return;
+    }
     if (e.target.closest("[data-snap-open]")) { openSnapshotModal(); return; }
     const row = e.target.closest("[data-row-slot]");
     if (row) {
@@ -2903,7 +2916,10 @@ function renderTripResults(weather, dest, startDate, endDate) {
     if (!hoursByDate.has(d)) hoursByDate.set(d, []);
     hoursByDate.get(d).push(h);
   }
-  const hourlyRows = days.map(d => {
+  // Show first 3 days expanded; the rest collapse behind a toggle so a
+  // 16-day trip doesn't dump a wall of rows on the user.
+  const HOURLY_VISIBLE = 3;
+  const hourlyRows = days.map((d, i) => {
     const dayHours = (hoursByDate.get(d.date) || []).filter(h => {
       const hr = localHourOf(h.time);
       return hr >= 6 && hr <= 22 && (hr % 4 === 2);
@@ -2915,8 +2931,12 @@ function renderTripResults(weather, dest, startDate, endDate) {
       const lab = hr === 12 ? "12p" : hr < 12 ? `${hr}a` : `${hr - 12}p`;
       return `<div class="th-cell"><span class="th-time">${esc(lab)}</span><span class="th-ic">${bigIcon(ic)}</span><span class="th-t">${fmt(h.tempC)}</span></div>`;
     }).join("");
-    return `<div class="trip-hourly-row"><div class="th-day">${esc(dayLabel(d.date))}</div><div class="th-cells">${cells}</div></div>`;
+    const extra = i >= HOURLY_VISIBLE ? " trip-hourly-extra" : "";
+    return `<div class="trip-hourly-row${extra}"><div class="th-day">${esc(dayLabel(d.date))}</div><div class="th-cells">${cells}</div></div>`;
   }).join("");
+  const hourlyToggle = days.length > HOURLY_VISIBLE
+    ? `<button type="button" class="day-toggle" data-trip-hourly-toggle aria-expanded="false">Show all ${days.length} days</button>`
+    : "";
 
   // Save / saved indicator. If this exact (dest + dates) is already saved,
   // show a 'Saved' chip + Remove. Otherwise a Save button.
@@ -2942,7 +2962,8 @@ function renderTripResults(weather, dest, startDate, endDate) {
     <section class="panel">
       <h2>Hour by hour</h2>
       <p class="pack-hint">6 AM to 10 PM in 4-hour steps.</p>
-      <div class="trip-hourly">${hourlyRows}</div>
+      <div class="trip-hourly" id="trip-hourly-list">${hourlyRows}</div>
+      ${hourlyToggle}
     </section>
     <section class="panel">
       <h2>Pack list</h2>
