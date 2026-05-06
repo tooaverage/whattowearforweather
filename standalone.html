@@ -556,11 +556,12 @@
   [data-style="a"] .hero-head { padding: 0 1rem; }
   [data-style="a"] .loc-btn { background: transparent; color: var(--ink); border: 1px solid var(--hair); border-radius: 0; padding: .35rem .75rem; font-weight: 600; }
   [data-style="a"] .hero-band { background: var(--rust); color: var(--paper); border-radius: 0; padding: .25rem .65rem; }
-  /* Clothing icons are the masthead. Big, primary, generous spacing. */
-  [data-style="a"] .hero-icons { display: flex; gap: .85rem; padding: 1.4rem 1rem 0; margin: 0; min-height: auto; flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; -webkit-overflow-scrolling: touch; }
-  [data-style="a"] .hero-icons::-webkit-scrollbar { display: none; }
-  [data-style="a"] .hero-icons svg { width: 4.5rem; height: 4.5rem; color: var(--ink); filter: none; flex: 0 0 auto; }
-  [data-style="a"] .hero-plus { color: var(--ink-faint); font-size: 1.4rem; font-weight: 400; align-self: center; }
+  /* Clothing icons are the masthead. All five layers visible (outer, mid,
+     base, bottom, footwear). Icons sized to fit a narrow phone without
+     scrolling; wrap to a second row only if a wide language requires. */
+  [data-style="a"] .hero-icons { display: flex; gap: .55rem; padding: 1.4rem 1rem 0; margin: 0; min-height: auto; flex-wrap: wrap; justify-content: flex-start; align-items: center; }
+  [data-style="a"] .hero-icons svg { width: 2.8rem; height: 2.8rem; color: var(--ink); filter: none; flex: 0 0 auto; }
+  [data-style="a"] .hero-plus { color: var(--ink-faint); font-size: 1.05rem; font-weight: 400; align-self: center; }
   /* Outfit name in display type. The 'masthead' for THIS app, not the temperature. */
   [data-style="a"] .hero-outfit-name { display: block; font-family: 'Bebas Neue', 'Impact', sans-serif; font-size: clamp(2.6rem, 9vw, 4rem); line-height: .92; letter-spacing: -.005em; color: var(--ink); padding: 1rem 1rem 0; text-transform: uppercase; word-break: break-word; }
   [data-style="a"] .hero-desc { display: block; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .85rem; color: var(--ink-soft); padding: .55rem 1rem 0; text-transform: lowercase; letter-spacing: 0; font-weight: 400; }
@@ -580,12 +581,14 @@
   [data-style="a"] .hero-factors .hf { background: transparent; border: 1px solid var(--hair); border-radius: 0; color: var(--ink); padding: .35rem .65rem; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .72rem; font-weight: 500; }
   [data-style="a"] .hero-factors .hf.up { background: rgba(200,70,44,.08); color: var(--rust); border-color: var(--rust); }
   [data-style="a"] .hero-factors .hf.down { background: rgba(17,17,17,.04); color: var(--ink-soft); }
-  /* Tabular metrics block: dotted leader lines, all-caps labels, right-aligned values. */
-  [data-style="a"] .hero-stats { display: flex; flex-direction: column; gap: 0; padding: 1.4rem 1rem .25rem; margin: 1rem 0 0; border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); }
-  [data-style="a"] .hero-stats .hs-row { display: flex; align-items: baseline; gap: .65rem; padding: .55rem 0; border-bottom: 1px dotted var(--hair); font-family: 'JetBrains Mono', ui-monospace, monospace; }
-  [data-style="a"] .hero-stats .hs-row:last-child { border-bottom: none; }
-  [data-style="a"] .hero-stats dt { flex: 0 0 auto; font-size: .68rem; letter-spacing: .14em; color: var(--ink-soft); text-transform: uppercase; font-weight: 600; }
-  [data-style="a"] .hero-stats dd { margin: 0; flex: 1 1 auto; text-align: right; font-size: .95rem; color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+  /* Tabular metrics block: footnote-scale, supporting info. Two-column
+     grid so all 6 metrics fit in 3 compact rows. Subtle hairline above,
+     no heavy bottom border. */
+  [data-style="a"] .hero-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.25rem; padding: .85rem 1rem 0; margin: 1rem 0 0; border-top: 1px solid var(--hair); }
+  [data-style="a"] .hero-stats .hs-row { display: flex; align-items: baseline; gap: .5rem; padding: .35rem 0; border-bottom: 1px dotted var(--hair); font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  [data-style="a"] .hero-stats .hs-row:nth-last-child(-n+2) { border-bottom: none; }
+  [data-style="a"] .hero-stats dt { flex: 0 0 auto; font-size: .58rem; letter-spacing: .14em; color: var(--ink-faint); text-transform: uppercase; font-weight: 600; }
+  [data-style="a"] .hero-stats dd { margin: 0; flex: 1 1 auto; text-align: right; font-size: .78rem; color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
   [data-style="a"] .today-line { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .78rem; color: var(--ink-soft); padding: .85rem 1rem 0; }
   [data-style="a"] .section-title { font-family: 'JetBrains Mono', ui-monospace, monospace; color: var(--ink-soft); padding: 0 1rem; font-size: .68rem; letter-spacing: .14em; }
   [data-style="a"] .outfit-row { border-bottom: 1px dotted var(--hair); padding: .85rem 0; font-family: 'JetBrains Mono', ui-monospace, monospace; }
@@ -2117,7 +2120,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v76-feels-for-you</div>
+      <div class="footer">${esc(LOCATION.name)} . v77-icons-all-stats-quiet</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2141,7 +2144,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v76-feels-for-you</div>
+    <div class="footer">${esc(LOCATION.name)} . v77-icons-all-stats-quiet</div>
   `;
 
   // Scroll selected cell into center of strip.
