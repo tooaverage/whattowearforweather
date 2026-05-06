@@ -1869,7 +1869,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v71-cond-pill</div>
+      <div class="footer">${esc(LOCATION.name)} . v72-pack-list-scored</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1893,7 +1893,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v71-cond-pill</div>
+    <div class="footer">${esc(LOCATION.name)} . v72-pack-list-scored</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -2801,16 +2801,33 @@ function renderTripResults(weather, dest, startDate, endDate) {
   const tMax = Math.max(...tempsSeen);
   const bandsNeeded = new Set(days.map(d => d.band));
 
-  // Recipe defaults first, then overlay items the user owns that fit the
-  // trip range. Each entry tracks (name, ic, mine) so the row can render
-  // the icon and badge yours-vs-default.
-  for (const band of bandsNeeded) {
+  // Pack list scoring. Old logic was greedy: every band the trip touched
+  // contributed a full recipe outfit, and every closet item with any
+  // overlap got included. Result: 8 outer layers for a 3-band trip.
+  //
+  // New approach: pick the recipe that fits the trip's *median* feels-
+  // like temp as the base outfit (1 item per slot). If the trip's
+  // coldest day is >=2 bands colder, also include that band's outer
+  // layer as a 'cold mornings' alternative. For each slot, score the
+  // user's owned items by overlap with trip range and keep the top 2.
+  const allDayTemps = days.flatMap(d => [d.lo, d.hi]);
+  const tripMid = (Math.min(...allDayTemps) + Math.max(...allDayTemps)) / 2;
+  const tripMidEff = effective(tripMid);
+  const midBand = pickBand(tripMidEff);
+  const coldBand = pickBand(effective(tMin));
+  const midBandIdx = bandIdx(midBand);
+  const coldBandIdx = bandIdx(coldBand);
+  const usedBands = [midBand];
+  if (coldBandIdx > midBandIdx + 1) usedBands.push(coldBand);
+
+  for (const band of usedBands) {
     const r = RECIPES[band];
     for (const slot of slots) {
       const layer = r[slot];
       if (layer && !seenBySlot[slot].has(layer.v)) {
         seenBySlot[slot].add(layer.v);
-        packBySlot[slot].push({ name: layer.v, ic: layer.ic, mine: false });
+        const note = band === coldBand && band !== midBand ? " (for cold mornings)" : "";
+        packBySlot[slot].push({ name: layer.v + note, ic: layer.ic, mine: false });
       }
     }
     for (const a of (r.acc || [])) {
@@ -2820,15 +2837,29 @@ function renderTripResults(weather, dest, startDate, endDate) {
       }
     }
   }
+
+  // Score closet items by how much of the trip range they cover. Top 2
+  // per slot only. Items with zero overlap are dropped entirely.
+  const tripSpan = Math.max(1, tMax - tMin);
   for (const slot of slots) {
     const items = closet[slot] || [];
-    for (const it of items) {
-      const minOK = it.minTemp === null || it.minTemp <= tMax;
-      const maxOK = it.maxTemp === null || it.maxTemp >= tMin;
-      if (minOK && maxOK && !seenBySlot[slot].has(it.name.toLowerCase())) {
-        seenBySlot[slot].add(it.name.toLowerCase());
-        packBySlot[slot].push({ name: it.name, ic: iconForName(it.name) || SLOT_ICON[slot], mine: true });
-      }
+    const scored = items
+      .map(it => {
+        const iMin = Number.isFinite(it.minTemp) ? it.minTemp : -50;
+        const iMax = Number.isFinite(it.maxTemp) ? it.maxTemp : 50;
+        const overlap = Math.max(0, Math.min(iMax, tMax) - Math.max(iMin, tMin));
+        const itemSpan = Math.max(1, iMax - iMin);
+        const coverage = overlap / tripSpan;
+        const specificity = overlap / itemSpan;
+        return { it, score: coverage * specificity, overlap };
+      })
+      .filter(x => x.overlap > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 2);
+    for (const { it } of scored) {
+      if (seenBySlot[slot].has(it.name.toLowerCase())) continue;
+      seenBySlot[slot].add(it.name.toLowerCase());
+      packBySlot[slot].push({ name: it.name, ic: iconForName(it.name) || SLOT_ICON[slot], mine: true });
     }
   }
 
@@ -2974,7 +3005,7 @@ function renderTripResults(weather, dest, startDate, endDate) {
     </section>
     <section class="panel">
       <h2>Pack list</h2>
-      <p class="pack-hint">Defaults plus what's in your closet that fits this range.</p>
+      <p class="pack-hint">One outfit per slot for typical days, plus your top-fit closet items. Cold-morning extras only if the coldest day is meaningfully colder.</p>
       ${packRows}${accRow}
     </section>
   `;
