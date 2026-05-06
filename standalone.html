@@ -158,7 +158,7 @@
   .hc-point .hc-icon svg { width: 1.7rem; height: 1.7rem; display: block; }
   .hc-rain { position: absolute; bottom: 1.4rem; left: 50%; transform: translateX(-50%); font-size: .58rem; font-weight: 700; color: var(--accent); background: var(--rain-bg); padding: .05rem .3rem; border-radius: 999px; line-height: 1.1; font-variant-numeric: tabular-nums; pointer-events: none; white-space: nowrap; }
   .hc-rain.maybe { color: var(--warn-text-soft); background: var(--warn-bg); }
-  .dg-rain { font-size: .62rem; font-weight: 700; color: var(--accent); background: var(--rain-bg); padding: .05rem .35rem; border-radius: 999px; transform: translate(-50%, calc(-100% - 5.6rem)); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .dg-rain { font-size: .58rem; font-weight: 700; color: var(--accent); background: var(--rain-bg); padding: .05rem .3rem; border-radius: 999px; top: .15rem !important; transform: translateX(-50%); font-variant-numeric: tabular-nums; line-height: 1.1; white-space: nowrap; }
   .dg-rain.maybe { color: var(--warn-text-soft); background: var(--warn-bg); }
   .panel { border-radius: 1rem; padding: 1rem 1.1rem; background: var(--panel-bg); border: 1px solid var(--panel-border); }
   .panel h2 { margin: 0 0 .75rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: var(--text-muted); font-weight: 600; }
@@ -345,6 +345,12 @@
   .loc-save-current:hover { background: var(--accent-bg); }
   .loc-plan-trip { background: transparent; border: 1px solid var(--accent-border); color: var(--accent); padding: .55rem 1rem; border-radius: .65rem; cursor: pointer; font-family: inherit; font-size: .85rem; font-weight: 600; }
   .loc-plan-trip:hover { background: var(--accent-bg); }
+  .trip-cta { display: flex; align-items: center; justify-content: space-between; gap: .85rem; cursor: pointer; transition: background .12s, border-color .12s; }
+  .trip-cta:hover { border-color: var(--accent-border); }
+  .trip-cta-body { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
+  .trip-cta-head { font-size: 1rem; font-weight: 600; color: var(--text-strong); }
+  .trip-cta-sub { font-size: .82rem; color: var(--text-muted); line-height: 1.4; }
+  .trip-cta-arrow { font-size: 1.25rem; color: var(--accent); flex: 0 0 auto; }
   .trip-bar { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: 0 .25rem; margin-bottom: -.25rem; }
   .trip-back { background: transparent; border: 1px solid var(--input-border); color: var(--text-muted); padding: .35rem .75rem; border-radius: 999px; font-family: inherit; font-size: .8rem; font-weight: 500; cursor: pointer; }
   .trip-back:hover { background: var(--hairline-soft); }
@@ -375,8 +381,9 @@
   .trip-result { display: flex; flex-direction: column; gap: .85rem; }
   .trip-result:empty { display: none; }
   .trip-summary { font-size: .82rem; color: var(--text-muted); }
-  .trip-overview h2 { margin: 0; }
-  .trip-overview-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .65rem; flex-wrap: wrap; }
+  .trip-overview h2 { margin: 0; font-size: 1.15rem; text-transform: none; letter-spacing: -.005em; color: var(--text-strong); font-weight: 700; line-height: 1.25; }
+  .trip-overview-head { display: flex; align-items: flex-start; justify-content: space-between; gap: .65rem; margin-bottom: .85rem; }
+  .trip-overview-head h2 { flex: 1; min-width: 0; }
   .trip-save { background: transparent; border: 1px solid var(--input-border); color: var(--text-muted); padding: .35rem .75rem; border-radius: 999px; font-family: inherit; font-size: .78rem; font-weight: 600; cursor: pointer; }
   .trip-save:hover { border-color: var(--accent-border); color: var(--accent); }
   .trip-save.saved { border-color: var(--accent-border); color: var(--accent); background: var(--accent-bg); }
@@ -403,6 +410,8 @@
   .trip-stat { background: var(--chip-bg); border: 1px solid var(--input-border); border-radius: .65rem; padding: .65rem .5rem; text-align: center; display: flex; flex-direction: column; gap: .15rem; }
   .trip-stat .ts-num { font-size: 1.2rem; font-weight: 700; color: var(--text-strong); font-variant-numeric: tabular-nums; line-height: 1.1; }
   .trip-stat .ts-lab { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-faint); font-weight: 600; }
+  .trip-stat-wide { grid-column: span 3; background: var(--accent-bg); border-color: var(--accent-border); }
+  .trip-stat-wide .ts-num { color: var(--accent); }
   .pack-section { display: flex; flex-direction: column; gap: .35rem; padding: .55rem 0; border-bottom: 1px solid var(--hairline); }
   .pack-section:last-child { border-bottom: none; padding-bottom: 0; }
   .pack-section:first-of-type { padding-top: .15rem; }
@@ -1765,7 +1774,7 @@ function renderDayGraph(days, colRem) {
     const isToday = d.date === todayDate;
     const prob = Math.round(num(d.maxProb));
     const rainBadge = prob >= 20
-      ? `<div class="dg-rain ${prob < 40 ? "maybe" : ""}" style="top: ${hiY}%">☂ ${prob}%</div>`
+      ? `<div class="dg-rain ${prob < 40 ? "maybe" : ""}">☂ ${prob}%</div>`
       : "";
     return `<div class="dg-col${isToday ? " is-today" : ""}" style="left: ${xOf(i).toFixed(2)}%">
       <div class="dg-hi" style="top: ${hiY}%">${fmt(d.hi)}</div>
@@ -1782,6 +1791,23 @@ function renderDayGraph(days, colRem) {
     </svg>
     ${colsHtml}
   </div>`;
+}
+
+// Compact CTA panel surfacing the trip planner on the home page so users
+// don't have to dig into the location modal. Shows saved trip count
+// inline if any exist.
+function renderTripCta() {
+  const trips = getSavedTrips();
+  const subline = trips.length === 1
+    ? `1 saved trip`
+    : trips.length > 1 ? `${trips.length} saved trips` : `Estimate weather and pack list anywhere, up to a year out.`;
+  return `<section class="panel trip-cta" data-action="open-trip">
+    <div class="trip-cta-body">
+      <div class="trip-cta-head">Going somewhere?</div>
+      <div class="trip-cta-sub">${esc(subline)}</div>
+    </div>
+    <div class="trip-cta-arrow" aria-hidden="true">→</div>
+  </section>`;
 }
 
 function renderComing(weather) {
@@ -1834,7 +1860,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v67-saved-trips-hourly</div>
+      <div class="footer">${esc(LOCATION.name)} . v68-trip-polish</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1854,10 +1880,11 @@ function render(weather) {
     ${renderWear(rec)}
     ${renderHeadsUp(weather)}
     ${renderComing(weather)}
+    ${renderTripCta()}
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v67-saved-trips-hourly</div>
+    <div class="footer">${esc(LOCATION.name)} . v68-trip-polish</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -2024,6 +2051,8 @@ function attachGlobalHandlers(root) {
       return;
     }
     if (e.target.closest("[data-loc-open]")) { openLocationModal(); return; }
+    const tripCta = e.target.closest('.trip-cta[data-action="open-trip"]');
+    if (tripCta) { gateTripPlanner(); return; }
     if (e.target.closest("[data-snap-open]")) { openSnapshotModal(); return; }
     const row = e.target.closest("[data-row-slot]");
     if (row) {
@@ -2672,10 +2701,11 @@ function renderTripView() {
     <section class="panel">
       <div class="trip-section">
         <div class="trip-label">Where</div>
-        <div class="trip-saved">${savedChips}</div>
-        <input type="search" class="trip-search" placeholder="Or search a city" autocomplete="off" />
-        <ul class="trip-results" data-trip-results></ul>
-        ${selectedBanner}
+        ${TRIP_STATE.dest
+          ? `<div class="trip-saved">${savedChips}</div>${selectedBanner}`
+          : `<div class="trip-saved">${savedChips}</div>
+             <input type="search" class="trip-search" placeholder="Or search a city" autocomplete="off" />
+             <ul class="trip-results" data-trip-results></ul>`}
       </div>
       <div class="trip-section">
         <div class="trip-label">When</div>
@@ -2830,13 +2860,31 @@ function renderTripResults(weather, dest, startDate, endDate) {
   const wetDays = days.filter(d => (d.maxProb || 0) >= 40).length;
   const lo = Math.min(...days.map(d => d.lo));
   const hi = Math.max(...days.map(d => d.hi));
+
+  // 'Vs home' stat: compares trip mean temp to current home (LAST_WEATHER)
+  // air temp. Uses the trip's daily mean (mean of hi+lo per day, averaged)
+  // so the user gets a packing-relevant 'colder/warmer' read.
+  const homeNow = LAST_WEATHER && LAST_WEATHER.current ? num(LAST_WEATHER.current.tempC) : null;
+  const tripMean = days.reduce((s, d) => s + (d.hi + d.lo) / 2, 0) / days.length;
+  let vsHome = null;
+  if (Number.isFinite(homeNow) && Number.isFinite(tripMean)) {
+    const delta = Math.round(tripMean - homeNow);
+    if (Math.abs(delta) >= 1) {
+      vsHome = delta > 0 ? `+${delta}° warmer` : `${delta}° colder`;
+    } else {
+      vsHome = "about same";
+    }
+  }
   const stats = [
     `<div class="trip-stat"><div class="ts-num">${days.length}</div><div class="ts-lab">day${days.length === 1 ? "" : "s"}</div></div>`,
     `<div class="trip-stat"><div class="ts-num">${fmt(lo)}–${fmt(hi)}</div><div class="ts-lab">range</div></div>`,
     wetDays > 0
       ? `<div class="trip-stat"><div class="ts-num">${wetDays}</div><div class="ts-lab">rainy day${wetDays === 1 ? "" : "s"}</div></div>`
       : `<div class="trip-stat"><div class="ts-num">0</div><div class="ts-lab">rainy days</div></div>`,
-  ].join("");
+    vsHome
+      ? `<div class="trip-stat trip-stat-wide"><div class="ts-num">${esc(vsHome)}</div><div class="ts-lab">vs home now</div></div>`
+      : "",
+  ].filter(Boolean).join("");
 
   const dailyGraph = renderDayGraph(days, 3.6);
   const histBanner = weather._historical
