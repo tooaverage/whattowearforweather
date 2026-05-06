@@ -375,7 +375,30 @@
   .trip-result { display: flex; flex-direction: column; gap: .85rem; }
   .trip-result:empty { display: none; }
   .trip-summary { font-size: .82rem; color: var(--text-muted); }
-  .trip-overview h2 { margin-bottom: .65rem; }
+  .trip-overview h2 { margin: 0; }
+  .trip-overview-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-bottom: .65rem; flex-wrap: wrap; }
+  .trip-save { background: transparent; border: 1px solid var(--input-border); color: var(--text-muted); padding: .35rem .75rem; border-radius: 999px; font-family: inherit; font-size: .78rem; font-weight: 600; cursor: pointer; }
+  .trip-save:hover { border-color: var(--accent-border); color: var(--accent); }
+  .trip-save.saved { border-color: var(--accent-border); color: var(--accent); background: var(--accent-bg); }
+  .trip-saved-trips h2 { margin: 0 0 .55rem; }
+  .saved-trip-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .35rem; }
+  .saved-trip { display: flex; align-items: stretch; gap: .35rem; }
+  .saved-trip-load { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: .65rem; background: var(--chip-bg); border: 1px solid var(--input-border); border-radius: .65rem; padding: .55rem .85rem; font-family: inherit; font-size: .9rem; cursor: pointer; color: var(--text); text-align: left; }
+  .saved-trip-load:hover { background: var(--chip-bg-hover); }
+  .saved-trip-load .st-name { color: var(--text-strong); font-weight: 600; }
+  .saved-trip-load .st-dates { color: var(--text-faint); font-size: .82rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .saved-trip-rm { background: transparent; border: 1px solid var(--input-border); color: var(--text-fainter); width: 2.4rem; border-radius: .65rem; cursor: pointer; font-family: inherit; font-size: 1rem; line-height: 1; }
+  .saved-trip-rm:hover { color: var(--text); border-color: var(--text-faint); }
+  .trip-hourly { display: flex; flex-direction: column; gap: .55rem; }
+  .trip-hourly-row { display: flex; align-items: center; gap: .65rem; padding: .25rem 0; border-bottom: 1px solid var(--hairline); }
+  .trip-hourly-row:last-child { border-bottom: none; }
+  .trip-hourly-row .th-day { flex: 0 0 3rem; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-faint); font-weight: 600; }
+  .trip-hourly-row .th-cells { flex: 1; display: grid; grid-template-columns: repeat(5, 1fr); gap: .15rem; }
+  .th-cell { display: flex; flex-direction: column; align-items: center; gap: .1rem; padding: .25rem .15rem; }
+  .th-cell .th-time { font-size: .65rem; color: var(--text-fainter); font-variant-numeric: tabular-nums; }
+  .th-cell .th-ic { line-height: 0; }
+  .th-cell .th-ic svg { width: 1.2rem; height: 1.2rem; display: block; }
+  .th-cell .th-t { font-size: .78rem; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
   .trip-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .45rem; }
   .trip-stat { background: var(--chip-bg); border: 1px solid var(--input-border); border-radius: .65rem; padding: .65rem .5rem; text-align: center; display: flex; flex-direction: column; gap: .15rem; }
   .trip-stat .ts-num { font-size: 1.2rem; font-weight: 700; color: var(--text-strong); font-variant-numeric: tabular-nums; line-height: 1.1; }
@@ -1188,6 +1211,44 @@ function saveLocation() {
   try { localStorage.setItem("wtwfw-location", JSON.stringify(LOCATION)); } catch {}
 }
 
+// Saved trips: persisted plans the user has built. Keyed by name + dest +
+// dates. Capped at 8 to keep localStorage tidy and the UI readable.
+function getSavedTrips() {
+  try {
+    const s = localStorage.getItem("wtwfw-saved-trips");
+    if (s) {
+      const arr = JSON.parse(s);
+      if (Array.isArray(arr)) {
+        return arr
+          .filter(t => t && t.dest && Number.isFinite(t.dest.lat) && Number.isFinite(t.dest.lon)
+            && typeof t.startDate === "string" && typeof t.endDate === "string")
+          .slice(0, 8);
+      }
+    }
+  } catch {}
+  return [];
+}
+function setSavedTrips(arr) { try { localStorage.setItem("wtwfw-saved-trips", JSON.stringify(arr)); } catch {} }
+function tripKey(t) { return `${t.dest.name}|${t.startDate}|${t.endDate}`; }
+function addSavedTrip(t) {
+  if (!t || !t.dest || !t.startDate || !t.endDate) return false;
+  const list = getSavedTrips();
+  const key = tripKey(t);
+  if (list.some(x => tripKey(x) === key)) return false;
+  if (list.length >= 8) list.shift();
+  list.push({
+    dest: { lat: t.dest.lat, lon: t.dest.lon, tz: t.dest.tz || "auto", name: String(t.dest.name).slice(0, 60) },
+    startDate: t.startDate,
+    endDate: t.endDate,
+    savedAt: Date.now(),
+  });
+  setSavedTrips(list);
+  return true;
+}
+function removeSavedTrip(key) {
+  setSavedTrips(getSavedTrips().filter(t => tripKey(t) !== key));
+}
+
 async function fetchFromOpenMeteo(loc) {
   const where = loc || LOCATION;
   const params = new URLSearchParams({
@@ -1773,7 +1834,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v66-trip-fixes</div>
+      <div class="footer">${esc(LOCATION.name)} . v67-saved-trips-hourly</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1796,7 +1857,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v66-trip-fixes</div>
+    <div class="footer">${esc(LOCATION.name)} . v67-saved-trips-hourly</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -1861,6 +1922,46 @@ function attachGlobalHandlers(root) {
       if (LAST_WEATHER) render(LAST_WEATHER);
       return;
     }
+    const tripSave = e.target.closest("[data-trip-save]");
+    if (tripSave && TRIP_STATE.dest) {
+      const ok = addSavedTrip({ dest: TRIP_STATE.dest, startDate: TRIP_STATE.startDate, endDate: TRIP_STATE.endDate });
+      if (ok) {
+        showToast(`Saved trip to ${TRIP_STATE.dest.name}.`);
+      } else {
+        showToast(`Already saved.`);
+      }
+      if (LAST_WEATHER) render(LAST_WEATHER);
+      return;
+    }
+    const tripUnsave = e.target.closest("[data-trip-unsave]");
+    if (tripUnsave && TRIP_STATE.dest) {
+      removeSavedTrip(tripKey({ dest: TRIP_STATE.dest, startDate: TRIP_STATE.startDate, endDate: TRIP_STATE.endDate }));
+      showToast(`Removed from saved trips.`);
+      if (LAST_WEATHER) render(LAST_WEATHER);
+      return;
+    }
+    const tripLoad = e.target.closest("[data-trip-load]");
+    if (tripLoad) {
+      const key = tripLoad.dataset.key;
+      const t = getSavedTrips().find(x => tripKey(x) === key);
+      if (t) {
+        TRIP_STATE.dest = { ...t.dest };
+        TRIP_STATE.startDate = t.startDate;
+        TRIP_STATE.endDate = t.endDate;
+        TRIP_STATE.weather = null;
+        TRIP_STATE.error = null;
+        runTripPlan();
+      }
+      return;
+    }
+    const tripRm = e.target.closest("[data-trip-rm]");
+    if (tripRm) {
+      const key = tripRm.dataset.key;
+      removeSavedTrip(key);
+      showToast(`Removed from saved trips.`);
+      if (LAST_WEATHER) render(LAST_WEATHER);
+      return;
+    }
     const tripPlan = e.target.closest("[data-trip-plan]");
     if (tripPlan && !tripPlan.disabled) { runTripPlan(); return; }
     const fb = e.target.closest(".fb-btn");
@@ -1906,7 +2007,7 @@ function attachGlobalHandlers(root) {
       if (chip.dataset.action === "wipe-data") {
         if (!confirm("This wipes your closet, snapshots, calibration, location, and settings from this browser. The forecast itself isn't affected. Continue?")) return;
         try {
-          for (const k of ["wtwfw-baseline", "wtwfw-activity", "wtwfw-learned", "wtwfw-location", "wtwfw-saved-locations", "wtwfw-closet", "wtwfw-overrides", "wtwfw-snapshots", "wtwfw-onboarded", "wtwfw-pro", "wtwfw-trial-expires", "wtwfw-theme"]) localStorage.removeItem(k);
+          for (const k of ["wtwfw-baseline", "wtwfw-activity", "wtwfw-learned", "wtwfw-location", "wtwfw-saved-locations", "wtwfw-saved-trips", "wtwfw-closet", "wtwfw-overrides", "wtwfw-snapshots", "wtwfw-onboarded", "wtwfw-pro", "wtwfw-trial-expires", "wtwfw-theme"]) localStorage.removeItem(k);
         } catch {}
         loadLocation();
         applySettings();
@@ -2528,6 +2629,28 @@ function renderTripView() {
     ? `<div class="trip-selected"><span class="trip-selected-lab">Selected</span><span class="trip-selected-name">${esc(TRIP_STATE.dest.name)}</span><button type="button" class="trip-selected-clear" data-trip-clear-dest>Change</button></div>`
     : "";
 
+  // Saved trips strip. Only render the section header if there are any.
+  const trips = getSavedTrips();
+  const savedTripsHtml = trips.length
+    ? `<section class="panel trip-saved-trips">
+        <h2>Saved trips</h2>
+        <ul class="saved-trip-list">${trips.map(t => {
+          const fmtShort = iso => {
+            const d = new Date(iso + "T12:00:00");
+            return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+          };
+          const k = tripKey(t);
+          return `<li class="saved-trip">
+            <button type="button" class="saved-trip-load" data-trip-load data-key="${esc(k)}">
+              <span class="st-name">${esc(t.dest.name)}</span>
+              <span class="st-dates">${esc(fmtShort(t.startDate))} – ${esc(fmtShort(t.endDate))}</span>
+            </button>
+            <button type="button" class="saved-trip-rm" data-trip-rm data-key="${esc(k)}" aria-label="Remove">×</button>
+          </li>`;
+        }).join("")}</ul>
+      </section>`
+    : "";
+
   let resultHtml = "";
   if (TRIP_STATE.loading) {
     resultHtml = `<section class="panel"><div class="loading" role="status">Fetching forecast...</div></section>`;
@@ -2545,6 +2668,7 @@ function renderTripView() {
       <h1 class="trip-title">Plan a trip</h1>
       <span class="trip-bar-spacer"></span>
     </div>
+    ${savedTripsHtml}
     <section class="panel">
       <div class="trip-section">
         <div class="trip-label">Where</div>
@@ -2718,15 +2842,59 @@ function renderTripResults(weather, dest, startDate, endDate) {
   const histBanner = weather._historical
     ? `<p class="trip-hist">Estimated from the same dates last year. Real forecast becomes available about 16 days before your trip.</p>`
     : "";
+
+  // Per-day hourly preview rows: 6 AM to 10 PM in 4-hour steps so the row
+  // stays compact. Each cell shows hour + temp + a tiny weather icon.
+  const tripHours = (weather.allHours || []).filter(h => {
+    const d = localDateOf(h.time);
+    return d >= startDate && d <= endDate;
+  });
+  const hoursByDate = new Map();
+  for (const h of tripHours) {
+    const d = localDateOf(h.time);
+    if (!hoursByDate.has(d)) hoursByDate.set(d, []);
+    hoursByDate.get(d).push(h);
+  }
+  const hourlyRows = days.map(d => {
+    const dayHours = (hoursByDate.get(d.date) || []).filter(h => {
+      const hr = localHourOf(h.time);
+      return hr >= 6 && hr <= 22 && (hr % 4 === 2);
+    });
+    if (!dayHours.length) return "";
+    const cells = dayHours.map(h => {
+      const [, ic] = wmo(h.code);
+      const hr = localHourOf(h.time);
+      const lab = hr === 12 ? "12p" : hr < 12 ? `${hr}a` : `${hr - 12}p`;
+      return `<div class="th-cell"><span class="th-time">${esc(lab)}</span><span class="th-ic">${bigIcon(ic)}</span><span class="th-t">${fmt(h.tempC)}</span></div>`;
+    }).join("");
+    return `<div class="trip-hourly-row"><div class="th-day">${esc(dayLabel(d.date))}</div><div class="th-cells">${cells}</div></div>`;
+  }).join("");
+
+  // Save / saved indicator. If this exact (dest + dates) is already saved,
+  // show a 'Saved' chip + Remove. Otherwise a Save button.
+  const thisKey = tripKey({ dest, startDate, endDate });
+  const alreadySaved = getSavedTrips().some(t => tripKey(t) === thisKey);
+  const saveControl = alreadySaved
+    ? `<button type="button" class="trip-save saved" data-trip-unsave>★ Saved · tap to remove</button>`
+    : `<button type="button" class="trip-save" data-trip-save>☆ Save this trip</button>`;
+
   return `
     <section class="panel trip-overview">
-      <h2>${esc(dest.name)}</h2>
+      <div class="trip-overview-head">
+        <h2>${esc(dest.name)}</h2>
+        ${saveControl}
+      </div>
       <div class="trip-stats">${stats}</div>
       ${histBanner}
     </section>
     <section class="panel">
       <h2>Daily forecast</h2>
       <div class="day-graph-list" id="day-list">${dailyGraph}</div>
+    </section>
+    <section class="panel">
+      <h2>Hour by hour</h2>
+      <p class="pack-hint">6 AM to 10 PM in 4-hour steps.</p>
+      <div class="trip-hourly">${hourlyRows}</div>
     </section>
     <section class="panel">
       <h2>Pack list</h2>
