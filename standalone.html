@@ -1718,8 +1718,11 @@ function renderHourStrip(today, selectedIdx, nowIdx) {
   const path = "M" + cells.map((c, i) => `${xOf(i).toFixed(2)},${yOf(c.tempC).toFixed(2)}`).join(" L");
   let prevDate = null;
   const cellsHtml = cells.map((cell, i) => {
-    const [label] = wmo(cell.code);
-    const icon = BAND_ICON[cell.band] || "shirt-01";
+    const [label, wIcon] = wmo(cell.code);
+    // Hour strip shows the WEATHER icon (sun/cloud/rain) so you can
+    // scan the day for activity timing. Daily forecast keeps the
+    // clothing icon since that's the per-day dressing decision.
+    const icon = wIcon || BAND_ICON[cell.band] || "shirt-01";
     const y = yOf(cell.tempC).toFixed(2);
     const x = xOf(i).toFixed(2);
     const cellDate = localDateOf(cell.time);
@@ -1862,7 +1865,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v69-hourly-collapsed</div>
+      <div class="footer">${esc(LOCATION.name)} . v70-weather-in-hourly</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1886,7 +1889,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v69-hourly-collapsed</div>
+    <div class="footer">${esc(LOCATION.name)} . v70-weather-in-hourly</div>
   `;
 
   // Scroll selected cell into center of strip.
