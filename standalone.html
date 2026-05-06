@@ -416,7 +416,8 @@
   .onb-comfort { display: flex; gap: .5rem; flex-wrap: wrap; }
   .onb-comfort button { flex: 1 1 calc(33% - .5rem); min-width: 5rem; background: var(--chip-bg); color: var(--text-strong); padding: 1rem .5rem; border-radius: .9rem; border: 1px solid var(--input-border); cursor: pointer; font-family: inherit; font-size: .85rem; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: .4rem; }
   .onb-comfort button.on { border-color: var(--text); background: var(--button-primary-bg); color: var(--button-primary-text); }
-  .onb-comfort .em { font-size: 1.65rem; line-height: 1; }
+  .onb-comfort .em { font-size: 1.65rem; line-height: 1; display: flex; align-items: center; justify-content: center; }
+  .onb-comfort .em svg { width: 2rem; height: 2rem; display: block; }
   .onb-comfort button:active { transform: scale(.98); }
   .onb-here { background: var(--chip-bg); color: var(--text-strong); padding: 1rem 1.15rem; border-radius: .85rem; border: 1px solid var(--input-border); cursor: pointer; font-family: inherit; font-size: 1rem; text-align: left; font-weight: 500; min-height: 3rem; }
   .onb-here:hover { background: var(--chip-bg-hover); }
@@ -1765,7 +1766,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v64-trip-polish</div>
+      <div class="footer">${esc(LOCATION.name)} . v65-onb-icons-stale-weather</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1788,7 +1789,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v64-trip-polish</div>
+    <div class="footer">${esc(LOCATION.name)} . v65-onb-icons-stale-weather</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -2215,7 +2216,13 @@ function showOnboarding() {
   // they'd wear right now and how it'd feel; skip is a clean exit that
   // doesn't apply any learned offset.
   function step6() {
-    const tempLine = `It's ${fmt(c.tempC)} in ${esc(LOCATION.name)}, feels ${fmt(aNow)} for you.`;
+    // Read fresh from LAST_WEATHER. The closure-level c/aNow values were
+    // captured at showOnboarding() entry, before the user might have
+    // granted geolocation in step 3 and triggered a refreshWeather. Stale
+    // values would show 'Antarctica weather' for a Vancouver user.
+    const cur = (LAST_WEATHER && LAST_WEATHER.current) || c;
+    const feelsNow = feels(cur);
+    const tempLine = `It's ${fmt(cur.tempC)} in ${esc(LOCATION.name)}, feels ${fmt(feelsNow)} for you.`;
     const ownedList = state.owned.size
       ? ONB_OUTFIT.filter(o => state.owned.has(o.v))
       : ONB_OUTFIT;
