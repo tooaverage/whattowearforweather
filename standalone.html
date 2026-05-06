@@ -131,6 +131,9 @@
   .hero-desc { font-size: 1rem; font-weight: 600; text-align: center; margin-top: .5rem; line-height: 1.3; letter-spacing: -.005em; }
   .hero-temp-foot { display: flex; gap: .6rem; align-items: baseline; flex-wrap: wrap; justify-content: center; font-size: 1.25rem; font-weight: 700; opacity: .95; font-variant-numeric: tabular-nums; margin-top: .6rem; letter-spacing: -.01em; }
   .hero-temp-foot .sep { opacity: .45; font-weight: 400; }
+  .hero-temp-foot .htf-feels strong { font-weight: 800; }
+  .hero-temp-foot .htf-foryou { font-style: italic; opacity: .85; }
+  .hero-temp-foot .htf-star { opacity: .65; font-size: .85em; }
   .hero-factors { display: flex; gap: .35rem; flex-wrap: wrap; justify-content: center; margin-top: .45rem; font-variant-numeric: tabular-nums; }
   .hero-factors .hf { font-size: .68rem; font-weight: 600; padding: .15rem .5rem; border-radius: 999px; background: rgba(15,23,42,.18); letter-spacing: .01em; }
   .hero-factors .hf.up { background: rgba(249,115,22,.22); }
@@ -561,9 +564,17 @@
   /* Outfit name in display type. The 'masthead' for THIS app, not the temperature. */
   [data-style="a"] .hero-outfit-name { display: block; font-family: 'Bebas Neue', 'Impact', sans-serif; font-size: clamp(2.6rem, 9vw, 4rem); line-height: .92; letter-spacing: -.005em; color: var(--ink); padding: 1rem 1rem 0; text-transform: uppercase; word-break: break-word; }
   [data-style="a"] .hero-desc { display: block; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .85rem; color: var(--ink-soft); padding: .55rem 1rem 0; text-transform: lowercase; letter-spacing: 0; font-weight: 400; }
-  /* Temp / feels demoted to a small subline above the editorial table. */
-  [data-style="a"] .hero-temp-foot { display: flex; gap: .55rem; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .82rem; font-weight: 600; color: var(--ink); opacity: 1; padding: 1.1rem 1rem 0; justify-content: flex-start; letter-spacing: .02em; }
+  /* Temp / feels-for-you line. Larger than v74 so the personalization
+     reads. The 'feels X for you ✦' fragment is the editorial signature
+     line: rust accent + italic + small star to emphasize it's tuned to
+     the specific user (not generic AI sparkle). */
+  [data-style="a"] .hero-temp-foot { display: flex; gap: .55rem; align-items: baseline; flex-wrap: wrap; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 1.05rem; font-weight: 600; color: var(--ink); opacity: 1; padding: 1.2rem 1rem 0; justify-content: flex-start; letter-spacing: 0; }
+  [data-style="a"] .hero-temp-foot .htf-air { color: var(--ink-soft); font-weight: 500; }
   [data-style="a"] .hero-temp-foot .sep { color: var(--ink-faint); font-weight: 400; }
+  [data-style="a"] .hero-temp-foot .htf-feels { color: var(--ink); font-weight: 600; }
+  [data-style="a"] .hero-temp-foot .htf-feels strong { color: var(--rust); font-weight: 800; }
+  [data-style="a"] .hero-temp-foot .htf-foryou { color: var(--rust); font-style: italic; font-weight: 600; opacity: 1; }
+  [data-style="a"] .hero-temp-foot .htf-star { color: var(--rust); opacity: 1; font-size: 1em; margin-left: .15rem; }
   /* Multi-factor breakdown promoted: prominent chips, more visible. */
   [data-style="a"] .hero-factors { padding: .85rem 1rem 0; gap: .4rem; flex-wrap: wrap; }
   [data-style="a"] .hero-factors .hf { background: transparent; border: 1px solid var(--hair); border-radius: 0; color: var(--ink); padding: .35rem .65rem; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .72rem; font-weight: 500; }
@@ -1833,7 +1844,7 @@ function renderHero(rec, c, cLabel) {
     <div class="hero-icons">${heroIconsHtml}</div>
     <div class="hero-outfit-name">${esc(outfitWords)}</div>
     <div class="hero-desc">${esc(desc)}</div>
-    <div class="hero-temp-foot"><span>${fmt(c.tempC)}</span><span class="sep">·</span><span>feels ${fmt(rec.eNow)} for you</span></div>
+    <div class="hero-temp-foot"><span class="htf-air">${fmt(c.tempC)}</span><span class="sep">·</span><span class="htf-feels">feels <strong>${fmt(rec.eNow)}</strong> <span class="htf-foryou">for you</span> <span class="htf-star" aria-hidden="true">✦</span></span></div>
     ${factorsHtml}
     ${statsHtml}
   </section>`;
@@ -1946,7 +1957,12 @@ function renderTodayLine(today) {
 function renderHourStrip(today, selectedIdx, nowIdx) {
   const cells = today.cells;
   const range = Math.max(today.cellsHi - today.cellsLo, 1);
-  const yOf = t => 28 + (1 - (t - today.cellsLo) / range) * 47;
+  // Tighter y-range so the temperature marker doesn't fly into the
+  // cond pill at the top or the time label at the bottom on flat or
+  // extreme temperature days. Was 28..75 (47pt range); now 40..68
+  // gives the line less drama but keeps the curve readable while
+  // leaving room for cond pill (top) and time (bottom).
+  const yOf = t => 40 + (1 - (t - today.cellsLo) / range) * 28;
   const xOf = i => ((i + 0.5) / cells.length) * 100;
   const colRem = 3;
   const path = "M" + cells.map((c, i) => `${xOf(i).toFixed(2)},${yOf(c.tempC).toFixed(2)}`).join(" L");
@@ -2101,7 +2117,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v75-clean-masthead-names</div>
+      <div class="footer">${esc(LOCATION.name)} . v76-feels-for-you</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2125,7 +2141,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v75-clean-masthead-names</div>
+    <div class="footer">${esc(LOCATION.name)} . v76-feels-for-you</div>
   `;
 
   // Scroll selected cell into center of strip.
