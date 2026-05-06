@@ -8,8 +8,11 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://api.open-meteo.com https://geocoding-api.open-meteo.com https://archive-api.open-meteo.com https://api.met.no; img-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://api.open-meteo.com https://geocoding-api.open-meteo.com https://archive-api.open-meteo.com https://api.met.no; img-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" />
 <title>What to wear in Vancouver</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 <style>
   :root {
     color-scheme: dark;
@@ -527,9 +530,183 @@
   .upsell-go { background: var(--button-primary-bg); color: var(--button-primary-text); border: none; padding: .7rem 1rem; border-radius: .65rem; font-family: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; }
   .upsell-skip { background: transparent; border: 1px solid var(--input-border); color: var(--text-muted); padding: .55rem 1rem; border-radius: .65rem; cursor: pointer; font-family: inherit; font-size: .85rem; }
   .loading { padding: 5rem 0; text-align: center; color: var(--text-faint); font-size: .9rem; }
+
+  /* ===== Design preview switcher ===== */
+  .style-switcher { position: fixed; bottom: 1rem; right: 1rem; z-index: 9999; display: flex; gap: .25rem; padding: .25rem; background: rgba(15, 23, 42, .92); border: 1px solid rgba(255,255,255,.12); border-radius: 999px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+  .style-switcher button { background: transparent; border: none; width: 2rem; height: 2rem; border-radius: 999px; color: rgba(255,255,255,.7); font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .82rem; font-weight: 700; cursor: pointer; padding: 0; transition: background .12s, color .12s; }
+  .style-switcher button:hover { color: #fff; }
+  .style-switcher button[aria-pressed="true"] { background: #fff; color: #0f172a; }
+
+  /* ===== Direction A: Editorial weather magazine ===== */
+  [data-style="a"] { --paper: #F4F1EA; --ink: #111; --ink-soft: rgba(17,17,17,.55); --ink-faint: rgba(17,17,17,.35); --hair: rgba(17,17,17,.12); --rust: #C8462C; }
+  [data-style="a"] body, [data-style="a"] { background: var(--paper); color: var(--ink); }
+  [data-style="a"] body { font-family: 'JetBrains Mono', ui-monospace, monospace; font-feature-settings: "tnum"; }
+  [data-style="a"][data-theme="dark"], [data-style="a"][data-theme="dark"] body { --paper: #11100E; --ink: #F4F1EA; --ink-soft: rgba(244,241,234,.55); --ink-faint: rgba(244,241,234,.32); --hair: rgba(244,241,234,.12); }
+  [data-style="a"] .panel { background: transparent; border: none; border-top: 1px solid var(--hair); border-radius: 0; padding: 1.4rem 1rem; box-shadow: none; }
+  [data-style="a"] .panel:first-of-type { border-top: none; }
+  [data-style="a"] .panel h2 { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .68rem; letter-spacing: .14em; color: var(--ink-soft); text-transform: uppercase; font-weight: 600; margin-bottom: 1rem; }
+  [data-style="a"] .hero { background: transparent; color: var(--ink); padding: 1.6rem 0 .8rem; box-shadow: none; border-radius: 0; border-bottom: 1px solid var(--hair); }
+  [data-style="a"] .hero-head { padding: 0 1rem; }
+  [data-style="a"] .loc-btn { background: transparent; color: var(--ink); border: 1px solid var(--hair); border-radius: 0; padding: .35rem .75rem; font-weight: 600; }
+  [data-style="a"] .hero-band { background: var(--rust); color: var(--paper); border-radius: 0; padding: .25rem .65rem; }
+  [data-style="a"] .hero-icons { display: none; }
+  [data-style="a"] .hero-desc { display: none; }
+  [data-style="a"] .hero-temp-foot { display: block; font-family: 'Bebas Neue', 'Impact', sans-serif; font-size: clamp(8rem, 38vw, 14rem); line-height: .85; font-weight: 400; letter-spacing: -.02em; opacity: 1; margin-top: .5rem; padding: 0 1rem; text-align: left; }
+  [data-style="a"] .hero-temp-foot .sep { display: none; }
+  [data-style="a"] .hero-temp-foot > span:first-child::after { content: ""; }
+  [data-style="a"] .hero-temp-foot > span:not(:first-child) { display: none; }
+  [data-style="a"] .hero-factors { padding: .65rem 1rem 0; gap: .5rem; }
+  [data-style="a"] .hero-factors .hf { background: transparent; border: 1px solid var(--hair); border-radius: 0; color: var(--ink-soft); padding: .25rem .55rem; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .65rem; }
+  [data-style="a"] .hero-factors .hf.up { background: rgba(200,70,44,.08); color: var(--rust); border-color: var(--rust); }
+  [data-style="a"] .hero-factors .hf.down { background: transparent; color: var(--ink-soft); }
+  [data-style="a"] .today-line { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .78rem; color: var(--ink-soft); padding: .85rem 1rem 0; }
+  [data-style="a"] .section-title { font-family: 'JetBrains Mono', ui-monospace, monospace; color: var(--ink-soft); padding: 0 1rem; font-size: .68rem; letter-spacing: .14em; }
+  [data-style="a"] .outfit-row { border-bottom: 1px dotted var(--hair); padding: .85rem 0; font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  [data-style="a"] .outfit-row .lbl { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .68rem; letter-spacing: .14em; color: var(--ink-soft); }
+  [data-style="a"] .outfit-row .val { color: var(--ink); font-weight: 500; font-size: .92rem; }
+  [data-style="a"] .footer { font-family: 'JetBrains Mono', ui-monospace, monospace; color: var(--ink-faint); padding: 1rem; font-size: .7rem; }
+  [data-style="a"] .pill { border-radius: 0; border: 1px solid var(--hair); }
+  [data-style="a"] .strip-wrap, [data-style="a"] .day-graph-list { padding-left: 1rem; padding-right: 1rem; }
+  [data-style="a"] .hg-line, [data-style="a"] .dg-line-hi { stroke: var(--rust); }
+  [data-style="a"] .dg-line-lo { stroke: var(--ink-faint); }
+  [data-style="a"] .hour-cell[aria-pressed="true"] { background: rgba(200,70,44,.08); border: 1px solid var(--rust); }
+  [data-style="a"] .hc-temp { color: var(--ink); font-weight: 600; }
+  [data-style="a"] .dg-hi { color: var(--ink); font-weight: 700; }
+  [data-style="a"] .dg-lo { color: var(--ink-soft); }
+  [data-style="a"] #root { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  /* ===== Direction B: Personal handmade ===== */
+  [data-style="b"] { --cream: #FBF8F3; --pen: #1A1A1A; --pen-soft: rgba(26,26,26,.62); --pen-faint: rgba(26,26,26,.36); --hair: rgba(26,26,26,.10); --tomato: #C44536; }
+  [data-style="b"] body, [data-style="b"] { background: var(--cream); color: var(--pen); font-family: 'JetBrains Mono', 'iA Writer Quattro', ui-monospace, monospace; font-size: 16px; line-height: 1.55; }
+  [data-style="b"][data-theme="dark"], [data-style="b"][data-theme="dark"] body { --cream: #1B1A17; --pen: #FBF8F3; --pen-soft: rgba(251,248,243,.62); --pen-faint: rgba(251,248,243,.36); --hair: rgba(251,248,243,.10); }
+  [data-style="b"] .panel { background: transparent; border: none; border-radius: 0; padding: 1.5rem 1rem; box-shadow: none; border-top: 1px dashed var(--hair); }
+  [data-style="b"] .panel:first-of-type { border-top: none; }
+  [data-style="b"] .panel h2 { font-family: inherit; font-size: 1rem; letter-spacing: 0; color: var(--pen); text-transform: lowercase; font-weight: 500; margin-bottom: .9rem; }
+  [data-style="b"] .panel h2::before { content: "// "; color: var(--tomato); }
+  [data-style="b"] .hero { background: transparent; color: var(--pen); padding: 1.4rem 1rem; box-shadow: none; border-radius: 0; }
+  [data-style="b"] .hero-head { font-family: inherit; text-transform: lowercase; letter-spacing: 0; }
+  [data-style="b"] .loc-btn { background: transparent; color: var(--pen); border-bottom: 1px dashed var(--pen-soft); border-radius: 0; padding: .15rem 0; font-family: inherit; font-weight: 500; }
+  [data-style="b"] .hero-band { background: transparent; color: var(--tomato); border: none; padding: 0; text-transform: lowercase; font-style: italic; font-weight: 600; }
+  [data-style="b"] .hero-band::before { content: "today is "; color: var(--pen-soft); font-style: normal; font-weight: 400; }
+  [data-style="b"] .hero-icons { gap: .35rem; margin: 1.1rem 0 .6rem; min-height: auto; }
+  [data-style="b"] .hero-icons svg { width: 2.6rem; height: 2.6rem; color: var(--pen); filter: none; }
+  [data-style="b"] .hero-plus { color: var(--pen-faint); font-size: 1rem; font-weight: 400; }
+  [data-style="b"] .hero-desc { font-family: inherit; font-weight: 400; text-transform: lowercase; font-size: .95rem; color: var(--pen); margin-top: .35rem; }
+  [data-style="b"] .hero-temp-foot { font-family: inherit; font-size: 1.05rem; font-weight: 500; opacity: 1; color: var(--pen); margin-top: .5rem; }
+  [data-style="b"] .hero-temp-foot > span:nth-child(3) { color: var(--tomato); }
+  [data-style="b"] .hero-factors .hf { background: transparent; border: 1px solid var(--hair); color: var(--pen-soft); border-radius: .15rem; font-size: .72rem; }
+  [data-style="b"] .hero-factors .hf.up { color: var(--tomato); border-color: var(--tomato); background: transparent; }
+  [data-style="b"] .hero-factors .hf.down { color: var(--pen-soft); }
+  [data-style="b"] .today-line { font-family: inherit; color: var(--pen-soft); padding: 0 1rem; font-size: .82rem; }
+  [data-style="b"] .section-title { font-family: inherit; color: var(--pen-soft); padding: 0 1rem; font-size: .85rem; letter-spacing: 0; text-transform: lowercase; }
+  [data-style="b"] .section-title::before { content: "/ "; color: var(--tomato); }
+  [data-style="b"] .outfit-row { border-bottom: 1px dashed var(--hair); padding: .9rem 0; }
+  [data-style="b"] .outfit-row .lbl { font-family: inherit; color: var(--pen-soft); text-transform: lowercase; letter-spacing: 0; font-size: .78rem; }
+  [data-style="b"] .outfit-row .val { color: var(--pen); font-weight: 500; }
+  [data-style="b"] .panel.bring h2 { color: var(--tomato); }
+  [data-style="b"] .footer { font-family: inherit; color: var(--pen-faint); padding: 1.5rem 1rem 5rem; font-size: .8rem; text-align: left; }
+  [data-style="b"] .footer::after { content: " - love, the wear team."; color: var(--tomato); font-style: italic; }
+  [data-style="b"] .hg-line, [data-style="b"] .dg-line-hi { stroke: var(--tomato); stroke-width: 1.5; }
+  [data-style="b"] .dg-line-lo { stroke: var(--pen-faint); }
+  [data-style="b"] .hour-cell[aria-pressed="true"] { background: rgba(196,69,54,.08); border: 1px solid var(--tomato); }
+  [data-style="b"] .hc-temp, [data-style="b"] .dg-hi { color: var(--pen); font-weight: 500; }
+  [data-style="b"] .dg-lo { color: var(--pen-soft); }
+  [data-style="b"] #root { font-family: inherit; }
+  [data-style="b"] button, [data-style="b"] input, [data-style="b"] select { font-family: inherit; }
+
+  /* ===== Direction C: Mono-color immersion ===== */
+  /* Band color drives the entire viewport background. Each band has a
+     paired ink (light or dark) chosen for AA contrast on the band hue. */
+  [data-style="c"]:has(.hero.scorching) { --immersion-bg: #DC2626; --immersion-fg: #fff; }
+  [data-style="c"]:has(.hero.hot) { --immersion-bg: #EA580C; --immersion-fg: #fff; }
+  [data-style="c"]:has(.hero.warm) { --immersion-bg: #F59E0B; --immersion-fg: #111; }
+  [data-style="c"]:has(.hero.mild) { --immersion-bg: #EAB308; --immersion-fg: #111; }
+  [data-style="c"]:has(.hero.cool) { --immersion-bg: #10B981; --immersion-fg: #fff; }
+  [data-style="c"]:has(.hero.chilly) { --immersion-bg: #0EA5E9; --immersion-fg: #fff; }
+  [data-style="c"]:has(.hero.cold) { --immersion-bg: #6366F1; --immersion-fg: #fff; }
+  [data-style="c"]:has(.hero.very_cold) { --immersion-bg: #8B5CF6; --immersion-fg: #fff; }
+  [data-style="c"]:has(.hero.freezing) { --immersion-bg: #475569; --immersion-fg: #fff; }
+  [data-style="c"] body, [data-style="c"] { background: var(--immersion-bg, #FBBF24); color: var(--immersion-fg, #111); font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; transition: background .35s ease; }
+  [data-style="c"][data-theme="dark"] body, [data-style="c"][data-theme="dark"] { /* dark mode doesn't really apply: the band is the theme */ }
+  [data-style="c"] [data-style] { transition: background .35s ease; }
+  [data-style="c"] body { --imm-fg-soft: color-mix(in oklch, currentColor 55%, transparent); --imm-fg-faint: color-mix(in oklch, currentColor 32%, transparent); --imm-rule: color-mix(in oklch, currentColor 18%, transparent); }
+  [data-style="c"] .hero, [data-style="c"] .panel { background: transparent !important; border: none !important; box-shadow: none !important; border-radius: 0 !important; padding: 1.6rem 1.25rem; }
+  [data-style="c"] .panel { border-top: 1px solid var(--imm-rule) !important; }
+  [data-style="c"] .panel h2 { font-family: inherit; font-size: .72rem; letter-spacing: .18em; color: var(--imm-fg-faint); text-transform: uppercase; font-weight: 700; margin-bottom: 1rem; }
+  [data-style="c"] .hero { padding: 1.2rem 1.25rem 0; }
+  [data-style="c"] .hero-head { font-size: .68rem; letter-spacing: .18em; }
+  [data-style="c"] .loc-btn { background: rgba(255,255,255,.18); color: inherit; border: none; border-radius: 999px; padding: .25rem .75rem; font-weight: 700; font-family: inherit; }
+  [data-style="c"] .hero-band { background: transparent; color: var(--imm-fg-soft); border: none; padding: 0; font-weight: 700; }
+  [data-style="c"] .hero-icons { display: none; }
+  [data-style="c"] .hero-desc { display: none; }
+  [data-style="c"] .hero-temp-foot { display: block; font-family: 'Inter', sans-serif; font-weight: 900; font-size: clamp(11rem, 48vw, 22rem); line-height: .85; letter-spacing: -.04em; opacity: 1; margin-top: 0; text-align: left; padding: 0; }
+  [data-style="c"] .hero-temp-foot .sep, [data-style="c"] .hero-temp-foot > span:not(:first-child) { display: none; }
+  [data-style="c"] .hero-factors { padding: .85rem 0 0; gap: .5rem; justify-content: flex-start; }
+  [data-style="c"] .hero-factors .hf { background: rgba(255,255,255,.22); border: none; color: inherit; border-radius: 999px; font-weight: 700; font-size: .7rem; }
+  [data-style="c"] .hero-factors .hf.up, [data-style="c"] .hero-factors .hf.down { background: rgba(255,255,255,.22); color: inherit; }
+  [data-style="c"] .today-line { color: var(--imm-fg-soft); padding: .85rem 1.25rem 0; font-weight: 700; }
+  [data-style="c"] .section-title { color: var(--imm-fg-faint); padding: 0 1.25rem; font-weight: 700; letter-spacing: .18em; }
+  [data-style="c"] .outfit-row { border-bottom: 1px solid var(--imm-rule); padding: 1rem 0; }
+  [data-style="c"] .outfit-row .lbl { color: var(--imm-fg-faint); font-weight: 700; letter-spacing: .12em; }
+  [data-style="c"] .outfit-row .val { color: inherit; font-weight: 600; }
+  [data-style="c"] .outfit-row .ic svg { color: inherit; filter: none; }
+  [data-style="c"] .footer { color: var(--imm-fg-faint); padding: 1.5rem 1.25rem 5rem; font-weight: 600; }
+  [data-style="c"] .hg-line, [data-style="c"] .dg-line-hi { stroke: currentColor; stroke-width: 2; }
+  [data-style="c"] .dg-line-lo { stroke: var(--imm-fg-faint); stroke-width: 1.5; }
+  [data-style="c"] .hour-cell[aria-pressed="true"] { background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.45); }
+  [data-style="c"] .hc-temp, [data-style="c"] .dg-hi { color: inherit; font-weight: 800; }
+  [data-style="c"] .dg-lo { color: var(--imm-fg-soft); font-weight: 600; }
+  [data-style="c"] .hc-time { color: var(--imm-fg-faint); }
+  [data-style="c"] .hc-cond { color: inherit; }
+  [data-style="c"] .hc-icon svg { color: inherit; }
+  [data-style="c"] .pill { background: rgba(255,255,255,.18); border: none; color: inherit; }
+  [data-style="c"] .chip, [data-style="c"] button { font-family: inherit; }
+  [data-style="c"] .style-switcher { background: rgba(0,0,0,.55); }
+
 </style>
 </head>
 <body>
+<script>
+// Design-mode switcher. Reads ?style=a|b|c|default from the URL or
+// localStorage and sets data-style on <html> so CSS variants apply
+// before the main app renders. Also exposes a small floating switcher
+// widget so the user can toggle on a real device. No effect on engine.
+(function () {
+  var KEY = "wtwfw-design-style";
+  var sp = new URLSearchParams(location.search);
+  var fromUrl = sp.get("style");
+  var saved = null;
+  try { saved = localStorage.getItem(KEY); } catch (e) {}
+  var initial = fromUrl || saved || "default";
+  if (!["default", "a", "b", "c"].includes(initial)) initial = "default";
+  document.documentElement.setAttribute("data-style", initial);
+  if (fromUrl) try { localStorage.setItem(KEY, initial); } catch (e) {}
+  window.__setDesignStyle = function (s) {
+    if (!["default", "a", "b", "c"].includes(s)) return;
+    document.documentElement.setAttribute("data-style", s);
+    try { localStorage.setItem(KEY, s); } catch (e) {}
+    var btns = document.querySelectorAll(".style-switcher button");
+    btns.forEach(function (b) { b.setAttribute("aria-pressed", b.dataset.style === s ? "true" : "false"); });
+  };
+  document.addEventListener("DOMContentLoaded", function () {
+    var sw = document.createElement("div");
+    sw.className = "style-switcher";
+    sw.setAttribute("aria-label", "Design preview switcher");
+    sw.innerHTML = [
+      '<button type="button" data-style="default" aria-pressed="' + (initial === "default" ? "true" : "false") + '" title="Current">N</button>',
+      '<button type="button" data-style="a" aria-pressed="' + (initial === "a" ? "true" : "false") + '" title="Editorial">A</button>',
+      '<button type="button" data-style="b" aria-pressed="' + (initial === "b" ? "true" : "false") + '" title="Personal handmade">B</button>',
+      '<button type="button" data-style="c" aria-pressed="' + (initial === "c" ? "true" : "false") + '" title="Mono-block">C</button>',
+    ].join("");
+    sw.addEventListener("click", function (e) {
+      var b = e.target.closest("button[data-style]");
+      if (!b) return;
+      window.__setDesignStyle(b.dataset.style);
+    });
+    document.body.appendChild(sw);
+  });
+})();
+</script>
 <main id="root" role="main" aria-label="Weather and outfit"><div class="loading" role="status">Checking the sky...</div></main>
 <script>
 "use strict";
@@ -1869,7 +2046,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v72-pack-list-scored</div>
+      <div class="footer">${esc(LOCATION.name)} . v73-design-comparison</div>
     `;
     attachToggleHandler(root);
     return;
@@ -1893,7 +2070,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v72-pack-list-scored</div>
+    <div class="footer">${esc(LOCATION.name)} . v73-design-comparison</div>
   `;
 
   // Scroll selected cell into center of strip.
