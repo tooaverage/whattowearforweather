@@ -1785,9 +1785,29 @@ function renderHero(rec, c, cLabel) {
   const heroIconsHtml = layers.map(l => bigIcon(l.ic)).join('<span class="hero-plus">+</span>');
   const desc = describeFeel(rec, c, cLabel);
   // Editorial-style outfit recipe used in directions A and B as a
-  // typographic masthead (e.g. "LIGHT-JACKET + LONG-SLEEVE + JEANS").
-  // Hidden in default and C.
-  const outfitWords = layers.map(l => String(l.v || "").split(/[\s,]/)[0]).filter(Boolean).join(" + ");
+  // typographic masthead. Names come from the icon key (canonical
+  // garment name) so 'light pants or jeans' becomes 'pants' rather
+  // than 'light'. Only upper layers (outer + mid + base) are listed;
+  // bottom and footwear are visible in the icon row above.
+  const ICON_LABELS = {
+    "fig-t-shirt": "t-shirt", "fig-shirt": "shirt", "fig-long-sleeve": "long-sleeve",
+    "fig-blouse": "blouse", "fig-loose-blouse": "blouse",
+    "fig-cardigan": "cardigan", "fig-sweater": "sweater", "fig-pullover": "pullover",
+    "fig-hoodie": "hoodie", "fig-gilet": "vest",
+    "fig-jacket": "jacket", "fig-coat": "coat", "fig-trench-coat": "trench",
+    "fig-puffer-jacket": "puffer", "fig-leather-jacket": "leather", "fig-parka": "parka",
+    "fig-anorak": "anorak", "fig-windbreaker": "windbreaker", "fig-raincoat": "raincoat",
+    "fig-duffle-coat": "duffle", "fig-fur-coat": "fur coat", "fig-faux-fur-coat": "fur coat",
+    "fig-sheepskin-coat": "sheepskin",
+    "tank-top": "tank top",
+    "running-shoes": "sneakers", "armored-boot": "boots", "high-heels-01": "heels",
+  };
+  const labelFor = ic => {
+    if (ICON_LABELS[ic]) return ICON_LABELS[ic];
+    return String(ic || "").replace(/^fig-/, "").replace(/-\d+$/, "").replace(/-/g, " ");
+  };
+  const upperLayers = [rec.layers.outer, rec.layers.mid, rec.layers.base].filter(Boolean);
+  const outfitWords = upperLayers.map(l => labelFor(l.ic)).join(" + ");
   const factorsHtml = (rec.factors && rec.factors.length)
     ? `<div class="hero-factors" title="Why ${fmt(rec.eNow)} and not ${fmt(c.tempC)}: each factor below shifts how it feels.">${rec.factors.map(f => {
         const sign = f.delta > 0 ? "+" : "";
@@ -2081,7 +2101,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v74-A-clothing-first</div>
+      <div class="footer">${esc(LOCATION.name)} . v75-clean-masthead-names</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2105,7 +2125,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v74-A-clothing-first</div>
+    <div class="footer">${esc(LOCATION.name)} . v75-clean-masthead-names</div>
   `;
 
   // Scroll selected cell into center of strip.
