@@ -471,3 +471,136 @@ describe('guessSlotFromName', () => {
     expect(ctx.guessSlotFromName('')).toBe('base');
   });
 });
+
+describe('findMatchingSnapshot', () => {
+  function makeRec(temp, conds) {
+    return {
+      aNow: temp,
+      conditions: conds || [],
+    };
+  }
+
+  function reset() {
+    ctx.localStorage.clear();
+    ctx.setLastWeather({
+      current: { time: '2026-05-06T12:00:00Z', tempC: 14, rh: 70, kph: 8, uv: 2, cloud: 60, isDay: true },
+      next12h: [],
+      allHours: [],
+    });
+    ctx.setLocation({ lat: 49.28, lon: -123.12, tz: 'America/Vancouver', name: 'Vancouver' });
+  }
+
+  it('returns null when there are no snapshots', () => {
+    reset();
+    expect(ctx.findMatchingSnapshot(makeRec(15))).toBeNull();
+  });
+
+  it('returns null when all snapshots are too far in temperature', () => {
+    reset();
+    ctx.saveSnapshot({ worn: new Set(['Parka']), extra: '', comfort: 0 });
+    // Set the last-snapshot's feels manually so it is at -10
+    const arr = JSON.parse(ctx.localStorage.getItem('wtwfw-snapshots'));
+    arr[0].feels = -10;
+    ctx.localStorage.setItem('wtwfw-snapshots', JSON.stringify(arr));
+    expect(ctx.findMatchingSnapshot(makeRec(20))).toBeNull();
+  });
+
+  it('returns the closest temperature match', () => {
+    reset();
+    ctx.saveSnapshot({ worn: new Set(['T-shirt']), extra: '', comfort: 0 });
+    let arr = JSON.parse(ctx.localStorage.getItem('wtwfw-snapshots'));
+    arr[0].feels = 18; arr[0].worn = ['Shirt A'];
+    ctx.localStorage.setItem('wtwfw-snapshots', JSON.stringify(arr));
+
+    ctx.saveSnapshot({ worn: new Set(['T-shirt']), extra: '', comfort: 0 });
+    arr = JSON.parse(ctx.localStorage.getItem('wtwfw-snapshots'));
+    arr[0].feels = 22; arr[0].worn = ['Shirt B'];
+    ctx.localStorage.setItem('wtwfw-snapshots', JSON.stringify(arr));
+
+    const match = ctx.findMatchingSnapshot(makeRec(21));
+    expect(match).toBeTruthy();
+    expect(match.worn).toContain('Shirt B');
+  });
+
+  it('penalizes condition mismatches', () => {
+    reset();
+    ctx.saveSnapshot({ worn: new Set(['Trench']), extra: '', comfort: 0 });
+    let arr = JSON.parse(ctx.localStorage.getItem('wtwfw-snapshots'));
+    arr[0].feels = 15; arr[0].conditions = ['rain']; arr[0].worn = ['Rain match'];
+    ctx.localStorage.setItem('wtwfw-snapshots', JSON.stringify(arr));
+
+    ctx.saveSnapshot({ worn: new Set(['Trench']), extra: '', comfort: 0 });
+    arr = JSON.parse(ctx.localStorage.getItem('wtwfw-snapshots'));
+    arr[0].feels = 15; arr[0].conditions = []; arr[0].worn = ['Dry match'];
+    ctx.localStorage.setItem('wtwfw-snapshots', JSON.stringify(arr));
+
+    // Same temp; rec has rain conditions. Rain-conditioned snapshot wins.
+    const match = ctx.findMatchingSnapshot(makeRec(15, ['rain']));
+    expect(match.worn).toContain('Rain match');
+  });
+
+  it('skips snapshots with extreme comfort (way too cold/warm)', () => {
+    reset();
+    ctx.saveSnapshot({ worn: new Set(['T-shirt']), extra: '', comfort: 2 });
+    const arr = JSON.parse(ctx.localStorage.getItem('wtwfw-snapshots'));
+    arr[0].feels = 15;
+    ctx.localStorage.setItem('wtwfw-snapshots', JSON.stringify(arr));
+    expect(ctx.findMatchingSnapshot(makeRec(15))).toBeNull();
+  });
+});
+
+describe('iconForName regression', () => {
+  it('routes basic clothing names correctly', () => {
+    expect(ctx.iconForName('T-shirt')).toBe('fig-t-shirt');
+    expect(ctx.iconForName('Long sleeve')).toBe('fig-long-sleeve');
+    expect(ctx.iconForName('Hoodie')).toBe('fig-hoodie');
+    expect(ctx.iconForName('Cardigan')).toBe('fig-cardigan');
+    expect(ctx.iconForName('Sweater')).toBe('fig-sweater');
+    expect(ctx.iconForName('Trench coat')).toBe('fig-trench-coat');
+    expect(ctx.iconForName('Parka')).toBe('fig-parka');
+    expect(ctx.iconForName('Puffer jacket')).toBe('fig-puffer-jacket');
+    expect(ctx.iconForName('Skirt')).toBe('fig-skirt');
+    // 'Pants or jeans' contains 'jean' which matches the jeans rule first.
+    expect(ctx.iconForName('Pants or jeans')).toBe('fig-jeans');
+    expect(ctx.iconForName('Khaki pants')).toBe('fig-pants');
+    expect(ctx.iconForName('Shorts')).toBe('fig-shorts');
+  });
+
+  it('uses Hugeicons for items the Figma set lacks', () => {
+    expect(ctx.iconForName('Sneakers')).toBe('running-shoes');
+    expect(ctx.iconForName('Boots')).toBe('armored-boot');
+    expect(ctx.iconForName('Heels')).toBe('high-heels-01');
+    expect(ctx.iconForName('Sandals')).toBe('sandals');
+    expect(ctx.iconForName('Umbrella')).toBe('umbrella');
+    expect(ctx.iconForName('Sunglasses')).toBe('sunglasses');
+  });
+
+  it('returns null for unknown names', () => {
+    expect(ctx.iconForName('Random thing')).toBeNull();
+    expect(ctx.iconForName('')).toBeNull();
+  });
+
+  it('every icon iconForName returns is present in HUG_ICONS or as an emoji', () => {
+    // Sample of known good names. Each should resolve to a key that is
+    // either in HUG_ICONS (fig-* or hugeicons names) or is an emoji
+    // string (length < 5 chars typically). Catches regressions where a
+    // mapping points at an icon key that was renamed/removed.
+    const names = ['T-shirt', 'Long sleeve', 'Hoodie', 'Cardigan', 'Sweater',
+                   'Trench coat', 'Parka', 'Puffer jacket', 'Skirt', 'Pants',
+                   'Shorts', 'Sneakers', 'Boots', 'Heels', 'Sandals',
+                   'Umbrella', 'Sunglasses', 'Hat', 'Cap', 'Gloves', 'Socks'];
+    for (const name of names) {
+      const key = ctx.iconForName(name);
+      expect(key, `iconForName(${name}) returned null`).not.toBeNull();
+      const isInDict = !!(ctx.HUG_ICONS && ctx.HUG_ICONS[key]);
+      const isEmoji = typeof key === 'string' && key.length <= 4;
+      expect(isInDict || isEmoji, `iconForName(${name}) -> ${key} not in HUG_ICONS or emoji`).toBe(true);
+    }
+  });
+
+  it('handles case insensitivity and partial matches', () => {
+    expect(ctx.iconForName('PLAID SWEATER')).toBe('fig-sweater');
+    expect(ctx.iconForName('blue jeans')).toBe('fig-jeans');
+    expect(ctx.iconForName('My favorite hoodie')).toBe('fig-hoodie');
+  });
+});

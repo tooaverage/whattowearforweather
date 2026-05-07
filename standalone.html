@@ -2009,7 +2009,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v81-A-only</div>
+      <div class="footer">${esc(LOCATION.name)} . v82-more-tests</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2033,7 +2033,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v81-A-only</div>
+    <div class="footer">${esc(LOCATION.name)} . v82-more-tests</div>
   `;
 
   // Scroll selected cell into center of strip.
