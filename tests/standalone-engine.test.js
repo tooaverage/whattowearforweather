@@ -11,11 +11,14 @@ let ctx;
 
 beforeAll(() => {
   const html = fs.readFileSync('standalone.html', 'utf8');
-  const m = html.match(/<script>([\s\S]*?)<\/script>/);
-  if (!m) throw new Error('no script found in standalone.html');
+  // Pick the largest <script> block. The file has small inline scripts
+  // (e.g. the design-style switcher) plus the main engine; we want the
+  // engine, which is by far the biggest.
+  const blocks = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
+  if (!blocks.length) throw new Error('no script found in standalone.html');
+  const raw = blocks.reduce((a, b) => (b.length > a.length ? b : a), '');
   // Strip the IIFE at the bottom (the part that fetches and renders) so
   // running the script in vm just defines functions / consts and returns.
-  const raw = m[1];
   const cut = raw.lastIndexOf('(async () =>');
   const script = cut >= 0 ? raw.slice(0, cut) : raw;
 
@@ -54,6 +57,16 @@ this.bandIdx = bandIdx;
 this.effective = effective;
 this.itemMatchesItem = itemMatchesItem;
 this.findMatchingSnapshot = findMatchingSnapshot;
+this.saveSnapshot = saveSnapshot;
+this.getCloset = getCloset;
+this.setCloset = setCloset;
+this.addClosetItem = addClosetItem;
+this.guessSlotFromName = guessSlotFromName;
+this.getSnapshots = getSnapshots;
+this.iconForName = iconForName;
+this.HUG_ICONS = HUG_ICONS;
+this.setLastWeather = (w) => { LAST_WEATHER = w; };
+this.setLocation = (l) => { LOCATION = l; };
 `, ctx);
 });
 
@@ -354,5 +367,107 @@ describe('buildTodayCells smoke', () => {
     expect(result.cells.length).toBeGreaterThan(0);
     expect(Number.isFinite(result.hi)).toBe(true);
     expect(Number.isFinite(result.lo)).toBe(true);
+  });
+});
+
+describe('saveSnapshot adds worn items to closet', () => {
+  // Reset localStorage between tests to keep them independent.
+  function reset() {
+    ctx.localStorage.clear();
+    ctx.setLastWeather({
+      current: { time: '2026-05-06T12:00:00Z', tempC: 14, rh: 70, kph: 8, uv: 2, cloud: 60, isDay: true },
+      next12h: [],
+      allHours: [],
+    });
+    ctx.setLocation({ lat: 49.28, lon: -123.12, tz: 'America/Vancouver', name: 'Vancouver, BC' });
+  }
+
+  it('persists the snapshot in wtwfw-snapshots', () => {
+    reset();
+    ctx.saveSnapshot({ worn: new Set(['T-shirt']), extra: '', comfort: 0 });
+    const snaps = ctx.getSnapshots();
+    expect(snaps.length).toBe(1);
+    expect(snaps[0].worn).toEqual(['T-shirt']);
+    expect(snaps[0].comfort).toBe(0);
+  });
+
+  it('adds each worn item to the user closet under the inferred slot', () => {
+    reset();
+    ctx.saveSnapshot({ worn: new Set(['Long sleeve', 'Pants or jeans', 'Sneakers']), extra: '', comfort: 0 });
+    const closet = ctx.getCloset();
+    expect(closet.base.some(it => it.name === 'Long sleeve')).toBe(true);
+    expect(closet.bottom.some(it => it.name === 'Pants or jeans')).toBe(true);
+    expect(closet.footwear.some(it => it.name === 'Sneakers')).toBe(true);
+  });
+
+  it('adds the free-text extra item to the closet too', () => {
+    reset();
+    ctx.saveSnapshot({ worn: new Set(), extra: 'Plaid Sweater', comfort: 0 });
+    const closet = ctx.getCloset();
+    // 'Plaid Sweater' should bucket to mid (sweater regex match).
+    expect(closet.mid.some(it => it.name === 'Plaid Sweater')).toBe(true);
+  });
+
+  it('does not duplicate items already in the closet', () => {
+    reset();
+    ctx.saveSnapshot({ worn: new Set(['T-shirt']), extra: '', comfort: 0 });
+    ctx.saveSnapshot({ worn: new Set(['T-shirt']), extra: '', comfort: 0 });
+    const closet = ctx.getCloset();
+    const tshirts = closet.base.filter(it => it.name.toLowerCase() === 't-shirt');
+    expect(tshirts.length).toBe(1);
+  });
+
+  it('still adds items when comfort is not just-right', () => {
+    // We log everything the user wears regardless of how it felt; the
+    // calibration is separate from closet membership.
+    reset();
+    ctx.saveSnapshot({ worn: new Set(['Hoodie']), extra: '', comfort: -1 });
+    const closet = ctx.getCloset();
+    // Hoodie matches the outer-layer regex (hoodies are often outerwear).
+    expect(closet.outer.some(it => it.name === 'Hoodie')).toBe(true);
+  });
+});
+
+describe('guessSlotFromName', () => {
+  it('routes outer wear correctly', () => {
+    expect(ctx.guessSlotFromName('Trench Coat')).toBe('outer');
+    expect(ctx.guessSlotFromName('Light jacket')).toBe('outer');
+    expect(ctx.guessSlotFromName('Parka')).toBe('outer');
+    expect(ctx.guessSlotFromName('Cardigan')).toBe('outer');
+  });
+
+  it('routes mid layers correctly', () => {
+    expect(ctx.guessSlotFromName('Wool sweater')).toBe('mid');
+    expect(ctx.guessSlotFromName('Fleece')).toBe('mid');
+    expect(ctx.guessSlotFromName('Pullover')).toBe('mid');
+    expect(ctx.guessSlotFromName('Plaid Sweater')).toBe('mid');
+  });
+
+  it('routes base layers correctly', () => {
+    expect(ctx.guessSlotFromName('T-shirt')).toBe('base');
+    expect(ctx.guessSlotFromName('Polo shirt')).toBe('base');
+    expect(ctx.guessSlotFromName('Long sleeve')).toBe('base');
+    expect(ctx.guessSlotFromName('Tank top')).toBe('base');
+    expect(ctx.guessSlotFromName('Blouse')).toBe('base');
+  });
+
+  it('routes bottoms correctly', () => {
+    expect(ctx.guessSlotFromName('Pants or jeans')).toBe('bottom');
+    expect(ctx.guessSlotFromName('Skinny jeans')).toBe('bottom');
+    expect(ctx.guessSlotFromName('Skirt')).toBe('bottom');
+    expect(ctx.guessSlotFromName('Leggings')).toBe('bottom');
+    expect(ctx.guessSlotFromName('Chinos')).toBe('bottom');
+  });
+
+  it('routes footwear correctly', () => {
+    expect(ctx.guessSlotFromName('Sneakers')).toBe('footwear');
+    expect(ctx.guessSlotFromName('Snow boots')).toBe('footwear');
+    expect(ctx.guessSlotFromName('Heels')).toBe('footwear');
+    expect(ctx.guessSlotFromName('Sandals')).toBe('footwear');
+  });
+
+  it('falls back to base for unknown names', () => {
+    expect(ctx.guessSlotFromName('Random thing')).toBe('base');
+    expect(ctx.guessSlotFromName('')).toBe('base');
   });
 });

@@ -2147,7 +2147,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v79-drop-stats-table</div>
+      <div class="footer">${esc(LOCATION.name)} . v80-closet-bug-fix</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2171,7 +2171,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v79-drop-stats-table</div>
+    <div class="footer">${esc(LOCATION.name)} . v80-closet-bug-fix</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -3541,8 +3541,18 @@ function saveSnapshot(state) {
     if (arr.length > 50) arr.length = 50;
     localStorage.setItem("wtwfw-snapshots", JSON.stringify(arr));
   } catch {}
-  const adj = -state.comfort * 0.75;
+  const adj = Number.isFinite(state.comfort) ? -state.comfort * 0.75 : 0;
   if (adj !== 0) setLearned(getLearned() + adj);
+  // Persist every item the user reports wearing (both the picked closet
+  // names AND any free-text extra) into the closet so future suggestions
+  // include them. addClosetItem dedupes by name+temps so re-logging the
+  // same item is a no-op. Comfort doesn't gate this; we want the closet
+  // to reflect everything the user actually owns regardless of how it
+  // felt that day.
+  for (const name of (state.worn || [])) {
+    const slot = guessSlotFromName(name);
+    addClosetItem(slot, name, null, null, []);
+  }
   if (snap.extra) {
     const slot = guessSlotFromName(snap.extra);
     addClosetItem(slot, snap.extra, null, null, []);
