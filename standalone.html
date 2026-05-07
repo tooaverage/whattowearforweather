@@ -1831,19 +1831,6 @@ function renderHero(rec, c, cLabel) {
         return `<span class="hf ${cls}">${sign}${f.delta.toFixed(1)}° ${esc(f.label)}</span>`;
       }).join("")}</div>`
     : "";
-  // Tabular weather metrics block. Visible only in Direction A as the
-  // editorial data table; default styling hides it. Each row is a label
-  // and value pair; CSS draws dotted leader lines between them.
-  const uv = num(c.uv, 0);
-  const rainProb = Math.round(num(c.precipProb, 0));
-  const statsHtml = `<dl class="hero-stats" aria-label="Weather metrics">
-    <div class="hs-row"><dt>Temp</dt><dd>${fmt(c.tempC)}</dd></div>
-    <div class="hs-row"><dt>Feels</dt><dd>${fmt(rec.eNow)}</dd></div>
-    <div class="hs-row"><dt>Humidity</dt><dd>${Math.round(num(c.rh, 0))}%</dd></div>
-    <div class="hs-row"><dt>Wind</dt><dd>${Math.round(num(c.kph, 0))} km/h</dd></div>
-    <div class="hs-row"><dt>UV</dt><dd>${uv.toFixed(1)}</dd></div>
-    <div class="hs-row"><dt>Rain</dt><dd>${rainProb}%</dd></div>
-  </dl>`;
   return `<section id="hero" class="hero ${esc(rec.band)}">
     <div class="hero-head"><button class="loc-btn" type="button" data-loc-open>${esc(LOCATION.name)} ▾</button><span class="hero-band">${esc(BAND_LABEL[rec.band] || "")}</span></div>
     <div class="hero-icons">${heroIconsHtml}</div>
@@ -1851,7 +1838,6 @@ function renderHero(rec, c, cLabel) {
     <div class="hero-desc">${esc(desc)}</div>
     <div class="hero-temp-foot"><span class="htf-air">${fmt(c.tempC)}</span><span class="sep">·</span><span class="htf-feels">feels <strong>${fmt(rec.eNow)}</strong> <span class="htf-foryou">for you</span> <span class="htf-star" aria-hidden="true">✦</span></span></div>
     ${factorsHtml}
-    ${statsHtml}
   </section>`;
 }
 
@@ -2161,7 +2147,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v78-snapshot-drives-wear</div>
+      <div class="footer">${esc(LOCATION.name)} . v79-drop-stats-table</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2185,7 +2171,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v78-snapshot-drives-wear</div>
+    <div class="footer">${esc(LOCATION.name)} . v79-drop-stats-table</div>
   `;
 
   // Scroll selected cell into center of strip.
