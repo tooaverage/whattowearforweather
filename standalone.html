@@ -35,8 +35,8 @@
     --input-border-strong: rgba(255,255,255,.12);
     --input-border-focus: rgba(255,255,255,.3);
     --input-border-active: rgba(255,255,255,.35);
-    --button-primary-bg: #f1f5f9;
-    --button-primary-text: #020617;
+    --button-primary-bg: #C8462C;
+    --button-primary-text: #F4F1EA;
     --shadow-card: 0 10px 25px rgba(0,0,0,.25);
     --accent: #93c5fd;
     --accent-bg: rgba(147,197,253,.12);
@@ -80,8 +80,8 @@
     --input-border-strong: rgba(15,23,42,.15);
     --input-border-focus: rgba(15,23,42,.4);
     --input-border-active: rgba(15,23,42,.45);
-    --button-primary-bg: #0f172a;
-    --button-primary-text: #f8fafc;
+    --button-primary-bg: #C8462C;
+    --button-primary-text: #F4F1EA;
     --shadow-card: 0 1px 3px rgba(15,23,42,.06), 0 4px 12px rgba(15,23,42,.04);
     --accent: #2563eb;
     --accent-bg: rgba(37,99,235,.08);
@@ -2052,7 +2052,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v85-research-recipes</div>
+      <div class="footer">${esc(LOCATION.name)} . v86-rust-buttons</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2076,7 +2076,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v85-research-recipes</div>
+    <div class="footer">${esc(LOCATION.name)} . v86-rust-buttons</div>
   `;
 
   // Scroll selected cell into center of strip.
