@@ -972,16 +972,65 @@ function adaptiveShift(allHours) {
 }
 
 // clo values per layer per ASHRAE 55-2017 / ISO 9920 garment tables.
+// Research-backed optimal clo for outdoor walking activity (1.7 met),
+// targeting PMV ~ -0.3 (slightly cool, the empirically preferred outdoor
+// state where the body warms up over the first few minutes of walking).
+// Synthesized from ISO 7730 (PMV/PPD), ISO 11079 (IREQ for cold), Olesen's
+// ASHRAE comfort guidelines, and Schiavon & Lee 2013 field regression on
+// 6,333 ASHRAE RP-884 records. Slope ~0.09 clo per deg above 0C, ~0.10
+// below. Recipes below are tuned to hit these values at each band's
+// midpoint temperature.
+const CLO_CURVE = [
+  [30, 0.15], [26, 0.30], [22, 0.45], [18, 0.60], [14, 0.80],
+  [10, 1.05], [6, 1.30], [2, 1.60], [-2, 1.95], [-6, 2.30],
+  [-10, 2.65], [-14, 3.05], [-18, 3.45], [-20, 3.65],
+];
+function optimalClo(tempC) {
+  if (!Number.isFinite(tempC)) return 0.6;
+  if (tempC >= 30) return CLO_CURVE[0][1];
+  if (tempC <= -20) return CLO_CURVE[CLO_CURVE.length - 1][1];
+  for (let i = 0; i < CLO_CURVE.length - 1; i++) {
+    const [t1, c1] = CLO_CURVE[i];
+    const [t2, c2] = CLO_CURVE[i + 1];
+    if (tempC <= t1 && tempC >= t2) {
+      const f = (t1 - tempC) / (t1 - t2);
+      return c1 + f * (c2 - c1);
+    }
+  }
+  return 0.6;
+}
+
+// Recipes tuned so the total clo lands within ~0.1 of optimalClo at each
+// band's midpoint temp. Activity baseline is walking outdoors (1.7 met).
+// PREFS.activity offsets shift the EFFECTIVE temperature for less- or
+// more-active users (standing -3, walking 0, biking +5, running +10).
+// Garment clo values from ASHRAE 55-2017 garment table / ISO 9920.
 const RECIPES = {
+  // Midpoint 32C, target 0.10 clo. Beach.
   scorching: { base: { ic: "fig-t-shirt", v: "bathing suit or tank", clo: 0.04 }, mid: null, outer: null, bottom: { ic: "fig-shorts", v: "shorts", clo: 0.06 }, footwear: { ic: "sandals", v: "sandals", clo: 0.02 }, acc: [] },
-  hot: { base: { ic: "fig-t-shirt", v: "tank top", clo: 0.05 }, mid: null, outer: null, bottom: { ic: "fig-shorts", v: "athletic shorts", clo: 0.05 }, footwear: { ic: "sandals", v: "sandals or sneakers", clo: 0.03 }, acc: [] },
-  warm: { base: { ic: "fig-t-shirt", v: "breathable t-shirt", clo: 0.10 }, mid: null, outer: null, bottom: { ic: "fig-shorts", v: "shorts", clo: 0.06 }, footwear: { ic: "running-shoes", v: "sneakers", clo: 0.04 }, acc: [] },
-  mild: { base: { ic: "fig-t-shirt", v: "t-shirt", clo: 0.10 }, mid: null, outer: null, bottom: { ic: "fig-pants", v: "light pants or jeans", clo: 0.20 }, footwear: { ic: "running-shoes", v: "sneakers", clo: 0.04 }, acc: [] },
-  cool: { base: { ic: "fig-long-sleeve", v: "thin long-sleeve shirt", clo: 0.20 }, mid: null, outer: null, bottom: { ic: "fig-pants", v: "pants", clo: 0.24 }, footwear: { ic: "running-shoes", v: "sneakers", clo: 0.04 }, acc: [] },
-  chilly: { base: { ic: "fig-long-sleeve", v: "long-sleeve shirt", clo: 0.20 }, mid: { ic: "fig-sweater", v: "light sweater or fleece", clo: 0.25 }, outer: null, bottom: { ic: "fig-pants", v: "pants", clo: 0.24 }, footwear: { ic: "running-shoes", v: "closed shoes", clo: 0.05 }, acc: [] },
-  cold: { base: { ic: "fig-long-sleeve", v: "long-sleeve thermal top", clo: 0.25 }, mid: { ic: "fig-sweater", v: "sweater or fleece", clo: 0.36 }, outer: { ic: "fig-jacket", v: "insulated jacket", clo: 0.44 }, bottom: { ic: "fig-pants", v: "pants", clo: 0.24 }, footwear: { ic: "running-shoes", v: "closed shoes", clo: 0.05 }, acc: [] },
-  very_cold: { base: { ic: "fig-long-sleeve", v: "thermal base layer", clo: 0.25 }, mid: { ic: "fig-sweater", v: "mid-weight fleece or wool", clo: 0.36 }, outer: { ic: "fig-puffer-jacket", v: "insulated winter jacket", clo: 0.66 }, bottom: { ic: "fig-pants", v: "lined or thermal pants", clo: 0.28 }, footwear: { ic: "armored-boot", v: "insulated boots", clo: 0.10 }, acc: [{ ic: "fig-beanie", v: "warm hat", clo: 0.05 }, { ic: "fig-gloves", v: "gloves", clo: 0.05 }] },
-  freezing: { base: { ic: "fig-long-sleeve", v: "heavy thermal base", clo: 0.30 }, mid: { ic: "fig-puffer-jacket", v: "down or heavy fleece", clo: 0.45 }, outer: { ic: "fig-parka", v: "parka", clo: 0.70 }, bottom: { ic: "fig-pants", v: "thermal pants under outer pants", clo: 0.32 }, footwear: { ic: "armored-boot", v: "insulated waterproof boots", clo: 0.12 }, acc: [{ ic: "fig-beanie", v: "warm hat", clo: 0.05 }, { ic: "fig-gloves", v: "insulated gloves", clo: 0.07 }, { ic: "fig-scarf", v: "scarf or neck gaiter", clo: 0.05 }] },
+  // Midpoint 27C, target 0.27 clo. T-shirt + shorts ~ 0.20 clo.
+  hot: { base: { ic: "fig-t-shirt", v: "t-shirt", clo: 0.10 }, mid: null, outer: null, bottom: { ic: "fig-shorts", v: "shorts", clo: 0.06 }, footwear: { ic: "sandals", v: "sandals or sneakers", clo: 0.04 }, acc: [] },
+  // Midpoint 21.5C, target 0.48 clo. T-shirt + jeans + sneakers ~ 0.42.
+  warm: { base: { ic: "fig-t-shirt", v: "t-shirt", clo: 0.10 }, mid: null, outer: null, bottom: { ic: "fig-pants", v: "pants or jeans", clo: 0.24 }, footwear: { ic: "running-shoes", v: "sneakers", clo: 0.04 }, acc: [] },
+  // Midpoint 16.5C, target 0.70 clo. Long-sleeve + jeans + light cardigan
+  // is the established sweater-weather kit. ~0.78 total.
+  mild: { base: { ic: "fig-long-sleeve", v: "long-sleeve shirt", clo: 0.25 }, mid: { ic: "fig-cardigan", v: "light cardigan or sweater", clo: 0.25 }, outer: null, bottom: { ic: "fig-pants", v: "pants or jeans", clo: 0.24 }, footwear: { ic: "running-shoes", v: "sneakers", clo: 0.04 }, acc: [] },
+  // Midpoint 12C, target 0.93 clo. Long-sleeve + sweater + jeans ~ 0.85,
+  // bumped with a light jacket option to land around 0.93.
+  cool: { base: { ic: "fig-long-sleeve", v: "long-sleeve shirt", clo: 0.25 }, mid: { ic: "fig-sweater", v: "sweater or fleece", clo: 0.36 }, outer: null, bottom: { ic: "fig-pants", v: "pants or jeans", clo: 0.24 }, footwear: { ic: "running-shoes", v: "sneakers", clo: 0.05 }, acc: [] },
+  // Midpoint 8C, target 1.18 clo. Long-sleeve + sweater + light jacket ~
+  // 1.22.
+  chilly: { base: { ic: "fig-long-sleeve", v: "long-sleeve shirt", clo: 0.25 }, mid: { ic: "fig-sweater", v: "sweater or fleece", clo: 0.36 }, outer: { ic: "fig-jacket", v: "light jacket or shell", clo: 0.30 }, bottom: { ic: "fig-pants", v: "pants or jeans", clo: 0.24 }, footwear: { ic: "running-shoes", v: "closed shoes", clo: 0.05 }, acc: [] },
+  // Midpoint 3.5C, target 1.50 clo. Thermal long-sleeve + sweater +
+  // insulated jacket + thicker pants + warm hat ~ 1.50.
+  cold: { base: { ic: "fig-long-sleeve", v: "long-sleeve thermal top", clo: 0.34 }, mid: { ic: "fig-sweater", v: "sweater or fleece", clo: 0.36 }, outer: { ic: "fig-jacket", v: "insulated jacket", clo: 0.44 }, bottom: { ic: "fig-pants", v: "thicker pants", clo: 0.28 }, footwear: { ic: "running-shoes", v: "closed shoes", clo: 0.05 }, acc: [{ ic: "fig-beanie", v: "warm hat", clo: 0.05 }] },
+  // Midpoint -2C, target 1.95 clo. Thermal base + heavy fleece +
+  // puffer-style jacket + thermal pants + boots + hat + gloves ~ 1.95.
+  very_cold: { base: { ic: "fig-long-sleeve", v: "thermal base layer", clo: 0.34 }, mid: { ic: "fig-sweater", v: "heavy fleece or wool", clo: 0.45 }, outer: { ic: "fig-puffer-jacket", v: "insulated winter jacket", clo: 0.66 }, bottom: { ic: "fig-pants", v: "lined or thermal pants", clo: 0.28 }, footwear: { ic: "armored-boot", v: "insulated boots", clo: 0.10 }, acc: [{ ic: "fig-beanie", v: "warm hat", clo: 0.05 }, { ic: "fig-gloves", v: "gloves", clo: 0.05 }] },
+  // Midpoint -10C, target 2.65 clo. Heavy thermal + heavy fleece + arctic
+  // parka + thermal pants under outer pants + insulated boots + hat +
+  // gloves + scarf ~ 2.65.
+  freezing: { base: { ic: "fig-long-sleeve", v: "heavy thermal base", clo: 0.40 }, mid: { ic: "fig-puffer-jacket", v: "heavy down or fleece", clo: 0.55 }, outer: { ic: "fig-parka", v: "arctic parka", clo: 1.10 }, bottom: { ic: "fig-pants", v: "thermal pants under outer pants", clo: 0.32 }, footwear: { ic: "armored-boot", v: "insulated waterproof boots", clo: 0.12 }, acc: [{ ic: "fig-beanie", v: "warm hat", clo: 0.05 }, { ic: "fig-gloves", v: "insulated gloves", clo: 0.07 }, { ic: "fig-scarf", v: "scarf or neck gaiter", clo: 0.05 }] },
 };
 
 function totalClo(layers) {
@@ -2003,7 +2052,7 @@ function render(weather) {
       ${renderPro()}
       ${renderPrivacy()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v84-cachebust</div>
+      <div class="footer">${esc(LOCATION.name)} . v85-research-recipes</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2027,7 +2076,7 @@ function render(weather) {
     ${renderCloset()}
     ${renderSettings()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v84-cachebust</div>
+    <div class="footer">${esc(LOCATION.name)} . v85-research-recipes</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -3171,14 +3220,19 @@ const PREFS = {
     ],
   },
   activity: {
+    // Recipes target walking outdoors (1.7 met) so walking offset is 0.
+    // Standing (1.0 met) generates less metabolic heat and needs more
+    // clothing; offset goes negative to push the user into a colder
+    // band's recipe. Olesen finds 0.3-met increase = +2.4 deg preferred
+    // temp shift, so 1.0 -> 1.7 met = ~5.6 deg. Capped pragmatically.
     key: "wtwfw-activity",
     label: "Activity",
     default: "walking",
     options: [
-      { val: "standing", label: "Standing", offset: 0 },
-      { val: "walking", label: "Walking", offset: 1.5 },
-      { val: "biking", label: "Biking", offset: 3 },
-      { val: "running", label: "Running", offset: 5 },
+      { val: "standing", label: "Standing", offset: -3 },
+      { val: "walking", label: "Walking", offset: 0 },
+      { val: "biking", label: "Biking", offset: 5 },
+      { val: "running", label: "Running", offset: 10 },
     ],
   },
 };

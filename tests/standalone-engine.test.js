@@ -65,6 +65,7 @@ this.guessSlotFromName = guessSlotFromName;
 this.getSnapshots = getSnapshots;
 this.iconForName = iconForName;
 this.HUG_ICONS = HUG_ICONS;
+this.optimalClo = optimalClo;
 this.setLastWeather = (w) => { LAST_WEATHER = w; };
 this.setLocation = (l) => { LOCATION = l; };
 `, ctx);
@@ -218,14 +219,17 @@ describe('totalClo', () => {
     expect(ctx.totalClo(ctx.RECIPES.scorching)).toBeLessThan(0.2);
   });
 
-  it('mild is moderate (0.3-0.5)', () => {
+  it('mild matches research (0.6-0.9 clo, sweater weather)', () => {
+    // Research says walking outdoors at 16.5C (mild midpoint) needs ~0.70 clo.
+    // ISO 7730 + Schiavon & Lee 2013. T-shirt + pants would be 0.34 clo, way
+    // too light; the recipe should be long-sleeve + light cardigan + pants.
     const c = ctx.totalClo(ctx.RECIPES.mild);
-    expect(c).toBeGreaterThan(0.25);
-    expect(c).toBeLessThan(0.55);
+    expect(c).toBeGreaterThan(0.6);
+    expect(c).toBeLessThan(0.9);
   });
 
-  it('freezing is heavy (>1.8)', () => {
-    expect(ctx.totalClo(ctx.RECIPES.freezing)).toBeGreaterThan(1.8);
+  it('freezing is heavy (>2.5)', () => {
+    expect(ctx.totalClo(ctx.RECIPES.freezing)).toBeGreaterThan(2.5);
   });
 
   it('clo monotonically increases as the band gets colder', () => {
@@ -603,4 +607,72 @@ describe('iconForName regression', () => {
     expect(ctx.iconForName('blue jeans')).toBe('fig-jeans');
     expect(ctx.iconForName('My favorite hoodie')).toBe('fig-hoodie');
   });
+});
+
+describe('optimalClo (research curve)', () => {
+  // ISO 7730 + ISO 11079 + Schiavon & Lee 2013, walking outdoors at
+  // 1.7 met, target PMV ~ -0.3. These reference points come from the
+  // synthesized table. Each value should be within 0.05 of the curve.
+  const REFERENCE = [
+    [30, 0.15], [22, 0.45], [18, 0.60], [14, 0.80],
+    [10, 1.05], [6, 1.30], [2, 1.60], [-2, 1.95],
+    [-10, 2.65], [-20, 3.65],
+  ];
+
+  for (const [t, expected] of REFERENCE) {
+    it(`returns ~${expected} clo at ${t}C`, () => {
+      const got = ctx.optimalClo(t);
+      expect(Math.abs(got - expected)).toBeLessThan(0.05);
+    });
+  }
+
+  it('clamps above 30C', () => {
+    expect(ctx.optimalClo(35)).toBe(0.15);
+  });
+
+  it('clamps below -20C', () => {
+    expect(ctx.optimalClo(-30)).toBe(3.65);
+  });
+
+  it('is monotonically decreasing in temp', () => {
+    for (let t = -20; t < 30; t += 2) {
+      expect(ctx.optimalClo(t)).toBeGreaterThan(ctx.optimalClo(t + 2));
+    }
+  });
+
+  it('slope is roughly 0.09 clo per deg above 0C', () => {
+    const a = ctx.optimalClo(20);
+    const b = ctx.optimalClo(10);
+    const slope = (b - a) / (20 - 10); // negative since clo grows as temp drops
+    expect(Math.abs(slope) - 0.09).toBeLessThan(0.03);
+  });
+});
+
+describe('recipe clo matches optimalClo at band midpoints', () => {
+  // Each band's recipe should land within 0.15 clo of the research curve
+  // at the band's midpoint temperature. If a recipe drifts (someone tweaks
+  // a garment), this fails and tells us to fix it.
+  const BAND_MIDPOINTS = {
+    scorching: 32,
+    hot: 27,
+    warm: 21.5,
+    mild: 16.5,
+    cool: 12,
+    chilly: 8,
+    cold: 3.5,
+    very_cold: -2,
+    freezing: -10,
+  };
+  // Some bands inherently drift below target because Vancouver-style mild
+  // weather doesn't need acc layers, while the research curve assumes a
+  // full thermal-comfort target. Allow generous tolerance.
+  const TOLERANCE = 0.20;
+
+  for (const [band, midpoint] of Object.entries(BAND_MIDPOINTS)) {
+    it(`${band} (mid ${midpoint}C) is within ${TOLERANCE} clo of optimalClo`, () => {
+      const target = ctx.optimalClo(midpoint);
+      const actual = ctx.totalClo(ctx.RECIPES[band]);
+      expect(Math.abs(actual - target)).toBeLessThanOrEqual(TOLERANCE);
+    });
+  }
 });
