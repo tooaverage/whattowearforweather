@@ -2090,7 +2090,7 @@ function renderClosetView() {
     ${renderCloset()}
     ${renderSettings()}
     ${renderPrivacy()}
-    <div class="footer">${esc(LOCATION.name)} . v89-bulk-modal-scroll</div>
+    <div class="footer">${esc(LOCATION.name)} . v90-tank-normalize</div>
   `;
 }
 
@@ -2118,7 +2118,7 @@ function render(weather) {
       ${renderTripCta()}
       ${renderPro()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v89-bulk-modal-scroll</div>
+      <div class="footer">${esc(LOCATION.name)} . v90-tank-normalize</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2141,7 +2141,7 @@ function render(weather) {
     ${renderComing(weather)}
     ${renderTripCta()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v89-bulk-modal-scroll</div>
+    <div class="footer">${esc(LOCATION.name)} . v90-tank-normalize</div>
   `;
 
   // Scroll selected cell into center of strip.
@@ -2425,6 +2425,49 @@ const ONB_OUTFIT = [
   { v: "rainboots", label: "Rain boots", slot: "footwear", minTemp: 0, maxTemp: 18, conditions: ["rain"] },
   { v: "snowboots", label: "Snow boots", slot: "footwear", minTemp: -25, maxTemp: 4, conditions: ["snow"] },
 ];
+
+// Resolve a user-supplied name to its canonical ONB_OUTFIT entry so the
+// closet inherits sensible temp ranges. Exact matches (full label or v)
+// also let us normalize the name to the canonical label (e.g. "Tank"
+// becomes "Tank top"), which collapses dupes. Keyword matches (e.g.
+// "Plaid Sweater" contains "sweater") inherit temps but keep the
+// original name. Returns { exact, item } or null. Slot is informational
+// and never overrides what the caller passed.
+function resolveNamedItem(name) {
+  if (!name) return null;
+  const lc = String(name).toLowerCase().trim();
+  if (!lc) return null;
+  const hit = ONB_OUTFIT.find(o => o.label.toLowerCase() === lc || o.v.toLowerCase() === lc);
+  if (hit) return { exact: true, item: hit };
+  const KW = [
+    ["tank top", "tank"],
+    ["bathing suit", "swimsuit"], ["swimsuit", "swimsuit"],
+    ["t-shirt", "tshirt"], ["t shirt", "tshirt"], ["tshirt", "tshirt"], ["tee", "tshirt"],
+    ["polo", "polo"], ["blouse", "blouse"],
+    ["long-sleeve", "longsleeve"], ["long sleeve", "longsleeve"], ["longsleeve", "longsleeve"],
+    ["hoodie", "hoodie"], ["cardigan", "cardigan"],
+    ["fleece", "fleece"], ["sweater", "sweater"],
+    ["puffer vest", "vestpuffer"],
+    ["light jacket", "ljacket"], ["leather jacket", "leatherjacket"],
+    ["trench", "trench"], ["rain shell", "rainshell"], ["raincoat", "rainshell"],
+    ["puffer", "puffer"], ["heavy coat", "hcoat"], ["parka", "parka"],
+    ["short dress", "shortdress"], ["long dress", "longdress"],
+    ["jumpsuit", "jumpsuit"],
+    ["leggings", "leggings"], ["tights", "nylons"], ["nylons", "nylons"],
+    ["sweat pants", "sweatpants"], ["sweatpants", "sweatpants"],
+    ["jeans", "pants"], ["pants", "pants"],
+    ["overalls", "overalls"], ["shorts", "shorts"], ["skirt", "skirt"],
+    ["snow boots", "snowboots"], ["rain boots", "rainboots"], ["boots", "boots"],
+    ["sandals", "sandals"], ["sneakers", "sneakers"], ["flats", "flats"], ["heels", "heels"],
+  ];
+  for (const [phrase, v] of KW) {
+    if (lc.includes(phrase)) {
+      const o = ONB_OUTFIT.find(x => x.v === v);
+      if (o) return { exact: false, item: o };
+    }
+  }
+  return null;
+}
 
 function maybeShowOnboarding() {
   try { if (localStorage.getItem("wtwfw-onboarded") === "1") return; } catch {}
@@ -3347,15 +3390,36 @@ function getCloset() {
         const out = {};
         for (const k of Object.keys(CLOSET_SLOTS)) {
           out[k] = Array.isArray(obj[k]) ? obj[k].filter(it => it && typeof it.name === "string").slice(0, 24).map(it => {
-            const name = String(it.name).slice(0, 40);
+            let name = String(it.name).slice(0, 40);
             let minT = Number.isFinite(it.minTemp) ? it.minTemp : null;
             let maxT = Number.isFinite(it.maxTemp) ? it.maxTemp : null;
+            const conds = Array.isArray(it.conditions) ? it.conditions.filter(c => CONDITIONS.includes(c)) : [];
             if (minT === null && maxT === null && it.band && BAND_RANGE[it.band]) {
               minT = BAND_RANGE[it.band][0]; maxT = BAND_RANGE[it.band][1];
             }
-            const conds = Array.isArray(it.conditions) ? it.conditions.filter(c => CONDITIONS.includes(c)) : [];
+            // Backfill: items added via snapshot/override paths often
+            // have null temps; resolve them against ONB_OUTFIT and (on
+            // exact matches) promote the name to the canonical label so
+            // the closet doesn't show both "Tank" and "Tank top".
+            const known = resolveNamedItem(name);
+            if (known) {
+              if (known.exact) name = known.item.label;
+              if (minT === null) minT = known.item.minTemp ?? null;
+              if (maxT === null) maxT = known.item.maxTemp ?? null;
+              if (!conds.length && known.item.conditions && known.item.conditions.length) conds.push(...known.item.conditions);
+            }
             return { name, minTemp: minT, maxTemp: maxT, conditions: conds };
           }) : [];
+        }
+        // Dedupe per slot by lowercase name (the backfill above can map
+        // multiple raw entries to the same canonical label).
+        for (const k of Object.keys(out)) {
+          const seen = new Set();
+          out[k] = out[k].filter(it => {
+            const key = it.name.toLowerCase();
+            if (seen.has(key)) return false;
+            seen.add(key); return true;
+          });
         }
         return out;
       }
@@ -3408,14 +3472,25 @@ function showToast(msg) {
 
 function addClosetItem(slot, name, minTemp, maxTemp, conditions) {
   if (!CLOSET_SLOTS[slot]) return { ok: false, reason: "bad-slot" };
-  const trimmed = String(name || "").trim().slice(0, 40);
+  let trimmed = String(name || "").trim().slice(0, 40);
   if (!trimmed) return { ok: false, reason: "empty" };
-  const minT = Number.isFinite(minTemp) ? Math.round(minTemp) : null;
-  const maxT = Number.isFinite(maxTemp) ? Math.round(maxTemp) : null;
+  let minT = Number.isFinite(minTemp) ? Math.round(minTemp) : null;
+  let maxT = Number.isFinite(maxTemp) ? Math.round(maxTemp) : null;
   const conds = Array.isArray(conditions) ? conditions.filter(c => CONDITIONS.includes(c)) : [];
+  // If the user typed (or the snapshot path passed) a name that maps to a
+  // known ONB_OUTFIT entry, inherit the temp range so the item doesn't
+  // match every temperature. Exact matches also normalize the name to
+  // the canonical label so "Tank" and "Tank top" don't both stick around.
+  const known = resolveNamedItem(trimmed);
+  if (known) {
+    if (known.exact) trimmed = known.item.label;
+    if (minT === null) minT = known.item.minTemp ?? null;
+    if (maxT === null) maxT = known.item.maxTemp ?? null;
+    if (!conds.length && known.item.conditions && known.item.conditions.length) conds.push(...known.item.conditions);
+  }
   const c = getCloset();
   if (c[slot].length >= 24) return { ok: false, reason: "full", name: trimmed };
-  if (c[slot].some(it => it.name.toLowerCase() === trimmed.toLowerCase() && (it.minTemp === minT) && (it.maxTemp === maxT))) {
+  if (c[slot].some(it => it.name.toLowerCase() === trimmed.toLowerCase())) {
     return { ok: false, reason: "duplicate", name: trimmed };
   }
   c[slot].push({ name: trimmed, minTemp: minT, maxTemp: maxT, conditions: conds });

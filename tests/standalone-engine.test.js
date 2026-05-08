@@ -430,6 +430,32 @@ describe('saveSnapshot adds worn items to closet', () => {
     // Hoodie matches the outer-layer regex (hoodies are often outerwear).
     expect(closet.outer.some(it => it.name === 'Hoodie')).toBe(true);
   });
+
+  it('normalizes a v-style name like "Tank" to the canonical label "Tank top"', () => {
+    // Stops the closet from collecting both "Tank" (no temp range) and
+    // "Tank top" (22-35) as separate entries when the user types either
+    // one in a snapshot extra field.
+    reset();
+    ctx.saveSnapshot({ worn: new Set(), extra: 'Tank', comfort: 0 });
+    const closet = ctx.getCloset();
+    expect(closet.base.some(it => it.name === 'Tank top')).toBe(true);
+    expect(closet.base.some(it => it.name === 'Tank')).toBe(false);
+    const tank = closet.base.find(it => it.name === 'Tank top');
+    expect(tank.minTemp).toBe(22);
+    expect(tank.maxTemp).toBe(35);
+  });
+
+  it('inherits temp ranges for keyword-matched custom names so cool-only items do not match warm weather', () => {
+    // "Plaid Sweater" keeps its name but inherits the sweater temp range
+    // (4-14) so it stops appearing in 25-degree recommendations.
+    reset();
+    ctx.saveSnapshot({ worn: new Set(), extra: 'Plaid Sweater', comfort: 0 });
+    const closet = ctx.getCloset();
+    const ps = closet.mid.find(it => it.name === 'Plaid Sweater');
+    expect(ps).toBeTruthy();
+    expect(ps.minTemp).toBe(4);
+    expect(ps.maxTemp).toBe(14);
+  });
 });
 
 describe('guessSlotFromName', () => {
