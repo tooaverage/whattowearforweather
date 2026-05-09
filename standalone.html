@@ -140,6 +140,16 @@
   .rain-pill { padding: .15rem .55rem; border-radius: 999px; background: rgba(148,163,184,.12); color: var(--text-muted); font-size: .8rem; }
   .rain-pill[data-level="maybe"] { background: var(--warn-bg); color: var(--warn-text-soft); }
   .rain-pill[data-level="wet"] { background: var(--rain-bg); color: var(--accent); }
+  .spark-wrap { position: relative; width: 100%; height: 4.25rem; margin: .25rem 0 .35rem; }
+  .spark-svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .spark-line { fill: none; stroke: var(--accent); stroke-width: 1.75; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .spark-fill { fill: var(--accent); opacity: .12; stroke: none; }
+  .spark-now { stroke: var(--text-strong); stroke-width: 1; stroke-dasharray: 2 2; vector-effect: non-scaling-stroke; opacity: .55; }
+  .spark-tag { position: absolute; transform: translate(-50%, -50%); font-size: .65rem; font-weight: 700; color: var(--text-strong); font-variant-numeric: tabular-nums; background: var(--panel-bg-solid); padding: .05rem .35rem; border-radius: 999px; pointer-events: none; white-space: nowrap; }
+  .spark-tag.lo { color: var(--text-muted); font-weight: 600; }
+  .spark-rain { position: absolute; top: 0; right: .25rem; font-size: .65rem; padding: .1rem .45rem; border-radius: 999px; background: var(--input-bg); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .spark-rain[data-level="maybe"] { background: var(--warn-bg); color: var(--warn-text-soft); }
+  .spark-rain[data-level="wet"] { background: var(--rain-bg); color: var(--accent); }
   .strip-wrap { padding: 1.1rem 0 .5rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; margin: 0 -.25rem; }
   .strip-wrap::-webkit-scrollbar { display: none; }
   .hour-graph { position: relative; height: 11rem; }
@@ -154,6 +164,9 @@
   .hc-time { position: absolute; bottom: .35rem; left: 0; right: 0; text-align: center; font-size: .7rem; letter-spacing: .04em; color: var(--text-faint); font-variant-numeric: tabular-nums; pointer-events: none; }
   .hc-point { position: absolute; left: 50%; top: var(--y, 50%); transform: translate(-50%, calc(-100% - .15rem)); display: flex; flex-direction: column; align-items: center; gap: .1rem; pointer-events: none; }
   .hc-point .hc-temp { font-size: .75rem; line-height: 1; font-variant-numeric: tabular-nums; color: var(--text); font-weight: 600; }
+  .hc-meta { display: flex; align-items: center; justify-content: center; gap: .2rem; font-size: .55rem; color: var(--text-faint); font-variant-numeric: tabular-nums; line-height: 1; pointer-events: none; }
+  .hc-meta .hcm-lbl { opacity: .55; font-weight: 600; letter-spacing: .03em; }
+  .hc-meta .hcm-sep { opacity: .35; }
   .hc-point .hc-icon { font-size: 1.05rem; line-height: 0; display: flex; align-items: center; justify-content: center; }
   .hc-point .hc-icon svg { width: 1.7rem; height: 1.7rem; display: block; }
   .hc-cond { position: absolute; top: .15rem; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: .15rem; font-size: .6rem; font-weight: 700; color: var(--text-muted); line-height: 1; font-variant-numeric: tabular-nums; pointer-events: none; white-space: nowrap; }
@@ -1853,12 +1866,15 @@ function renderWear(rec) {
       } else if (r.value) {
         // Recipe has an item for this slot but the user owns nothing
         // matching IN THIS SLOT. Try a slot-respecting substitution: a
-        // heavy mid can stand in for an outer, a sweater can serve as a
-        // base, etc. Pants and shoes don't cross-substitute.
+        // heavy mid (fleece, vest) can stand in for an outer, and a
+        // shell can stand in for a mid layer in a pinch. We do NOT let
+        // mid items fill the base slot (a hoodie isn't an undershirt)
+        // and we do NOT let base items fill mid (a tank isn't a
+        // sweater). Pants and shoes don't cross-substitute.
         const SLOT_COMPATIBILITY = {
           outer: ["outer", "mid"],
-          mid: ["mid", "outer", "base"],
-          base: ["base", "mid"],
+          mid: ["mid", "outer"],
+          base: ["base"],
           bottom: ["bottom"],
           footwear: ["footwear"],
         };
@@ -1924,12 +1940,47 @@ function renderWhy(rec, source) {
 }
 
 function renderTodayLine(today) {
+  // Mercury sparkline: today's apparent-temp curve as a glanceable line
+  // chart, with the day's high/low pinned at their actual peak hours and
+  // a "now" tick where the current local time falls. Replaces the old
+  // "High X at Y . Low X at Y . Rain Z%" text line. Rain stays as a tiny
+  // chip overlaid in the corner so the at-a-glance rain signal survives.
+  const todayDate = todayDateLocal();
+  const tcells = today.cells.filter(c => localDateOf(c.time) === todayDate);
+  if (tcells.length < 2) return "";
+  const apps = tcells.map(c => c.apparent);
+  const lo = Math.min(...apps);
+  const hi = Math.max(...apps);
+  const range = Math.max(hi - lo, 1);
+  const xOf = i => (i / (tcells.length - 1)) * 100;
+  const yOf = a => 80 - ((a - lo) / range) * 60;
+  const points = tcells.map((c, i) => `${xOf(i).toFixed(2)},${yOf(c.apparent).toFixed(2)}`);
+  const linePath = "M" + points.join(" L");
+  const fillPath = `M${xOf(0).toFixed(2)},100 L${points.join(" L")} L${xOf(tcells.length - 1).toFixed(2)},100 Z`;
+  const hiIdx = apps.indexOf(hi);
+  const loIdx = apps.lastIndexOf(lo);
+  const nowMs = Date.now();
+  let nowFrac = -1;
+  for (let i = 0; i < tcells.length; i++) {
+    if (new Date(tcells[i].time).getTime() <= nowMs) nowFrac = i / (tcells.length - 1);
+  }
+  const nowMark = nowFrac >= 0
+    ? `<line x1="${(nowFrac * 100).toFixed(2)}" y1="0" x2="${(nowFrac * 100).toFixed(2)}" y2="100" class="spark-now" />`
+    : "";
   const rainLvl = rainLevel(today.maxRainProb);
-  return `<div class="today-line">
-    <span>High <strong>${fmt(today.hi)}</strong> at ${esc(hour(today.hiTime))}</span>
-    <span class="sep">·</span>
-    <span>Low <strong>${fmt(today.lo)}</strong> at ${esc(hour(today.loTime))}</span>
-    <span class="rain-pill" data-level="${esc(rainLvl)}">Rain <strong>${Math.round(today.maxRainProb)}%</strong></span>
+  const rainChip = today.maxRainProb > 0
+    ? `<span class="spark-rain" data-level="${esc(rainLvl)}">Rain ${Math.round(today.maxRainProb)}%</span>`
+    : "";
+  const ariaLabel = `Today's feels-like temperature ranges from ${fmt(lo)} at ${hour(tcells[loIdx].time)} to ${fmt(hi)} at ${hour(tcells[hiIdx].time)}. Rain ${Math.round(today.maxRainProb)}%.`;
+  return `<div class="spark-wrap" role="img" aria-label="${esc(ariaLabel)}">
+    <svg class="spark-svg" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <path d="${fillPath}" class="spark-fill" />
+      <path d="${linePath}" class="spark-line" />
+      ${nowMark}
+    </svg>
+    <span class="spark-tag" aria-hidden="true" style="left: ${xOf(hiIdx).toFixed(2)}%; top: ${(yOf(hi) - 12).toFixed(2)}%">${fmt(hi)}° hi</span>
+    <span class="spark-tag lo" aria-hidden="true" style="left: ${xOf(loIdx).toFixed(2)}%; top: ${(yOf(lo) + 14).toFixed(2)}%">${fmt(lo)}° lo</span>
+    ${rainChip}
   </div>`;
 }
 
@@ -1967,11 +2018,18 @@ function renderHourStrip(today, selectedIdx, nowIdx) {
     const condPill = rainy
       ? `<span class="hc-cond rainy ${prob < 40 ? "maybe" : ""}">${bigIcon(wIcon)} ${prob}%</span>`
       : `<span class="hc-cond">${bigIcon(wIcon)}</span>`;
-    return `<button class="${cls.join(" ")}" data-idx="${i}" aria-pressed="${i === selectedIdx ? "true" : "false"}" style="left: ${x}%; --y: ${y}%" aria-label="${esc(hour(cell.time))}, ${fmt(cell.tempC)}, ${esc(label)}, ${prob}% rain">
+    // Tiny meta row under the temp: humidity %, wind kph. The condition
+    // pill at the top already conveys sun (clear-sky glyph) so we don't
+    // double up here. Glyphs are letter labels rather than icons because
+    // emoji bodies dominate the 3rem cell width.
+    const hum = Math.round(num(cell.rh));
+    const wind = Math.round(num(cell.kph));
+    const metaRow = `<span class="hc-meta"><span class="hcm-lbl">RH</span>${hum}<span class="hcm-sep">·</span><span class="hcm-lbl">W</span>${wind}</span>`;
+    return `<button class="${cls.join(" ")}" data-idx="${i}" aria-pressed="${i === selectedIdx ? "true" : "false"}" style="left: ${x}%; --y: ${y}%" aria-label="${esc(hour(cell.time))}, ${fmt(cell.tempC)}, ${esc(label)}, ${prob}% rain, humidity ${hum}%, wind ${wind} kilometers per hour">
       ${dayMark}
       <span class="hc-time">${esc(hourShort(cell.time))}</span>
       ${condPill}
-      <span class="hc-point"><span class="hc-temp">${fmt(cell.tempC)}</span><span class="hc-icon">${bigIcon(icon)}</span></span>
+      <span class="hc-point"><span class="hc-temp">${fmt(cell.tempC)}</span>${metaRow}<span class="hc-icon">${bigIcon(icon)}</span></span>
     </button>`;
   }).join("");
   return `<div class="strip-wrap"><div class="hour-graph" id="hour-strip" style="width: ${(cells.length * colRem).toFixed(2)}rem">
@@ -2090,7 +2148,7 @@ function renderClosetView() {
     ${renderCloset()}
     ${renderSettings()}
     ${renderPrivacy()}
-    <div class="footer">${esc(LOCATION.name)} . v90-tank-normalize</div>
+    <div class="footer">${esc(LOCATION.name)} . v91-spark-meta</div>
   `;
 }
 
@@ -2118,7 +2176,7 @@ function render(weather) {
       ${renderTripCta()}
       ${renderPro()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v90-tank-normalize</div>
+      <div class="footer">${esc(LOCATION.name)} . v91-spark-meta</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2141,7 +2199,7 @@ function render(weather) {
     ${renderComing(weather)}
     ${renderTripCta()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v90-tank-normalize</div>
+    <div class="footer">${esc(LOCATION.name)} . v91-spark-meta</div>
   `;
 
   // Scroll selected cell into center of strip.
