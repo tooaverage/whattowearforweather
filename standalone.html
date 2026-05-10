@@ -1889,10 +1889,16 @@ function renderWear(rec) {
             ? `<span class="your-items">Default is ${esc(r.value)}</span>`
             : `<span class="your-items">Closest match in your closet for ${esc(r.value)}</span>`;
         } else {
-          // Honest fallback: tell the user we suggested something they
-          // don't have so they can add it.
+          // No same-slot or compatible-slot match for this temp. If the
+          // user owns something in this slot but it doesn't match the
+          // temp, suppress the "Add to closet" prompt; they have a top
+          // (or whatever), it's just not warm/cool enough. Only nudge
+          // them to add when the slot is genuinely empty.
           value = r.value;
-          hint = `<span class="missing-hint">You don't own this. <a href="#closet" data-action="scroll-closet">Add to closet</a></span>`;
+          const slotPopulated = (closet[r.slot] || []).length > 0;
+          hint = slotPopulated
+            ? `<span class="missing-hint">Default is ${esc(r.value)}. Yours don't fit this temp.</span>`
+            : `<span class="missing-hint">You don't own this. <a href="#closet" data-action="scroll-closet">Add to closet</a></span>`;
         }
       }
     }
@@ -2103,7 +2109,7 @@ function renderClosetView() {
     ${renderCloset()}
     ${renderSettings()}
     ${renderPrivacy()}
-    <div class="footer">${esc(LOCATION.name)} . v93-hero-info-chips</div>
+    <div class="footer">${esc(LOCATION.name)} . v94-soft-missing-hint</div>
   `;
 }
 
@@ -2131,7 +2137,7 @@ function render(weather) {
       ${renderTripCta()}
       ${renderPro()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v93-hero-info-chips</div>
+      <div class="footer">${esc(LOCATION.name)} . v94-soft-missing-hint</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2154,7 +2160,7 @@ function render(weather) {
     ${renderComing(weather)}
     ${renderTripCta()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v93-hero-info-chips</div>
+    <div class="footer">${esc(LOCATION.name)} . v94-soft-missing-hint</div>
   `;
 
   // Pin "now" at the far left of the strip on initial render so future
