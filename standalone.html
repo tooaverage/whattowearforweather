@@ -137,9 +137,6 @@
   .today-line { display: flex; gap: .5rem; flex-wrap: wrap; padding: 0 .25rem; font-size: .85rem; color: var(--text-muted); font-variant-numeric: tabular-nums; align-items: center; }
   .today-line .sep { color: var(--text-fainter); }
   .today-line strong { color: var(--text-strong); font-weight: 600; }
-  .rain-pill { padding: .15rem .55rem; border-radius: 999px; background: rgba(148,163,184,.12); color: var(--text-muted); font-size: .8rem; }
-  .rain-pill[data-level="maybe"] { background: var(--warn-bg); color: var(--warn-text-soft); }
-  .rain-pill[data-level="wet"] { background: var(--rain-bg); color: var(--accent); }
   .strip-wrap { padding: 1.1rem 0 .5rem; overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; margin: 0 -.25rem; }
   .strip-wrap::-webkit-scrollbar { display: none; }
   .hour-graph { position: relative; height: 11rem; }
@@ -1701,7 +1698,6 @@ const dayLabel = (isoDate) => {
     return d.toLocaleDateString("en-US", { weekday: "short", timeZone: LOCATION.tz });
   } catch { return ""; }
 };
-const rainLevel = p => p >= 40 ? "wet" : p >= 10 ? "maybe" : "dry";
 
 function describeFeel(rec, c, cLabel) {
   const parts = [];
@@ -1758,7 +1754,7 @@ function renderHero(rec, c, cLabel) {
   if (rh !== null) heroChips.push(`<span class="hf">${rh}% humidity</span>`);
   if (kph !== null) heroChips.push(`<span class="hf">${kph} km/h wind</span>`);
   if (uv !== null && uv >= 1 && isDay) heroChips.push(`<span class="hf">UV ${uv}</span>`);
-  if (prob !== null && prob >= 5) heroChips.push(`<span class="hf">${prob}% rain</span>`);
+  if (prob !== null && prob >= 1) heroChips.push(`<span class="hf">${prob}% rain</span>`);
   const factorsHtml = heroChips.length
     ? `<div class="hero-factors">${heroChips.join("")}</div>`
     : "";
@@ -1795,7 +1791,7 @@ function itemMatchesItem(it, refTemp, currentConds) {
   }
   return true;
 }
-function renderWear(rec, wearTime) {
+function renderWear(rec, headerHtml) {
   const closet = getCloset();
   const conds = rec.conditions || [];
   const refTemp = rec.aNow;
@@ -1933,7 +1929,7 @@ function renderWear(rec, wearTime) {
   const bringHtml = bring.length
     ? `<div class="wear-bring">${bring.map(l => `<p><span class="ic">${bigIcon(l.ic)}</span><span>${esc(l.text)}</span></p>`).join("")}</div>`
     : "";
-  const heading = wearTime ? `Wear <span class="wear-when">at ${esc(wearTime)}</span>` : "Wear";
+  const heading = headerHtml || "Wear";
   return `<section id="wear" class="panel" aria-live="polite" aria-atomic="true"><h2>${heading}</h2>${layerRows}${bringHtml}${histLine}${accs}${fb}</section>`;
 }
 
@@ -1945,12 +1941,10 @@ function renderWhy(rec, source) {
 }
 
 function renderTodayLine(today) {
-  const rainLvl = rainLevel(today.maxRainProb);
   return `<div class="today-line">
     <span>High <strong>${fmt(today.hi)}</strong> at ${esc(hour(today.hiTime))}</span>
     <span class="sep">·</span>
     <span>Low <strong>${fmt(today.lo)}</strong> at ${esc(hour(today.loTime))}</span>
-    <span class="rain-pill" data-level="${esc(rainLvl)}">Rain <strong>${Math.round(today.maxRainProb)}%</strong></span>
   </div>`;
 }
 
@@ -2081,6 +2075,24 @@ function renderComing(weather) {
   </section>`;
 }
 
+// Wear panel header. The Wear panel is "today's plan" by default and
+// the temp-range chip is always shown so users see what the day spans.
+// When they tap a specific hour, the header becomes hour-specific so
+// they know which moment the outfit is for.
+function buildWearHeader(today, currentIdx, nowIdx) {
+  const range = `${fmt(today.lo)}-${fmt(today.hi)}`;
+  if (currentIdx === nowIdx) {
+    return `Wear now <span class="wear-when">${esc(range)} today</span>`;
+  }
+  // Selected the peak by default? Treat as "today's plan."
+  const isPeakDefault = currentIdx === today.peakIdx || currentIdx > nowIdx;
+  if (nowIdx < 0 || isPeakDefault) {
+    return `Today's plan <span class="wear-when">${esc(range)}</span>`;
+  }
+  const at = hourShort(today.cells[currentIdx].time);
+  return `Wear at ${esc(at)} <span class="wear-when">${esc(range)} today</span>`;
+}
+
 function pickInitialIdx(today) {
   // Prefer "now" if today has a cell at the current local hour.
   const now = Date.now();
@@ -2126,7 +2138,7 @@ function renderClosetView() {
     ${renderCloset()}
     ${renderSettings()}
     ${renderPrivacy()}
-    <div class="footer">${esc(LOCATION.name)} . v96-dress-for-later</div>
+    <div class="footer">${esc(LOCATION.name)} . v97-hero-now-wear-plan</div>
   `;
 }
 
@@ -2154,7 +2166,7 @@ function render(weather) {
       ${renderTripCta()}
       ${renderPro()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v96-dress-for-later</div>
+      <div class="footer">${esc(LOCATION.name)} . v97-hero-now-wear-plan</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2163,22 +2175,28 @@ function render(weather) {
   const { selectedIdx, nowIdx } = pickInitialIdx(today);
   let currentIdx = selectedIdx;
   const rec = today.cells[currentIdx].rec;
+  // Hero is always NOW. Use the now-cell's rec when we have one; fall
+  // back to the current weather's rec otherwise. So clothing icons in
+  // the hero reflect "what to throw on right now" while the Wear panel
+  // below reflects today's plan for when you'll actually be out.
+  const nowRec = nowIdx >= 0 ? today.cells[nowIdx].rec : recommend({ current: c, next12h: weather.next12h });
+  const nowCell = nowIdx >= 0 ? today.cells[nowIdx] : c;
   weather._lastRec = rec;
-  const initialWearTime = currentIdx === nowIdx ? null : hourShort(today.cells[currentIdx].time);
+  const wearHeader = buildWearHeader(today, currentIdx, nowIdx);
 
   root.innerHTML = `
     ${renderTabNav()}
-    ${renderHero(rec, today.cells[currentIdx], cLabel)}
+    ${renderHero(nowRec, nowCell, cLabel)}
     <div class="section-title">Hourly forecast</div>
     ${renderTodayLine(today)}
     ${renderHourStrip(today, currentIdx, nowIdx)}
     ${renderBring(rec)}
-    ${renderWear(rec, initialWearTime)}
+    ${renderWear(rec, wearHeader)}
     ${renderHeadsUp(weather)}
     ${renderComing(weather)}
     ${renderTripCta()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v96-dress-for-later</div>
+    <div class="footer">${esc(LOCATION.name)} . v97-hero-now-wear-plan</div>
   `;
 
   // Pin "now" at the far left of the strip on initial render so future
@@ -2192,7 +2210,9 @@ function render(weather) {
     requestAnimationFrame(() => targetBtn.scrollIntoView({ inline, block: "nearest", behavior: "instant" }));
   }
 
-  // Hour cell taps: swap the dynamic panels in place.
+  // Hour cell taps: scrub the Wear and Bring panels to that hour. Hero
+  // stays locked to NOW so the user always has a current-conditions
+  // anchor regardless of which moment Wear is showing.
   strip && strip.addEventListener("click", e => {
     const btn = e.target.closest(".hour-cell");
     if (!btn) return;
@@ -2203,13 +2223,9 @@ function render(weather) {
     btn.setAttribute("aria-pressed", "true");
     const cell = today.cells[idx];
     const r2 = cell.rec;
-    // Pass the full cell so the hero's raw-value chips (UV, rain, isDay)
-    // get accurate data for the selected hour.
-    const [cLabel2] = wmo(cell.code);
-    const wearTime = idx === nowIdx ? null : hourShort(cell.time);
-    document.getElementById("hero").outerHTML = renderHero(r2, cell, cLabel2);
+    const header = buildWearHeader(today, currentIdx, nowIdx);
     document.getElementById("bring").outerHTML = renderBring(r2);
-    document.getElementById("wear").outerHTML = renderWear(r2, wearTime);
+    document.getElementById("wear").outerHTML = renderWear(r2, header);
     document.getElementById("why").outerHTML = renderWhy(r2, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "));
   });
 
