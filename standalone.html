@@ -119,9 +119,6 @@
      name is the only color affordance. */
   .hero-head { display: flex; justify-content: space-between; align-items: center; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; opacity: .85; font-weight: 600; }
   .hero-band { background: rgba(2,6,23,.12); padding: .2rem .6rem; border-radius: 999px; }
-  .hero-icons { display: flex; flex-wrap: wrap; gap: .55rem; align-items: center; justify-content: center; margin: 1.4rem 0 1.1rem; min-height: 4rem; }
-  .hero-icons svg { width: 4rem; height: 4rem; display: block; filter: drop-shadow(0 2px 4px rgba(0,0,0,.18)); }
-  .hero-plus { color: rgba(2,6,23,.4); font-weight: 700; font-size: 1.4rem; line-height: 1; }
   .hero-desc { font-size: 1rem; font-weight: 600; text-align: center; margin-top: .5rem; line-height: 1.3; letter-spacing: -.005em; }
   .hero-temp-foot { display: flex; gap: .6rem; align-items: baseline; flex-wrap: wrap; justify-content: center; font-size: 1.25rem; font-weight: 700; opacity: .95; font-variant-numeric: tabular-nums; margin-top: .6rem; letter-spacing: -.01em; }
   .hero-temp-foot .sep { opacity: .45; font-weight: 400; }
@@ -163,6 +160,11 @@
   .panel h2 { margin: 0 0 .75rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: var(--text-muted); font-weight: 600; }
   .wear-when { color: var(--accent); text-transform: none; letter-spacing: .04em; font-weight: 700; margin-left: .35rem; }
   .bring { background: var(--warn-bg); border-color: var(--warn-border); }
+  .wear-masthead { display: flex; flex-direction: column; align-items: center; gap: .55rem; margin: .5rem 0 1.2rem; text-align: center; }
+  .wear-icons { display: flex; gap: .55rem; align-items: center; justify-content: center; flex-wrap: wrap; min-height: 3rem; }
+  .wear-icons svg { width: 2.8rem; height: 2.8rem; color: var(--ink); display: block; flex: 0 0 auto; }
+  .wear-plus { color: var(--ink-faint); font-size: 1.05rem; font-weight: 400; align-self: center; }
+  .wear-name { font-family: 'Bebas Neue', 'Impact', sans-serif; font-size: clamp(2rem, 7vw, 3rem); line-height: .92; letter-spacing: -.005em; color: var(--ink); text-transform: uppercase; word-break: break-word; }
   .bring h2 { color: var(--warn-text); display: flex; align-items: center; gap: .4rem; }
   .bring h2 svg { width: 1.4rem; height: 1.4rem; }
   .bring p { margin: 0 0 .5rem; color: var(--warn-text-soft); font-size: .95rem; line-height: 1.4; display: flex; gap: .5rem; align-items: flex-start; }
@@ -557,13 +559,8 @@
   .loc-btn { background: transparent; color: var(--ink); border: 1px solid var(--hair); border-radius: 0; padding: .35rem .75rem; font-weight: 600; }
   .hero-band { background: var(--rust); color: var(--paper); border-radius: 0; padding: .25rem .65rem; }
   /* Clothing icons are the masthead. All five layers visible (outer, mid,
-     base, bottom, footwear). Icons sized to fit a narrow phone without
-     scrolling; wrap to a second row only if a wide language requires. */
-  .hero-icons { display: flex; gap: .55rem; padding: 1.4rem 1rem 0; margin: 0; min-height: auto; flex-wrap: wrap; justify-content: flex-start; align-items: center; }
-  .hero-icons svg { width: 2.8rem; height: 2.8rem; color: var(--ink); filter: none; flex: 0 0 auto; }
-  .hero-plus { color: var(--ink-faint); font-size: 1.05rem; font-weight: 400; align-self: center; }
-  /* Outfit name in display type. The 'masthead' for THIS app, not the temperature. */
-  .hero-outfit-name { display: block; font-family: 'Bebas Neue', 'Impact', sans-serif; font-size: clamp(2.6rem, 9vw, 4rem); line-height: .92; letter-spacing: -.005em; color: var(--ink); padding: 1rem 1rem 0; text-transform: uppercase; word-break: break-word; }
+     base, bottom, footwear). Outfit visual now lives in the Wear panel
+     so the Hero stays focused on NOW weather state. */
   .hero-desc { display: block; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .85rem; color: var(--ink-soft); padding: .55rem 1rem 0; text-transform: lowercase; letter-spacing: 0; font-weight: 400; }
   /* Temp / feels-for-you line. Larger than v74 so the personalization
      reads. The 'feels X for you ✦' fragment is the editorial signature
@@ -1714,9 +1711,35 @@ function describeFeel(rec, c, cLabel) {
   return joined.charAt(0).toUpperCase() + joined.slice(1) + ".";
 }
 
-function renderHero(rec, c, cLabel) {
+// Outfit masthead used by the Wear panel. Top of the screen (the
+// Hero) is reserved for NOW weather state; the outfit visual lives
+// inside Wear since it is "your plan for today."
+function outfitMasthead(rec) {
   const layers = [rec.layers.outer, rec.layers.mid, rec.layers.base, rec.layers.bottom, rec.layers.footwear].filter(Boolean);
-  const heroIconsHtml = layers.map(l => bigIcon(l.ic)).join('<span class="hero-plus">+</span>');
+  const iconsHtml = layers.map(l => bigIcon(l.ic)).join('<span class="wear-plus">+</span>');
+  const ICON_LABELS = {
+    "fig-t-shirt": "t-shirt", "fig-shirt": "shirt", "fig-long-sleeve": "long-sleeve",
+    "fig-blouse": "blouse", "fig-loose-blouse": "blouse",
+    "fig-cardigan": "cardigan", "fig-sweater": "sweater", "fig-pullover": "pullover",
+    "fig-hoodie": "hoodie", "fig-gilet": "vest",
+    "fig-jacket": "jacket", "fig-coat": "coat", "fig-trench-coat": "trench",
+    "fig-puffer-jacket": "puffer", "fig-leather-jacket": "leather", "fig-parka": "parka",
+    "fig-anorak": "anorak", "fig-windbreaker": "windbreaker", "fig-raincoat": "raincoat",
+    "fig-duffle-coat": "duffle", "fig-fur-coat": "fur coat", "fig-faux-fur-coat": "fur coat",
+    "fig-sheepskin-coat": "sheepskin",
+    "tank-top": "tank top",
+    "running-shoes": "sneakers", "armored-boot": "boots", "high-heels-01": "heels",
+  };
+  const labelFor = ic => {
+    if (ICON_LABELS[ic]) return ICON_LABELS[ic];
+    return String(ic || "").replace(/^fig-/, "").replace(/-\d+$/, "").replace(/-/g, " ");
+  };
+  const upperLayers = [rec.layers.outer, rec.layers.mid, rec.layers.base].filter(Boolean);
+  const outfitWords = upperLayers.map(l => labelFor(l.ic)).join(" + ");
+  return { iconsHtml, outfitWords };
+}
+
+function renderHero(rec, c, cLabel) {
   const desc = describeFeel(rec, c, cLabel);
   // Editorial-style outfit recipe used in directions A and B as a
   // typographic masthead. Names come from the icon key (canonical
@@ -1754,14 +1777,14 @@ function renderHero(rec, c, cLabel) {
   if (rh !== null) heroChips.push(`<span class="hf">${rh}% humidity</span>`);
   if (kph !== null) heroChips.push(`<span class="hf">${kph} km/h wind</span>`);
   if (uv !== null && uv >= 1 && isDay) heroChips.push(`<span class="hf">UV ${uv}</span>`);
-  if (prob !== null && prob >= 1) heroChips.push(`<span class="hf">${prob}% rain</span>`);
+  // Always show rain, even at 0%, so people see at a glance whether
+  // rain is a factor today. Wind/humidity always show too.
+  if (prob !== null) heroChips.push(`<span class="hf">${prob}% rain</span>`);
   const factorsHtml = heroChips.length
     ? `<div class="hero-factors">${heroChips.join("")}</div>`
     : "";
   return `<section id="hero" class="hero ${esc(rec.band)}">
     <div class="hero-head"><button class="loc-btn" type="button" data-loc-open>${esc(LOCATION.name)} ▾</button><span class="hero-band">${esc(BAND_LABEL[rec.band] || "")}</span></div>
-    <div class="hero-icons">${heroIconsHtml}</div>
-    <div class="hero-outfit-name">${esc(outfitWords)}</div>
     <div class="hero-desc">${esc(desc)}</div>
     <div class="hero-temp-foot"><span class="htf-air">${fmt(c.tempC)}</span><span class="sep">·</span><span class="htf-feels">feels <strong>${fmt(rec.eNow)}</strong> <span class="htf-foryou">for you</span> <span class="htf-star" aria-hidden="true">✦</span></span></div>
     ${factorsHtml}
@@ -1946,7 +1969,9 @@ function renderWear(rec, headerHtml) {
     ? `<div class="wear-bring">${bring.map(l => `<p><span class="ic">${bigIcon(l.ic)}</span><span>${esc(l.text)}</span></p>`).join("")}</div>`
     : "";
   const heading = headerHtml || "Wear";
-  return `<section id="wear" class="panel" aria-live="polite" aria-atomic="true"><h2>${heading}</h2>${layerRows}${bringHtml}${histLine}${accs}${fb}</section>`;
+  const { iconsHtml, outfitWords } = outfitMasthead(rec);
+  const masthead = `<div class="wear-masthead"><div class="wear-icons">${iconsHtml}</div><div class="wear-name">${esc(outfitWords)}</div></div>`;
+  return `<section id="wear" class="panel" aria-live="polite" aria-atomic="true"><h2>${heading}</h2>${masthead}${layerRows}${bringHtml}${histLine}${accs}${fb}</section>`;
 }
 
 function renderWhy(rec, source) {
@@ -2155,7 +2180,7 @@ function renderClosetView() {
     ${renderCloset()}
     ${renderSettings()}
     ${renderPrivacy()}
-    <div class="footer">${esc(LOCATION.name)} . v98-range-readable-closest-own</div>
+    <div class="footer">${esc(LOCATION.name)} . v99-hero-now-wear-masthead</div>
   `;
 }
 
@@ -2183,7 +2208,7 @@ function render(weather) {
       ${renderTripCta()}
       ${renderPro()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v98-range-readable-closest-own</div>
+      <div class="footer">${esc(LOCATION.name)} . v99-hero-now-wear-masthead</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2213,7 +2238,7 @@ function render(weather) {
     ${renderComing(weather)}
     ${renderTripCta()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v98-range-readable-closest-own</div>
+    <div class="footer">${esc(LOCATION.name)} . v99-hero-now-wear-masthead</div>
   `;
 
   // Pin "now" at the far left of the strip on initial render so future
