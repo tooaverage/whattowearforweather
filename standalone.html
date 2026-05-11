@@ -164,6 +164,7 @@
   .dg-rain.maybe { color: var(--warn-text-soft); background: var(--warn-bg); }
   .panel { border-radius: 1rem; padding: 1rem 1.1rem; background: var(--panel-bg); border: 1px solid var(--panel-border); }
   .panel h2 { margin: 0 0 .75rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: var(--text-muted); font-weight: 600; }
+  .wear-when { color: var(--accent); text-transform: none; letter-spacing: .04em; font-weight: 700; margin-left: .35rem; }
   .bring { background: var(--warn-bg); border-color: var(--warn-border); }
   .bring h2 { color: var(--warn-text); display: flex; align-items: center; gap: .4rem; }
   .bring h2 svg { width: 1.4rem; height: 1.4rem; }
@@ -1794,7 +1795,7 @@ function itemMatchesItem(it, refTemp, currentConds) {
   }
   return true;
 }
-function renderWear(rec) {
+function renderWear(rec, wearTime) {
   const closet = getCloset();
   const conds = rec.conditions || [];
   const refTemp = rec.aNow;
@@ -1932,7 +1933,8 @@ function renderWear(rec) {
   const bringHtml = bring.length
     ? `<div class="wear-bring">${bring.map(l => `<p><span class="ic">${bigIcon(l.ic)}</span><span>${esc(l.text)}</span></p>`).join("")}</div>`
     : "";
-  return `<section id="wear" class="panel" aria-live="polite" aria-atomic="true"><h2>Wear</h2>${layerRows}${bringHtml}${histLine}${accs}${fb}</section>`;
+  const heading = wearTime ? `Wear <span class="wear-when">at ${esc(wearTime)}</span>` : "Wear";
+  return `<section id="wear" class="panel" aria-live="polite" aria-atomic="true"><h2>${heading}</h2>${layerRows}${bringHtml}${histLine}${accs}${fb}</section>`;
 }
 
 function renderWhy(rec, source) {
@@ -2087,8 +2089,23 @@ function pickInitialIdx(today) {
     if (new Date(today.cells[i].time).getTime() <= now) nowIdx = i;
     else break;
   }
-  if (nowIdx >= 0) return { selectedIdx: nowIdx, nowIdx };
-  return { selectedIdx: today.peakIdx, nowIdx: -1 };
+  // Default Wear to the warmest hour STILL AHEAD today, not "now."
+  // Users repeatedly told us they want help dressing for a planned
+  // outing later (golf in the afternoon), not the moment of opening
+  // the app. The hour strip still scrolls so now sits at the far left
+  // so they can tap their way back to "now" if they want.
+  if (nowIdx < 0) return { selectedIdx: today.peakIdx, nowIdx: -1 };
+  const todayDate = localDateOf(today.cells[nowIdx].time);
+  let bestIdx = nowIdx;
+  let bestApp = today.cells[nowIdx].apparent;
+  for (let i = nowIdx + 1; i < today.cells.length; i++) {
+    if (localDateOf(today.cells[i].time) !== todayDate) break;
+    if (today.cells[i].apparent > bestApp) {
+      bestApp = today.cells[i].apparent;
+      bestIdx = i;
+    }
+  }
+  return { selectedIdx: bestIdx, nowIdx };
 }
 
 function renderTabNav() {
@@ -2109,7 +2126,7 @@ function renderClosetView() {
     ${renderCloset()}
     ${renderSettings()}
     ${renderPrivacy()}
-    <div class="footer">${esc(LOCATION.name)} . v95-quiet-defaults</div>
+    <div class="footer">${esc(LOCATION.name)} . v96-dress-for-later</div>
   `;
 }
 
@@ -2137,7 +2154,7 @@ function render(weather) {
       ${renderTripCta()}
       ${renderPro()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v95-quiet-defaults</div>
+      <div class="footer">${esc(LOCATION.name)} . v96-dress-for-later</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2147,6 +2164,7 @@ function render(weather) {
   let currentIdx = selectedIdx;
   const rec = today.cells[currentIdx].rec;
   weather._lastRec = rec;
+  const initialWearTime = currentIdx === nowIdx ? null : hourShort(today.cells[currentIdx].time);
 
   root.innerHTML = `
     ${renderTabNav()}
@@ -2155,12 +2173,12 @@ function render(weather) {
     ${renderTodayLine(today)}
     ${renderHourStrip(today, currentIdx, nowIdx)}
     ${renderBring(rec)}
-    ${renderWear(rec)}
+    ${renderWear(rec, initialWearTime)}
     ${renderHeadsUp(weather)}
     ${renderComing(weather)}
     ${renderTripCta()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v95-quiet-defaults</div>
+    <div class="footer">${esc(LOCATION.name)} . v96-dress-for-later</div>
   `;
 
   // Pin "now" at the far left of the strip on initial render so future
@@ -2185,13 +2203,13 @@ function render(weather) {
     btn.setAttribute("aria-pressed", "true");
     const cell = today.cells[idx];
     const r2 = cell.rec;
-    // For the hero's primary number, use that cell's air temp (what it'll feel
-    // like at that hour), not the live current temp.
-    const heroCtx = { tempC: cell.tempC, rh: cell.rh, kph: cell.kph };
+    // Pass the full cell so the hero's raw-value chips (UV, rain, isDay)
+    // get accurate data for the selected hour.
     const [cLabel2] = wmo(cell.code);
-    document.getElementById("hero").outerHTML = renderHero(r2, heroCtx, cLabel2);
+    const wearTime = idx === nowIdx ? null : hourShort(cell.time);
+    document.getElementById("hero").outerHTML = renderHero(r2, cell, cLabel2);
     document.getElementById("bring").outerHTML = renderBring(r2);
-    document.getElementById("wear").outerHTML = renderWear(r2);
+    document.getElementById("wear").outerHTML = renderWear(r2, wearTime);
     document.getElementById("why").outerHTML = renderWhy(r2, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "));
   });
 
