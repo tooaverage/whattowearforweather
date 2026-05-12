@@ -139,7 +139,7 @@
   .hour-graph { position: relative; height: 11rem; }
   .hg-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .hg-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; stroke: #fb923c; vector-effect: non-scaling-stroke; }
-  .hour-cell { position: absolute; top: 0; bottom: 0; width: 3rem; margin-left: -1.5rem; scroll-snap-align: center; background: transparent; border: 1px solid transparent; border-radius: .65rem; padding: 0; color: inherit; cursor: pointer; transition: background .15s, border-color .15s; font-family: inherit; z-index: 1; }
+  .hour-cell { position: absolute; top: 0; bottom: 0; width: 3rem; margin-left: -1.5rem; scroll-snap-align: start; background: transparent; border: 1px solid transparent; border-radius: .65rem; padding: 0; color: inherit; cursor: pointer; transition: background .15s, border-color .15s; font-family: inherit; z-index: 1; }
   .hour-cell:active { background: var(--hour-cell-press); }
   .hour-cell[aria-pressed="true"] { border-color: var(--input-border-active); background: var(--hour-cell-active); box-shadow: 0 0 0 1px var(--panel-border) inset; }
   .hour-cell.now::before { content: "now"; position: absolute; top: -.95rem; left: 50%; transform: translateX(-50%); font-size: .55rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-faint); background: var(--input-bg); padding: 0 .3rem; }
@@ -559,8 +559,12 @@
   .loc-btn { background: transparent; color: var(--ink); border: 1px solid var(--hair); border-radius: 0; padding: .35rem .75rem; font-weight: 600; }
   .hero-band { background: var(--rust); color: var(--paper); border-radius: 0; padding: .25rem .65rem; }
   /* Clothing icons are the masthead. All five layers visible (outer, mid,
-     base, bottom, footwear). Outfit visual now lives in the Wear panel
-     so the Hero stays focused on NOW weather state. */
+     base, bottom, footwear). Hero shows NOW's outfit; Wear panel
+     shows today's plan with its own masthead. */
+  .hero-icons { display: flex; gap: .55rem; padding: 1.4rem 1rem 0; margin: 0; min-height: auto; flex-wrap: wrap; justify-content: flex-start; align-items: center; }
+  .hero-icons svg { width: 2.8rem; height: 2.8rem; color: var(--ink); filter: none; flex: 0 0 auto; }
+  .hero-plus { color: var(--ink-faint); font-size: 1.05rem; font-weight: 400; align-self: center; }
+  .hero-outfit-name { display: block; font-family: 'Bebas Neue', 'Impact', sans-serif; font-size: clamp(2.6rem, 9vw, 4rem); line-height: .92; letter-spacing: -.005em; color: var(--ink); padding: 1rem 1rem 0; text-transform: uppercase; word-break: break-word; }
   .hero-desc { display: block; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .85rem; color: var(--ink-soft); padding: .55rem 1rem 0; text-transform: lowercase; letter-spacing: 0; font-weight: 400; }
   /* Temp / feels-for-you line. Larger than v74 so the personalization
      reads. The 'feels X for you ✦' fragment is the editorial signature
@@ -1711,12 +1715,22 @@ function describeFeel(rec, c, cLabel) {
   return joined.charAt(0).toUpperCase() + joined.slice(1) + ".";
 }
 
-// Outfit masthead used by the Wear panel. Top of the screen (the
-// Hero) is reserved for NOW weather state; the outfit visual lives
-// inside Wear since it is "your plan for today."
-function outfitMasthead(rec) {
-  const layers = [rec.layers.outer, rec.layers.mid, rec.layers.base, rec.layers.bottom, rec.layers.footwear].filter(Boolean);
-  const iconsHtml = layers.map(l => bigIcon(l.ic)).join('<span class="wear-plus">+</span>');
+// Outfit masthead used by the Hero (recipe defaults for NOW) and Wear
+// panel (the user's actual displayed picks for the day plan). Pass an
+// array of resolved {slot, ic} entries to override the recipe defaults,
+// e.g. so the Wear masthead reads TANK when the user overrode TOP to
+// Tank even though the recipe still says t-shirt.
+function outfitMasthead(rec, resolved) {
+  const SLOT_ORDER = ["outer", "mid", "base", "bottom", "footwear"];
+  let layers;
+  if (Array.isArray(resolved) && resolved.length) {
+    const visible = resolved.filter(r => !r.isSkip);
+    const order = (s) => SLOT_ORDER.indexOf(s);
+    layers = visible.slice().sort((a, b) => order(a.slot) - order(b.slot)).map(r => ({ slot: r.slot, ic: r.ic }));
+  } else {
+    layers = SLOT_ORDER.map(s => rec.layers[s] ? { slot: s, ic: rec.layers[s].ic } : null).filter(Boolean);
+  }
+  const iconsHtml = layers.map(l => bigIcon(l.ic)).join('<span class="hero-plus">+</span>');
   const ICON_LABELS = {
     "fig-t-shirt": "t-shirt", "fig-shirt": "shirt", "fig-long-sleeve": "long-sleeve",
     "fig-blouse": "blouse", "fig-loose-blouse": "blouse",
@@ -1734,37 +1748,15 @@ function outfitMasthead(rec) {
     if (ICON_LABELS[ic]) return ICON_LABELS[ic];
     return String(ic || "").replace(/^fig-/, "").replace(/-\d+$/, "").replace(/-/g, " ");
   };
-  const upperLayers = [rec.layers.outer, rec.layers.mid, rec.layers.base].filter(Boolean);
+  const UPPER_SLOTS = new Set(["outer", "mid", "base"]);
+  const upperLayers = layers.filter(l => UPPER_SLOTS.has(l.slot));
   const outfitWords = upperLayers.map(l => labelFor(l.ic)).join(" + ");
   return { iconsHtml, outfitWords };
 }
 
 function renderHero(rec, c, cLabel) {
+  const { iconsHtml: heroIconsHtml, outfitWords } = outfitMasthead(rec);
   const desc = describeFeel(rec, c, cLabel);
-  // Editorial-style outfit recipe used in directions A and B as a
-  // typographic masthead. Names come from the icon key (canonical
-  // garment name) so 'light pants or jeans' becomes 'pants' rather
-  // than 'light'. Only upper layers (outer + mid + base) are listed;
-  // bottom and footwear are visible in the icon row above.
-  const ICON_LABELS = {
-    "fig-t-shirt": "t-shirt", "fig-shirt": "shirt", "fig-long-sleeve": "long-sleeve",
-    "fig-blouse": "blouse", "fig-loose-blouse": "blouse",
-    "fig-cardigan": "cardigan", "fig-sweater": "sweater", "fig-pullover": "pullover",
-    "fig-hoodie": "hoodie", "fig-gilet": "vest",
-    "fig-jacket": "jacket", "fig-coat": "coat", "fig-trench-coat": "trench",
-    "fig-puffer-jacket": "puffer", "fig-leather-jacket": "leather", "fig-parka": "parka",
-    "fig-anorak": "anorak", "fig-windbreaker": "windbreaker", "fig-raincoat": "raincoat",
-    "fig-duffle-coat": "duffle", "fig-fur-coat": "fur coat", "fig-faux-fur-coat": "fur coat",
-    "fig-sheepskin-coat": "sheepskin",
-    "tank-top": "tank top",
-    "running-shoes": "sneakers", "armored-boot": "boots", "high-heels-01": "heels",
-  };
-  const labelFor = ic => {
-    if (ICON_LABELS[ic]) return ICON_LABELS[ic];
-    return String(ic || "").replace(/^fig-/, "").replace(/-\d+$/, "").replace(/-/g, " ");
-  };
-  const upperLayers = [rec.layers.outer, rec.layers.mid, rec.layers.base].filter(Boolean);
-  const outfitWords = upperLayers.map(l => labelFor(l.ic)).join(" + ");
   // Raw weather chips: humidity, wind, UV (when there is daylight), and
   // rain (when meaningful). The factor decomposition still lives in the
   // Why panel; here we just want a quick glance at the inputs.
@@ -1785,6 +1777,8 @@ function renderHero(rec, c, cLabel) {
     : "";
   return `<section id="hero" class="hero ${esc(rec.band)}">
     <div class="hero-head"><button class="loc-btn" type="button" data-loc-open>${esc(LOCATION.name)} ▾</button><span class="hero-band">${esc(BAND_LABEL[rec.band] || "")}</span></div>
+    <div class="hero-icons">${heroIconsHtml}</div>
+    <div class="hero-outfit-name">${esc(outfitWords)}</div>
     <div class="hero-desc">${esc(desc)}</div>
     <div class="hero-temp-foot"><span class="htf-air">${fmt(c.tempC)}</span><span class="sep">·</span><span class="htf-feels">feels <strong>${fmt(rec.eNow)}</strong> <span class="htf-foryou">for you</span> <span class="htf-star" aria-hidden="true">✦</span></span></div>
     ${factorsHtml}
@@ -1852,6 +1846,7 @@ function renderWear(rec, headerHtml) {
       histItems: histItems || null,
     };
   }).filter(Boolean);
+  const resolvedLayers = []; // Filled per-slot below for the masthead.
   const layerRows = wearRows.map(r => {
     const ov = getOverride(rec.band, conds, r.slot);
     let icon = r.ic, value = r.value || "", hint = "", isOverride = false, isSkip = r.skip, isHist = false;
@@ -1877,8 +1872,15 @@ function renderWear(rec, headerHtml) {
       const all = !r.skip && Array.isArray(closet[r.slot]) ? closet[r.slot] : [];
       const items = all.filter(it => itemMatchesItem(it, refTemp, conds));
       if (items.length) {
-        icon = iconForName(items[0].name) || SLOT_ICON[r.slot] || r.ic;
-        value = items.map(it => it.name).join(", ");
+        // Pick a single primary: prefer the user's item whose name
+        // matches the recipe default. Showing five things in BOTTOM
+        // (shorts, skirt, dress, dress, pants) creates choice paralysis
+        // and clutters the panel; the user can tap to override.
+        const recipeName = (r.value || "").toLowerCase();
+        const match = items.find(it => it.name.toLowerCase() === recipeName);
+        const pick = match || items[0];
+        icon = iconForName(pick.name) || SLOT_ICON[r.slot] || r.ic;
+        value = pick.name;
         hint = "";
       } else if (r.value) {
         // Recipe has an item for this slot but the user owns nothing
@@ -1939,6 +1941,7 @@ function renderWear(rec, headerHtml) {
       }
     }
     const badge = isOverride ? `<span class="override-badge">yours</span>` : (isHist ? `<span class="hist-badge" aria-label="From your last just-right log">✦</span>` : "");
+    resolvedLayers.push({ slot: r.slot, ic: icon, isSkip });
     return `<div class="outfit-row tappable${isSkip ? " skip" : ""}${isHist ? " from-hist" : ""}" data-row-slot="${esc(r.slot)}" data-current-value="${esc(typeof ov === "string" ? ov : "")}"><span class="ic">${bigIcon(icon)}</span><span class="lbl">${esc(r.label)}${badge}</span><div class="val-cell"><span class="val">${esc(value)}</span>${hint}</div></div>`;
   }).join("");
   const umbrellaItem = rec.layers.acc.find(a => a.v.includes("umbrella"));
@@ -1969,7 +1972,7 @@ function renderWear(rec, headerHtml) {
     ? `<div class="wear-bring">${bring.map(l => `<p><span class="ic">${bigIcon(l.ic)}</span><span>${esc(l.text)}</span></p>`).join("")}</div>`
     : "";
   const heading = headerHtml || "Wear";
-  const { iconsHtml, outfitWords } = outfitMasthead(rec);
+  const { iconsHtml, outfitWords } = outfitMasthead(rec, resolvedLayers);
   const masthead = `<div class="wear-masthead"><div class="wear-icons">${iconsHtml}</div><div class="wear-name">${esc(outfitWords)}</div></div>`;
   return `<section id="wear" class="panel" aria-live="polite" aria-atomic="true"><h2>${heading}</h2>${masthead}${layerRows}${bringHtml}${histLine}${accs}${fb}</section>`;
 }
@@ -2180,7 +2183,7 @@ function renderClosetView() {
     ${renderCloset()}
     ${renderSettings()}
     ${renderPrivacy()}
-    <div class="footer">${esc(LOCATION.name)} . v99-hero-now-wear-masthead</div>
+    <div class="footer">${esc(LOCATION.name)} . v100-hero-outfit-wear-resolves</div>
   `;
 }
 
@@ -2208,7 +2211,7 @@ function render(weather) {
       ${renderTripCta()}
       ${renderPro()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v99-hero-now-wear-masthead</div>
+      <div class="footer">${esc(LOCATION.name)} . v100-hero-outfit-wear-resolves</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2238,18 +2241,24 @@ function render(weather) {
     ${renderComing(weather)}
     ${renderTripCta()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v99-hero-now-wear-masthead</div>
+    <div class="footer">${esc(LOCATION.name)} . v100-hero-outfit-wear-resolves</div>
   `;
 
   // Pin "now" at the far left of the strip on initial render so future
-  // hours fill the visible area. If the day has no live "now" (e.g. it
-  // is past 10pm), fall back to centering the selected cell.
+  // hours fill the visible area. Use scrollLeft directly since the
+  // cells are absolute-positioned with negative left margins, which
+  // confuses scrollIntoView. If the day has no live "now" fall back
+  // to scrolling so the selected cell is visible.
   const strip = root.querySelector("#hour-strip");
   const scrollTargetIdx = nowIdx >= 0 ? nowIdx : currentIdx;
   const targetBtn = strip && strip.querySelector(`[data-idx="${scrollTargetIdx}"]`);
   if (targetBtn) {
-    const inline = nowIdx >= 0 ? "start" : "center";
-    requestAnimationFrame(() => targetBtn.scrollIntoView({ inline, block: "nearest", behavior: "instant" }));
+    requestAnimationFrame(() => {
+      // offsetLeft is the cell's position relative to .hour-graph,
+      // which is the scrollable container's first positioned child.
+      // Cells tile without gaps so offsetLeft of cell i is i * cellWidth.
+      strip.scrollLeft = Math.max(0, targetBtn.offsetLeft);
+    });
   }
 
   // Hour cell taps: scrub the Wear and Bring panels to that hour. Hero
