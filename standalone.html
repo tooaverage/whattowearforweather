@@ -93,6 +93,23 @@
   .err { background: rgba(244,63,94,.1); border-color: rgba(244,63,94,.3); color: #fecaca; }
   .err strong { color: #fca5a5; display: block; margin-bottom: .25rem; }
   .loading { padding: 5rem 0; text-align: center; color: #94a3b8; font-size: .9rem; }
+  .passport-section-header { font-size: .62rem; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; margin: 1rem 0 .25rem; padding-bottom: .35rem; border-bottom: 1px solid rgba(255,255,255,.06); font-weight: 600; }
+  .passport-section-header:first-child { margin-top: .65rem; }
+  .passport-list { display: flex; flex-direction: column; }
+  .passport-row { display: grid; grid-template-columns: 1fr 2.6rem; align-items: center; gap: .65rem; padding: .55rem .15rem; border: none; background: transparent; width: 100%; text-align: left; font-family: inherit; color: inherit; cursor: pointer; border-radius: .5rem; transition: background .15s; }
+  .passport-row:hover { background: rgba(255,255,255,.025); }
+  .passport-row:active { transform: scale(.99); }
+  .pp-text { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
+  .pp-name { color: #e2e8f0; font-size: .95rem; font-weight: 500; display: flex; align-items: center; gap: .45rem; line-height: 1.2; }
+  .pp-ic { font-size: 1.15rem; line-height: 1; }
+  .pp-meta { color: #94a3b8; font-size: .75rem; }
+  .pp-stamp { width: 2.4rem; height: 2.4rem; border-radius: 50%; border: 1.5px dashed rgba(148,163,184,.28); display: flex; align-items: center; justify-content: center; font-size: 1rem; flex: 0 0 auto; background: rgba(15,23,42,.4); transition: transform .2s ease-out, background .2s, border-color .2s; transform: rotate(0deg) scale(.95); }
+  .passport-row.done .pp-name { color: #f8fafc; }
+  .passport-row.done .pp-stamp { border-style: solid; border-width: 2px; transform: rotate(var(--pp-rot, -6deg)) scale(1); box-shadow: 0 0 0 3px rgba(0,0,0,.25), 0 0 0 4px rgba(255,255,255,.04); }
+  .passport-row.done .pp-stamp.easy { border-color: #6ee7b7; background: rgba(110,231,183,.14); }
+  .passport-row.done .pp-stamp.mod  { border-color: #7dd3fc; background: rgba(125,211,252,.14); }
+  .passport-row.done .pp-stamp.hard { border-color: #f9a8d4; background: rgba(249,168,212,.14); }
+  .pp-hint { font-size: .78rem; color: #94a3b8; padding: .65rem 0 .15rem; }
 </style>
 </head>
 <body>
@@ -598,9 +615,11 @@ function render(weather) {
       ${renderHeadsUp(weather)}
       ${renderComing(weather)}
       ${renderWhy(rec, "Open-Meteo")}
+      ${renderPassport()}
       <div class="footer">Vancouver, BC . v1</div>
     `;
     attachToggleHandler(root);
+    attachPassportHandler(root);
     return;
   }
 
@@ -617,6 +636,7 @@ function render(weather) {
     ${renderHeadsUp(weather)}
     ${renderComing(weather)}
     ${renderWhy(rec, "Open-Meteo")}
+    ${renderPassport()}
     <div class="footer">Vancouver, BC . v1</div>
   `;
 
@@ -645,6 +665,7 @@ function render(weather) {
   });
 
   attachToggleHandler(root);
+  attachPassportHandler(root);
 }
 
 function attachToggleHandler(root) {
@@ -663,6 +684,113 @@ function attachToggleHandler(root) {
 function renderError(msg) {
   document.getElementById("root").innerHTML =
     `<section class="panel err"><strong>Couldn't load the forecast</strong>${esc(msg)}</section>`;
+}
+
+const HIKES = [
+  { id:"lynn-canyon",        name:"Lynn Canyon",         region:"North Van",       group:"North Shore",  level:"easy", ic:"🌉" },
+  { id:"quarry-rock",        name:"Quarry Rock",         region:"Deep Cove",       group:"North Shore",  level:"easy", ic:"🪨" },
+  { id:"lighthouse-park",    name:"Lighthouse Park",     region:"West Van",        group:"North Shore",  level:"easy", ic:"🦝" },
+  { id:"dog-mountain",       name:"Dog Mountain",        region:"Mt. Seymour",     group:"North Shore",  level:"easy", ic:"🐕" },
+  { id:"norvan-falls",       name:"Norvan Falls",        region:"Lynn Headwaters", group:"North Shore",  level:"mod",  ic:"💦" },
+  { id:"hollyburn",          name:"Hollyburn Mountain",  region:"Cypress",         group:"North Shore",  level:"mod",  ic:"🌲" },
+  { id:"eagle-bluffs",       name:"Eagle Bluffs",        region:"Cypress",         group:"North Shore",  level:"mod",  ic:"🦅" },
+  { id:"st-marks",           name:"St. Mark's Summit",   region:"Cypress",         group:"North Shore",  level:"mod",  ic:"⛰️" },
+  { id:"mt-seymour",         name:"Mt. Seymour",         region:"North Van",       group:"North Shore",  level:"mod",  ic:"🏔️" },
+  { id:"grouse-grind",       name:"Grouse Grind",        region:"North Van",       group:"North Shore",  level:"hard", ic:"🪜" },
+  { id:"crown-mountain",     name:"Crown Mountain",      region:"Grouse",          group:"North Shore",  level:"hard", ic:"👑" },
+  { id:"sea-to-sky-gondola", name:"Sea to Sky Gondola",  region:"Squamish",        group:"Sea to Sky",   level:"easy", ic:"🚡" },
+  { id:"brandywine-falls",   name:"Brandywine Falls",    region:"Whistler",        group:"Sea to Sky",   level:"easy", ic:"💧" },
+  { id:"cheakamus-lake",     name:"Cheakamus Lake",      region:"Whistler",        group:"Sea to Sky",   level:"easy", ic:"🛶" },
+  { id:"tunnel-bluffs",      name:"Tunnel Bluffs",       region:"Howe Sound",      group:"Sea to Sky",   level:"mod",  ic:"🌊" },
+  { id:"joffre-lakes",       name:"Joffre Lakes",        region:"Pemberton",       group:"Sea to Sky",   level:"mod",  ic:"💎" },
+  { id:"garibaldi-lake",     name:"Garibaldi Lake",      region:"Whistler",        group:"Sea to Sky",   level:"mod",  ic:"🏞️" },
+  { id:"stawamus-chief",     name:"Stawamus Chief",      region:"Squamish",        group:"Sea to Sky",   level:"hard", ic:"🗿" },
+  { id:"panorama-ridge",     name:"Panorama Ridge",      region:"Garibaldi",       group:"Sea to Sky",   level:"hard", ic:"🌄" },
+  { id:"black-tusk",         name:"Black Tusk",          region:"Garibaldi",       group:"Sea to Sky",   level:"hard", ic:"🗻" },
+  { id:"wedgemount-lake",    name:"Wedgemount Lake",     region:"Whistler",        group:"Sea to Sky",   level:"hard", ic:"🧊" },
+  { id:"elfin-lakes",        name:"Elfin Lakes",         region:"Squamish",        group:"Sea to Sky",   level:"hard", ic:"🧝" },
+  { id:"sasamat-lake",       name:"Sasamat Lake",        region:"Port Moody",      group:"Tri-Cities",   level:"easy", ic:"🏖️" },
+  { id:"burnaby-mountain",   name:"Burnaby Mountain",    region:"Burnaby",         group:"Tri-Cities",   level:"easy", ic:"🌳" },
+  { id:"buntzen-lake",       name:"Buntzen Lake",        region:"Anmore",          group:"Tri-Cities",   level:"mod",  ic:"🦆" },
+  { id:"diez-vistas",        name:"Diez Vistas",         region:"Buntzen",         group:"Tri-Cities",   level:"mod",  ic:"👀" },
+  { id:"lindeman-lake",      name:"Lindeman Lake",       region:"Chilliwack",      group:"Fraser Valley", level:"mod",  ic:"🐟" },
+  { id:"elk-thurston",       name:"Elk-Thurston",        region:"Chilliwack",      group:"Fraser Valley", level:"hard", ic:"🦌" },
+  { id:"golden-ears",        name:"Golden Ears",         region:"Maple Ridge",     group:"Fraser Valley", level:"hard", ic:"👂" },
+];
+const PASSPORT_KEY = "bc-hiking-passport-v1";
+
+function loadPassport() {
+  try {
+    const raw = localStorage.getItem(PASSPORT_KEY);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return new Set();
+    return new Set(parsed.filter(x => typeof x === "string"));
+  } catch { return new Set(); }
+}
+
+function savePassport(set) {
+  try { localStorage.setItem(PASSPORT_KEY, JSON.stringify([...set])); } catch {}
+}
+
+function rotFor(id) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  return ((h % 11) + 11) % 11 - 5;
+}
+
+function renderPassport() {
+  const stamped = loadPassport();
+  const open = HIKES.some(h => stamped.has(h.id));
+  const groups = new Map();
+  for (const h of HIKES) {
+    if (!groups.has(h.group)) groups.set(h.group, []);
+    groups.get(h.group).push(h);
+  }
+  const sections = [];
+  for (const [group, hikes] of groups) {
+    const rows = hikes.map(h => {
+      const isDone = stamped.has(h.id);
+      const rot = rotFor(h.id);
+      return `<button class="passport-row${isDone ? " done" : ""}" data-id="${esc(h.id)}" type="button" aria-pressed="${isDone ? "true" : "false"}" style="--pp-rot: ${rot}deg">
+        <span class="pp-text">
+          <span class="pp-name"><span class="pp-ic">${esc(h.ic)}</span>${esc(h.name)}</span>
+          <span class="pp-meta">${esc(h.region)}</span>
+        </span>
+        <span class="pp-stamp ${esc(h.level)}">${isDone ? esc(h.ic) : ""}</span>
+      </button>`;
+    }).join("");
+    sections.push(`<div class="passport-section-header">${esc(group)}</div>${rows}`);
+  }
+  return `<section id="passport" class="panel">
+    <details${open ? " open" : ""}>
+      <summary>BC Hiking Passport</summary>
+      <div class="pp-hint">Tap to stamp the ones you've done.</div>
+      <div class="passport-list">${sections.join("")}</div>
+    </details>
+  </section>`;
+}
+
+function attachPassportHandler(root) {
+  const list = root.querySelector(".passport-list");
+  if (!list) return;
+  list.addEventListener("click", e => {
+    const btn = e.target.closest(".passport-row");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    if (!id) return;
+    const hike = HIKES.find(h => h.id === id);
+    if (!hike) return;
+    const stamped = loadPassport();
+    if (stamped.has(id)) stamped.delete(id);
+    else stamped.add(id);
+    savePassport(stamped);
+    const isDone = stamped.has(id);
+    btn.classList.toggle("done", isDone);
+    btn.setAttribute("aria-pressed", isDone ? "true" : "false");
+    const stamp = btn.querySelector(".pp-stamp");
+    if (stamp) stamp.textContent = isDone ? hike.ic : "";
+  });
 }
 
 (async () => {
