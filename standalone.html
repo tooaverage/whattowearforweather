@@ -111,6 +111,7 @@ const CFG = {
   windLayerKph: 16, windChillTempC: 10, windChillMinWindKph: 4.8, heatIndexTempC: 26.7,
   rainShellProbabilityPct: 40, rainShellTotalMm: 1.0, umbrellaProbabilityPct: 10,
   uvProtectionIndex: 3, uvSunscreenIndex: 6, bringLayerSpreadC: 5,
+  staleAfterMinutes: 10,
   bands: [
     { band: "hot", min: 27 }, { band: "warm", min: 20 }, { band: "mild", min: 14 },
     { band: "cool", min: 8 }, { band: "cold", min: 2 }, { band: "very_cold", min: -5 },
@@ -665,14 +666,33 @@ function renderError(msg) {
     `<section class="panel err"><strong>Couldn't load the forecast</strong>${esc(msg)}</section>`;
 }
 
-(async () => {
+let lastFetchTs = 0;
+let lastFetchDate = "";
+let inFlight = false;
+
+async function load() {
+  if (inFlight) return;
+  inFlight = true;
   try {
     const w = await fetchWeather();
+    lastFetchTs = Date.now();
+    lastFetchDate = todayDateLocal();
     render(w);
   } catch (e) {
     renderError(e && e.message || String(e));
+  } finally {
+    inFlight = false;
   }
-})();
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "visible" || !lastFetchTs) return;
+  const dayRolled = lastFetchDate && todayDateLocal() !== lastFetchDate;
+  const tooOld = Date.now() - lastFetchTs > CFG.staleAfterMinutes * 60 * 1000;
+  if (dayRolled || tooOld) load();
+});
+
+load();
 </script>
 </body>
 </html>
