@@ -541,76 +541,65 @@
   .upsell-skip { background: transparent; border: 1px solid var(--input-border); color: var(--text-muted); padding: .55rem 1rem; border-radius: .65rem; cursor: pointer; font-family: inherit; font-size: .85rem; }
   .loading { padding: 5rem 0; text-align: center; color: var(--text-faint); font-size: .9rem; }
 
-/* ===== Retro-futurism (Outrun: deep midnight + neon, chromatic display) ===== */
-  :root {
-    --paper: #0a0a18;
-    --ink: #f5f0ff;
-    --ink-soft: rgba(245,240,255,.70);
-    --ink-faint: rgba(245,240,255,.38);
-    --hair: rgba(0,240,255,.22);
-    --rust: #ff2e88;
-    --cyan: #00f0ff;
-    --neon-y: #ffd000;
-  }
+/* ===== Editorial design (paper, ink, rust accent, condensed display type) ===== */
+  :root { --paper: #F4F1EA; --ink: #111; --ink-soft: rgba(17,17,17,.55); --ink-faint: rgba(17,17,17,.35); --hair: rgba(17,17,17,.12); --rust: #C8462C; }
   body, html { background: var(--paper); color: var(--ink); }
-  /* Tiny Outrun grid tiled across the page. Pure SVG image (not a CSS
-     gradient) so we keep the no-gradients rule. */
-  body { background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Cpath d='M0 .5H40M.5 0V40' stroke='%2300f0ff' stroke-opacity='.07' fill='none'/%3E%3C/svg%3E"); background-attachment: fixed; }
   body { font-family: 'JetBrains Mono', ui-monospace, monospace; font-feature-settings: "tnum"; }
-  [data-theme="dark"], [data-theme="dark"] body { --paper: #0a0a18; --ink: #f5f0ff; --ink-soft: rgba(245,240,255,.70); --ink-faint: rgba(245,240,255,.38); --hair: rgba(0,240,255,.22); }
+  [data-theme="dark"], [data-theme="dark"] body { --paper: #11100E; --ink: #F4F1EA; --ink-soft: rgba(244,241,234,.55); --ink-faint: rgba(244,241,234,.32); --hair: rgba(244,241,234,.12); }
   .panel { background: transparent; border: none; border-top: 1px solid var(--hair); border-radius: 0; padding: 1.4rem 1rem; box-shadow: none; }
   .panel:first-of-type { border-top: none; }
-  .panel h2 { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .72rem; letter-spacing: .18em; color: var(--cyan); text-transform: uppercase; font-weight: 700; margin-bottom: 1rem; text-shadow: 1px 1px 0 var(--rust); }
+  .panel h2 { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .68rem; letter-spacing: .14em; color: var(--ink-soft); text-transform: uppercase; font-weight: 600; margin-bottom: 1rem; }
   .hero { background: transparent; color: var(--ink); padding: 1.6rem 0 .8rem; box-shadow: none; border-radius: 0; border-bottom: 1px solid var(--hair); }
   .hero-head { padding: 0 1rem; }
-  .loc-btn { background: transparent; color: var(--cyan); border: 1px solid var(--cyan); border-radius: 0; padding: .35rem .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
-  .hero-band { background: var(--rust); color: var(--paper); border-radius: 0; padding: .25rem .75rem; font-weight: 800; letter-spacing: .12em; box-shadow: 3px 3px 0 var(--cyan); }
+  .loc-btn { background: transparent; color: var(--ink); border: 1px solid var(--hair); border-radius: 0; padding: .35rem .75rem; font-weight: 600; }
+  .hero-band { background: var(--rust); color: var(--paper); border-radius: 0; padding: .25rem .65rem; }
   /* Clothing icons are the masthead. All five layers visible (outer, mid,
      base, bottom, footwear). Hero shows NOW's outfit; Wear panel
      shows today's plan with its own masthead. */
   .hero-icons { display: flex; gap: .55rem; padding: 1.4rem 1rem 0; margin: 0; min-height: auto; flex-wrap: wrap; justify-content: flex-start; align-items: center; }
-  .hero-icons svg { width: 2.8rem; height: 2.8rem; color: var(--cyan); filter: drop-shadow(2px 2px 0 var(--rust)); flex: 0 0 auto; }
-  .hero-plus { color: var(--neon-y); font-size: 1.05rem; font-weight: 400; align-self: center; }
-  /* Outfit masthead: yellow face + magenta and cyan offsets give the
-     stacked-shadow look from the moodboard ("NEWSTAR" reference). */
-  .hero-outfit-name { display: block; font-family: 'Bebas Neue', 'Impact', sans-serif; font-size: clamp(2.6rem, 9vw, 4rem); line-height: .92; letter-spacing: .005em; color: var(--neon-y); padding: 1rem 1rem 0; text-transform: uppercase; word-break: break-word; text-shadow: 3px 3px 0 var(--rust), 6px 6px 0 var(--cyan); }
-  .hero-desc { display: block; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .85rem; color: var(--cyan); padding: .55rem 1rem 0; text-transform: lowercase; letter-spacing: .04em; font-weight: 500; }
+  .hero-icons svg { width: 2.8rem; height: 2.8rem; color: var(--ink); filter: none; flex: 0 0 auto; }
+  .hero-plus { color: var(--ink-faint); font-size: 1.05rem; font-weight: 400; align-self: center; }
+  .hero-outfit-name { display: block; font-family: 'Bebas Neue', 'Impact', sans-serif; font-size: clamp(2.6rem, 9vw, 4rem); line-height: .92; letter-spacing: -.005em; color: var(--ink); padding: 1rem 1rem 0; text-transform: uppercase; word-break: break-word; }
+  .hero-desc { display: block; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .85rem; color: var(--ink-soft); padding: .55rem 1rem 0; text-transform: lowercase; letter-spacing: 0; font-weight: 400; }
+  /* Temp / feels-for-you line. Larger than v74 so the personalization
+     reads. The 'feels X for you ✦' fragment is the editorial signature
+     line: rust accent + italic + small star to emphasize it's tuned to
+     the specific user (not generic AI sparkle). */
   .hero-temp-foot { display: flex; gap: .55rem; align-items: baseline; flex-wrap: wrap; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 1.05rem; font-weight: 600; color: var(--ink); opacity: 1; padding: 1.2rem 1rem 0; justify-content: flex-start; letter-spacing: 0; }
   .hero-temp-foot .htf-air { color: var(--ink-soft); font-weight: 500; }
   .hero-temp-foot .sep { color: var(--ink-faint); font-weight: 400; }
   .hero-temp-foot .htf-feels { color: var(--ink); font-weight: 600; }
-  .hero-temp-foot .htf-feels strong { color: var(--rust); font-weight: 800; text-shadow: 1px 1px 0 var(--cyan); }
+  .hero-temp-foot .htf-feels strong { color: var(--rust); font-weight: 800; }
   .hero-temp-foot .htf-foryou { color: var(--rust); font-style: italic; font-weight: 600; opacity: 1; }
-  .hero-temp-foot .htf-star { color: var(--neon-y); opacity: 1; font-size: 1em; margin-left: .15rem; }
+  .hero-temp-foot .htf-star { color: var(--rust); opacity: 1; font-size: 1em; margin-left: .15rem; }
+  /* Multi-factor breakdown promoted: prominent chips, more visible. */
   .hero-factors { padding: .85rem 1rem 0; gap: .4rem; flex-wrap: wrap; }
-  .hero-factors .hf { background: rgba(0,240,255,.06); border: 1px solid var(--cyan); border-radius: 0; color: var(--cyan); padding: .35rem .65rem; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .72rem; font-weight: 600; letter-spacing: .04em; }
-  .hero-factors .hf.up { background: rgba(255,46,136,.1); color: var(--rust); border-color: var(--rust); }
-  .hero-factors .hf.down { background: rgba(0,240,255,.06); color: var(--cyan); }
+  .hero-factors .hf { background: transparent; border: 1px solid var(--hair); border-radius: 0; color: var(--ink); padding: .35rem .65rem; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .72rem; font-weight: 500; }
+  .hero-factors .hf.up { background: rgba(200,70,44,.08); color: var(--rust); border-color: var(--rust); }
+  .hero-factors .hf.down { background: rgba(17,17,17,.04); color: var(--ink-soft); }
+  /* Tabular metrics block: footnote-scale, supporting info. Two-column
+     grid so all 6 metrics fit in 3 compact rows. Subtle hairline above,
+     no heavy bottom border. */
   .hero-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.25rem; padding: .85rem 1rem 0; margin: 1rem 0 0; border-top: 1px solid var(--hair); }
   .hero-stats .hs-row { display: flex; align-items: baseline; gap: .5rem; padding: .35rem 0; border-bottom: 1px dotted var(--hair); font-family: 'JetBrains Mono', ui-monospace, monospace; }
   .hero-stats .hs-row:nth-last-child(-n+2) { border-bottom: none; }
-  .hero-stats dt { flex: 0 0 auto; font-size: .58rem; letter-spacing: .14em; color: var(--cyan); text-transform: uppercase; font-weight: 700; }
+  .hero-stats dt { flex: 0 0 auto; font-size: .58rem; letter-spacing: .14em; color: var(--ink-faint); text-transform: uppercase; font-weight: 600; }
   .hero-stats dd { margin: 0; flex: 1 1 auto; text-align: right; font-size: .78rem; color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
   .today-line { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .78rem; color: var(--ink-soft); padding: .85rem 1rem 0; }
-  .section-title { font-family: 'JetBrains Mono', ui-monospace, monospace; color: var(--cyan); padding: 0 1rem; font-size: .68rem; letter-spacing: .18em; text-shadow: 1px 1px 0 var(--rust); }
+  .section-title { font-family: 'JetBrains Mono', ui-monospace, monospace; color: var(--ink-soft); padding: 0 1rem; font-size: .68rem; letter-spacing: .14em; }
   .outfit-row { border-bottom: 1px dotted var(--hair); padding: .85rem 0; font-family: 'JetBrains Mono', ui-monospace, monospace; }
-  .outfit-row .lbl { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .68rem; letter-spacing: .14em; color: var(--cyan); font-weight: 700; }
+  .outfit-row .lbl { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .68rem; letter-spacing: .14em; color: var(--ink-soft); }
   .outfit-row .val { color: var(--ink); font-weight: 500; font-size: .92rem; }
-  .outfit-row .ic svg { color: var(--neon-y); }
-  .footer { font-family: 'JetBrains Mono', ui-monospace, monospace; color: var(--ink-faint); padding: 1rem; font-size: .7rem; letter-spacing: .08em; }
-  .pill { border-radius: 0; border: 1px solid var(--cyan); color: var(--ink); }
+  .footer { font-family: 'JetBrains Mono', ui-monospace, monospace; color: var(--ink-faint); padding: 1rem; font-size: .7rem; }
+  .pill { border-radius: 0; border: 1px solid var(--hair); }
   .strip-wrap, .day-graph-list { padding-left: 1rem; padding-right: 1rem; }
   .hg-line, .dg-line-hi { stroke: var(--rust); }
-  .dg-line-lo { stroke: var(--cyan); opacity: .6; }
-  .hour-cell[aria-pressed="true"] { background: rgba(255,46,136,.12); border: 1px solid var(--rust); box-shadow: 3px 3px 0 var(--cyan); }
-  .hc-temp { color: var(--ink); font-weight: 700; }
-  .hc-time { color: var(--cyan); }
-  .dg-hi { color: var(--neon-y); font-weight: 700; }
-  .dg-lo { color: var(--cyan); }
+  .dg-line-lo { stroke: var(--ink-faint); }
+  .hour-cell[aria-pressed="true"] { background: rgba(200,70,44,.08); border: 1px solid var(--rust); }
+  .hc-temp { color: var(--ink); font-weight: 600; }
+  .dg-hi { color: var(--ink); font-weight: 700; }
+  .dg-lo { color: var(--ink-soft); }
   #root { font-family: 'JetBrains Mono', ui-monospace, monospace; }
-  /* Tabs */
-  .tab-nav button[aria-selected="true"] { color: var(--rust); border-bottom-color: var(--rust); text-shadow: 1px 1px 0 var(--cyan); }
-  .wear-when { color: var(--cyan); text-transform: uppercase; letter-spacing: .08em; font-weight: 700; margin-left: .35rem; }
 
   
 </style>
@@ -2173,7 +2162,7 @@ function renderClosetView() {
     ${renderCloset()}
     ${renderSettings()}
     ${renderPrivacy()}
-    <div class="footer">${esc(LOCATION.name)} . v104-retrofuturism</div>
+    <div class="footer">${esc(LOCATION.name)} . v103-select-now-by-default</div>
   `;
 }
 
@@ -2201,7 +2190,7 @@ function render(weather) {
       ${renderTripCta()}
       ${renderPro()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v104-retrofuturism</div>
+      <div class="footer">${esc(LOCATION.name)} . v103-select-now-by-default</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2231,7 +2220,7 @@ function render(weather) {
     ${renderComing(weather)}
     ${renderTripCta()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v104-retrofuturism</div>
+    <div class="footer">${esc(LOCATION.name)} . v103-select-now-by-default</div>
   `;
 
   // Pin "now" at the far left of the strip on initial render so future
