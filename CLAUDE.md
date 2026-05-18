@@ -37,7 +37,6 @@ parentheses, or rewrite the sentence. This rule has no exceptions.**
 | `wtwfw-location` | `{lat, lon, tz, name}` | active location |
 | `wtwfw-saved-locations` | `[{lat, lon, tz, name}]` | saved-cities library, capped at 12 (free 2, Pro 12) |
 | `wtwfw-closet` | `{slot: [{name, minTemp, maxTemp, conditions}]}` | user's wardrobe per slot |
-| `wtwfw-overrides` | `{"<band>|<conds>": {slot: itemName}}` | per-band recipe overrides |
 | `wtwfw-snapshots` | `[{ts, forTime, airTemp, feels, conditions, worn, extra, comfort, ...}]` | logged outfit reports, capped at 50 |
 | `wtwfw-onboarded` | `"1"` | once set, onboarding doesn't re-show |
 | `wtwfw-pro` | `"trial"` \| `"active"` | Pro state on the web (iOS replaces with StoreKit) |

@@ -255,7 +255,8 @@
   .closet-name { flex: 1; }
   .closet-band { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); background: var(--hairline); padding: .15rem .45rem; border-radius: 999px; font-weight: 600; }
   .closet-cond { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); background: var(--rain-bg-soft); padding: .15rem .45rem; border-radius: 999px; font-weight: 600; }
-  .snap-link { background: transparent; border: none; color: var(--accent); font-family: inherit; font-size: .8rem; font-weight: 600; cursor: pointer; padding: .25rem 0; flex-basis: 100%; text-align: left; margin-top: .35rem; text-decoration: underline; text-underline-offset: 3px; }
+  .snap-cta { display: block; width: 100%; background: var(--accent); color: var(--button-primary-text); border: none; padding: .85rem 1rem; font-family: inherit; font-size: .92rem; font-weight: 600; cursor: pointer; border-radius: .65rem; margin-bottom: 1.1rem; text-align: center; letter-spacing: .01em; }
+  .snap-cta:active { transform: translateY(1px); }
   .snap-overlay { position: fixed; inset: 0; background: var(--overlay-bg); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem 1rem; overflow-y: auto; }
   .snap-card { background: var(--panel-bg-solid); border-radius: 1rem; padding: 1.25rem; width: 100%; max-width: 24rem; display: flex; flex-direction: column; gap: 1rem; border: 1px solid var(--input-border); }
   .snap-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
@@ -272,34 +273,10 @@
   .snap-empty { font-size: .8rem; color: var(--text-fainter); }
   .snap-extra { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: .5rem; padding: .55rem .75rem; color: var(--text); font: inherit; -webkit-appearance: none; }
   .snap-extra:focus { outline: none; border-color: var(--input-border-focus); }
-  .outfit-row.tappable { cursor: pointer; transition: background .12s; border-radius: .5rem; margin: 0 -.35rem; padding-left: .35rem; padding-right: .35rem; }
-  .outfit-row.tappable:hover, .outfit-row.tappable:active { background: var(--hairline-soft); }
-  .outfit-row .override-badge { font-size: .55rem; text-transform: uppercase; letter-spacing: .08em; color: var(--good); background: var(--good-bg); padding: .15rem .35rem; border-radius: 999px; font-weight: 600; margin-left: .35rem; vertical-align: middle; }
   .outfit-row .hist-badge { display: inline-block; margin-left: .35rem; color: var(--accent); font-size: .85rem; vertical-align: middle; line-height: 1; }
   .outfit-row.from-hist .your-items { color: var(--accent); }
   .outfit-row .missing-hint { font-size: .72rem; color: var(--ink-soft); font-style: italic; line-height: 1.3; }
   .outfit-row .missing-hint a { color: var(--rust); text-decoration: underline; font-weight: 600; font-style: normal; }
-  .ov-overlay { position: fixed; inset: 0; background: var(--overlay-bg); z-index: 220; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem 1rem; overflow-y: auto; }
-  .ov-card { background: var(--panel-bg-solid); border-radius: 1rem; padding: 1.25rem; width: 100%; max-width: 24rem; display: flex; flex-direction: column; gap: 1rem; border: 1px solid var(--input-border); }
-  .ov-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
-  .ov-card h3 { margin: 0; font-size: 1.05rem; color: var(--text-strong); line-height: 1.3; }
-  .ov-close { background: transparent; border: none; color: var(--text-faint); font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 0 .25rem; }
-  .ov-close:hover { color: var(--text); }
-  .ov-hint { margin: 0; font-size: .8rem; color: var(--text-muted); line-height: 1.4; }
-  .ov-current { font-size: .75rem; color: var(--text-faint); }
-  .ov-current strong { color: var(--text); }
-  .ov-chips { display: flex; flex-wrap: wrap; gap: .35rem; }
-  .ov-chip { display: inline-flex; align-items: center; gap: .35rem; background: var(--chip-bg); color: var(--text-muted); padding: .35rem .65rem .35rem .35rem; border-radius: 999px; font-size: .82rem; font-weight: 500; border: 1px solid transparent; cursor: pointer; font-family: inherit; }
-  .ov-chip svg { width: 1.4rem; height: 1.4rem; }
-  .ov-chip.on { background: var(--button-primary-bg); color: var(--button-primary-text); border-color: var(--text); font-weight: 600; }
-  .ov-empty { font-size: .8rem; color: var(--text-fainter); }
-  .ov-extra { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: .5rem; padding: .55rem .75rem; color: var(--text); font: inherit; -webkit-appearance: none; }
-  .ov-extra:focus { outline: none; border-color: var(--input-border-focus); }
-  .ov-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
-  .ov-action { flex: 1; min-width: 9rem; background: transparent; border: 1px solid var(--input-border); color: var(--text-muted); padding: .5rem .75rem; border-radius: .5rem; cursor: pointer; font-family: inherit; font-size: .82rem; }
-  .ov-action:hover { background: var(--hairline-soft); }
-  .ov-save { background: var(--button-primary-bg); color: var(--button-primary-text); border: none; padding: .65rem 1rem; border-radius: .65rem; font-family: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; }
-  .ov-save:disabled { opacity: .5; cursor: not-allowed; }
   .snap-when { display: flex; gap: .35rem; flex-wrap: wrap; }
   .snap-when-btn { background: var(--chip-bg); color: var(--text-muted); padding: .35rem .65rem; border-radius: .5rem; font-size: .75rem; font-weight: 600; border: 1px solid transparent; cursor: pointer; font-family: inherit; }
   .snap-when-btn.on { background: var(--button-primary-bg); color: var(--button-primary-text); border-color: var(--text); }
@@ -1846,20 +1823,8 @@ function renderWear(rec, headerHtml) {
     };
   }).filter(Boolean);
   const layerRows = wearRows.map(r => {
-    const ov = getOverride(rec.band, conds, r.slot);
-    let icon = r.ic, value = r.value || "", hint = "", isOverride = false, isSkip = r.skip, isHist = false;
-    if (ov === "__skip__") {
-      isSkip = true;
-      value = "skipped";
-      hint = `<span class="your-items">You set this. Default is ${esc(r.value)}</span>`;
-      isOverride = true;
-    } else if (typeof ov === "string" && ov) {
-      icon = iconForName(ov) || SLOT_ICON[r.slot] || r.ic;
-      value = ov;
-      hint = `<span class="your-items">You set this. Default is ${esc(r.value)}</span>`;
-      isOverride = true;
-      isSkip = false;
-    } else if (r.histItems && r.histItems.length) {
+    let icon = r.ic, value = r.value || "", hint = "", isSkip = r.skip, isHist = false;
+    if (r.histItems && r.histItems.length) {
       // Use the snapshot the user logged as 'just right' for this band.
       icon = iconForName(r.histItems[0]) || SLOT_ICON[r.slot] || r.ic;
       value = r.histItems.join(", ");
@@ -1938,8 +1903,8 @@ function renderWear(rec, headerHtml) {
         }
       }
     }
-    const badge = isOverride ? `<span class="override-badge">yours</span>` : (isHist ? `<span class="hist-badge" aria-label="From your last just-right log">✦</span>` : "");
-    return `<div class="outfit-row tappable${isSkip ? " skip" : ""}${isHist ? " from-hist" : ""}" data-row-slot="${esc(r.slot)}" data-current-value="${esc(typeof ov === "string" ? ov : "")}"><span class="ic">${bigIcon(icon)}</span><span class="lbl">${esc(r.label)}${badge}</span><div class="val-cell"><span class="val">${esc(value)}</span>${hint}</div></div>`;
+    const badge = isHist ? `<span class="hist-badge" aria-label="From your last just-right log">✦</span>` : "";
+    return `<div class="outfit-row${isSkip ? " skip" : ""}${isHist ? " from-hist" : ""}"><span class="ic">${bigIcon(icon)}</span><span class="lbl">${esc(r.label)}${badge}</span><div class="val-cell"><span class="val">${esc(value)}</span>${hint}</div></div>`;
   }).join("");
   const umbrellaItem = rec.layers.acc.find(a => a.v.includes("umbrella"));
   const visibleAcc = rec.layers.acc.filter(a => a !== umbrellaItem);
@@ -1953,8 +1918,11 @@ function renderWear(rec, headerHtml) {
     `<button class="fb-btn" type="button" data-fb="cold"><span class="fb-emoji">${bigIcon("🥶")}</span><span>Too cold</span></button>` +
     `<button class="fb-btn" type="button" data-fb="right"><span class="fb-emoji">${bigIcon("👌")}</span><span>Just right</span></button>` +
     `<button class="fb-btn" type="button" data-fb="warm"><span class="fb-emoji">${bigIcon("🥵")}</span><span>Too warm</span></button>` +
-    `<button class="snap-link" type="button" data-snap-open>Log what I'm actually wearing →</button>` +
     `</div>`;
+  // Big snapshot CTA at the top of Wear. Logging what you actually wore
+  // is the only way to personalize the outfit (overrides are gone), so
+  // surface it loudly.
+  const snapCta = `<button class="snap-cta" type="button" data-snap-open>Tell me what you're actually wearing</button>`;
   // Show the prose history hint only when the matching snapshot was NOT
   // 'just right' (e.g. you logged 'a bit cold' last time). For just-right
   // matches we already used the worn items as the row values, so the
@@ -1969,7 +1937,7 @@ function renderWear(rec, headerHtml) {
     ? `<div class="wear-bring">${bring.map(l => `<p><span class="ic">${bigIcon(l.ic)}</span><span>${esc(l.text)}</span></p>`).join("")}</div>`
     : "";
   const heading = headerHtml || "Wear";
-  return `<section id="wear" class="panel" aria-live="polite" aria-atomic="true"><h2>${heading}</h2>${layerRows}${bringHtml}${histLine}${accs}${fb}</section>`;
+  return `<section id="wear" class="panel" aria-live="polite" aria-atomic="true"><h2>${heading}</h2>${snapCta}${layerRows}${bringHtml}${histLine}${accs}${fb}</section>`;
 }
 
 function renderWhy(rec, source) {
@@ -2166,7 +2134,7 @@ function renderClosetView() {
     ${renderCloset()}
     ${renderSettings()}
     ${renderPrivacy()}
-    <div class="footer">${esc(LOCATION.name)} . v105-wind-prominence</div>
+    <div class="footer">${esc(LOCATION.name)} . v106-snapshots-replace-overrides</div>
   `;
 }
 
@@ -2194,7 +2162,7 @@ function render(weather) {
       ${renderTripCta()}
       ${renderPro()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v105-wind-prominence</div>
+      <div class="footer">${esc(LOCATION.name)} . v106-snapshots-replace-overrides</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2224,7 +2192,7 @@ function render(weather) {
     ${renderComing(weather)}
     ${renderTripCta()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v105-wind-prominence</div>
+    <div class="footer">${esc(LOCATION.name)} . v106-snapshots-replace-overrides</div>
   `;
 
   // Pin "now" at the far left of the strip on initial render so future
@@ -2400,7 +2368,7 @@ function attachGlobalHandlers(root) {
       if (chip.dataset.action === "wipe-data") {
         if (!confirm("This wipes your closet, snapshots, calibration, location, and settings from this browser. The forecast itself isn't affected. Continue?")) return;
         try {
-          for (const k of ["wtwfw-baseline", "wtwfw-activity", "wtwfw-learned", "wtwfw-location", "wtwfw-saved-locations", "wtwfw-saved-trips", "wtwfw-closet", "wtwfw-overrides", "wtwfw-snapshots", "wtwfw-onboarded", "wtwfw-pro", "wtwfw-trial-expires", "wtwfw-theme"]) localStorage.removeItem(k);
+          for (const k of ["wtwfw-baseline", "wtwfw-activity", "wtwfw-learned", "wtwfw-location", "wtwfw-saved-locations", "wtwfw-saved-trips", "wtwfw-closet", "wtwfw-snapshots", "wtwfw-onboarded", "wtwfw-pro", "wtwfw-trial-expires", "wtwfw-theme"]) localStorage.removeItem(k);
         } catch {}
         loadLocation();
         applySettings();
@@ -2431,11 +2399,6 @@ function attachGlobalHandlers(root) {
       return;
     }
     if (e.target.closest("[data-snap-open]")) { openSnapshotModal(); return; }
-    const row = e.target.closest("[data-row-slot]");
-    if (row) {
-      openOverridePicker(row.dataset.rowSlot, row.dataset.currentValue || null);
-      return;
-    }
   });
   root.addEventListener("submit", e => {
     const form = e.target.closest("#closet-form");
@@ -3522,38 +3485,6 @@ function getCloset() {
   return { outer: [], mid: [], base: [], bottom: [], footwear: [] };
 }
 function setCloset(c) { try { localStorage.setItem("wtwfw-closet", JSON.stringify(c)); } catch {} }
-function getOverrides() {
-  try {
-    const s = localStorage.getItem("wtwfw-overrides");
-    if (s) {
-      const obj = JSON.parse(s);
-      if (obj && typeof obj === "object") return obj;
-    }
-  } catch {}
-  return {};
-}
-function setOverrides(o) { try { localStorage.setItem("wtwfw-overrides", JSON.stringify(o)); } catch {} }
-function overrideKey(band, conds) {
-  const sorted = (Array.isArray(conds) ? conds.slice() : []).sort();
-  return band + "|" + sorted.join(",");
-}
-function setOverride(band, conds, slot, value) {
-  const o = getOverrides();
-  const key = overrideKey(band, conds);
-  if (!o[key]) o[key] = {};
-  if (value === null || value === undefined) {
-    delete o[key][slot];
-    if (!Object.keys(o[key]).length) delete o[key];
-  } else {
-    o[key][slot] = value;
-  }
-  setOverrides(o);
-}
-function getOverride(band, conds, slot) {
-  const o = getOverrides();
-  const key = overrideKey(band, conds);
-  return o[key] ? o[key][slot] : undefined;
-}
 function showToast(msg) {
   document.querySelectorAll(".toast").forEach(t => t.remove());
   const el = document.createElement("div");
@@ -3644,7 +3575,10 @@ function findMatchingSnapshot(rec) {
   for (const s of all) {
     if (Math.abs((s.comfort || 0)) > 1) continue;
     const tempDist = Math.abs(s.feels - cf);
-    if (tempDist > 6) continue;
+    // Loosened from 6 to 9 so a single snapshot covers a wider feels-like
+    // range. Snapshots are the only personalization mechanism now that
+    // overrides are gone; better to surface a fuzzy match than nothing.
+    if (tempDist > 9) continue;
     const sc = new Set(Array.isArray(s.conditions) ? s.conditions : []);
     let match = 0, miss = 0;
     cc.forEach(c => { sc.has(c) ? match++ : miss++; });
@@ -3719,85 +3653,6 @@ function saveSnapshot(state) {
     addClosetItem(slot, snap.extra, null, null, []);
   }
   applySettings();
-}
-
-function openOverridePicker(slot, currentValue) {
-  if (document.querySelector(".ov-overlay")) return;
-  if (!LAST_WEATHER || !LAST_WEATHER._lastRec) return;
-  const rec = LAST_WEATHER._lastRec;
-  const closet = getCloset();
-  const slotItems = (closet[slot] || []);
-  const label = { outer: "Jacket", mid: "Mid layer", base: "Top", bottom: "Bottom", footwear: "Shoes" }[slot] || slot;
-  const bandLabel = BAND_LABEL[rec.band] || rec.band;
-  const condStr = (rec.conditions || []).length ? ` ${(rec.conditions || []).map(c => CONDITION_LABEL[c] || c).join(" + ").toLowerCase()}` : "";
-  const chipsHtml = slotItems.length
-    ? slotItems.map(it => {
-      const sel = it.name === currentValue ? " on" : "";
-      return `<button type="button" class="ov-chip${sel}" data-name="${esc(it.name)}">${bigIcon(iconForName(it.name) || SLOT_ICON[slot] || "shirt-01")}<span>${esc(it.name)}</span></button>`;
-    }).join("")
-    : `<span class="ov-empty">No items in this slot yet. Type a new one below or add some in My closet.</span>`;
-  const overlay = document.createElement("div");
-  overlay.className = "ov-overlay";
-  overlay.innerHTML = `
-    <div class="ov-card" role="dialog" aria-label="Customize ${esc(label)}">
-      <div class="ov-header">
-        <h3>${esc(label)} for ${esc(bandLabel.toLowerCase())}${esc(condStr)}</h3>
-        <button type="button" class="ov-close" aria-label="Close">×</button>
-      </div>
-      <p class="ov-hint">What you pick here becomes your usual ${esc(label.toLowerCase())} when it's ${esc(bandLabel.toLowerCase())}${esc(condStr)}.</p>
-      <div class="ov-chips">${chipsHtml}</div>
-      <input type="text" class="ov-extra" placeholder="Or type a new item" maxlength="40" />
-      <div class="ov-actions">
-        <button type="button" class="ov-action" data-action="default">Use the default</button>
-        <button type="button" class="ov-action" data-action="skip">Skip this layer</button>
-      </div>
-      <button type="button" class="ov-save" disabled>Save</button>
-    </div>`;
-  document.body.appendChild(overlay);
-  let pendingValue = null;
-  let pendingNewName = "";
-  const saveBtn = overlay.querySelector(".ov-save");
-  const refresh = () => { saveBtn.disabled = pendingValue === null && !pendingNewName.trim(); };
-  overlay.addEventListener("click", e => { if (e.target === overlay) overlay.remove(); });
-  overlay.querySelector(".ov-close").onclick = () => overlay.remove();
-  overlay.querySelectorAll(".ov-chip").forEach(btn => {
-    btn.onclick = () => {
-      pendingValue = btn.dataset.name;
-      pendingNewName = "";
-      overlay.querySelectorAll(".ov-chip").forEach(b => b.classList.remove("on"));
-      btn.classList.add("on");
-      overlay.querySelector(".ov-extra").value = "";
-      refresh();
-    };
-  });
-  overlay.querySelector(".ov-extra").addEventListener("input", e => {
-    pendingNewName = e.target.value;
-    pendingValue = null;
-    overlay.querySelectorAll(".ov-chip").forEach(b => b.classList.remove("on"));
-    refresh();
-  });
-  overlay.querySelector('[data-action="default"]').onclick = () => {
-    setOverride(rec.band, rec.conditions || [], slot, null);
-    overlay.remove();
-    if (LAST_WEATHER) render(LAST_WEATHER);
-  };
-  overlay.querySelector('[data-action="skip"]').onclick = () => {
-    setOverride(rec.band, rec.conditions || [], slot, "__skip__");
-    overlay.remove();
-    if (LAST_WEATHER) render(LAST_WEATHER);
-  };
-  saveBtn.onclick = () => {
-    let name = pendingValue;
-    if (!name && pendingNewName.trim()) {
-      name = pendingNewName.trim().slice(0, 40);
-      addClosetItem(slot, name, null, null, []);
-    }
-    if (name) {
-      setOverride(rec.band, rec.conditions || [], slot, name);
-      overlay.remove();
-      if (LAST_WEATHER) render(LAST_WEATHER);
-    }
-  };
 }
 
 function openSnapshotModal() {
@@ -4155,6 +4010,10 @@ function renderError(msg) {
   try {
     applyTheme();
     try { window.matchMedia("(prefers-color-scheme: light)").addEventListener("change", () => { if (getTheme() === "system") applyTheme(); }); } catch {}
+    // One-time wipe: per-item overrides were replaced by snapshot-driven
+    // personalization. Anyone with a previous wtwfw-overrides blob in
+    // localStorage gets it cleared so it cannot resurface.
+    try { localStorage.removeItem("wtwfw-overrides"); } catch {}
     loadLocation();
     applySettings();
     LAST_WEATHER = await fetchWeather();
