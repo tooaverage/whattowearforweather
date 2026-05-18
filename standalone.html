@@ -1768,12 +1768,55 @@ function renderBring(_rec) {
   return `<section id="bring" hidden></section>`;
 }
 
-function bringLines(rec) {
+function bringLines(rec, swaps) {
   const umbrellaItem = rec.layers.acc.find(a => a.v.includes("umbrella"));
   const lines = [];
+  if (swaps && swaps.add) lines.push({ ic: "🎒", text: `Add ${swaps.add.item} by ${hour(swaps.add.time)}.` });
+  if (swaps && swaps.shed) lines.push({ ic: "🌤", text: `Shed your ${swaps.shed.item} after ${hour(swaps.shed.time)}.` });
   if (umbrellaItem) lines.push({ ic: "umbrella", text: "Bring a compact umbrella. Rain is possible." });
-  if (rec.bring) lines.push({ ic: "🎒", text: rec.bring });
+  // Fall back to the engine's generic "pack an extra layer" copy only
+  // when we haven't found a specific add/shed transition to talk about.
+  if (rec.bring && !lines.some(l => l.text.startsWith("Add ") || l.text.startsWith("Shed "))) {
+    lines.push({ ic: "🎒", text: rec.bring });
+  }
   return lines;
+}
+
+// Walk today's remaining hours and find the first layer that gets
+// added or shed relative to NOW's outfit. Lets the Bring panel say
+// "Add a jacket by 7pm" or "Shed your cardigan after 2pm" instead of
+// the generic "pack an extra layer."
+function computeLayerSwaps(today, currentIdx, currentRec) {
+  if (!today || currentIdx < 0 || !currentRec) return null;
+  const cur = today.cells[currentIdx];
+  if (!cur) return null;
+  const startDate = localDateOf(cur.time);
+  const future = today.cells.slice(currentIdx + 1).filter(c => localDateOf(c.time) === startDate);
+  const UPPER = ["outer", "mid", "base"];
+  const nowHas = s => !!(currentRec.layers && currentRec.layers[s]);
+  let shed = null, add = null;
+  for (const cell of future) {
+    const fLayers = cell.rec && cell.rec.layers ? cell.rec.layers : {};
+    if (!shed) {
+      for (const s of UPPER) {
+        if (nowHas(s) && !fLayers[s]) {
+          shed = { slot: s, item: currentRec.layers[s].v, time: cell.time };
+          break;
+        }
+      }
+    }
+    if (!add) {
+      for (const s of UPPER) {
+        if (!nowHas(s) && fLayers[s]) {
+          add = { slot: s, item: fLayers[s].v, time: cell.time };
+          break;
+        }
+      }
+    }
+    if (shed && add) break;
+  }
+  if (!shed && !add) return null;
+  return { shed, add };
 }
 
 function itemMatchesItem(it, refTemp, currentConds) {
@@ -1784,7 +1827,7 @@ function itemMatchesItem(it, refTemp, currentConds) {
   }
   return true;
 }
-function renderWear(rec, headerHtml) {
+function renderWear(rec, headerHtml, swaps) {
   const closet = getCloset();
   const conds = rec.conditions || [];
   const refTemp = rec.aNow;
@@ -1932,7 +1975,7 @@ function renderWear(rec, headerHtml) {
     if (histSnap.extra) items.push(histSnap.extra);
     return `<p class="hist-hint">When it felt like this <span class="hist-when">${esc(relativeDay(histSnap.ts))}</span>, you wore <strong>${esc(items.join(", "))}</strong> (was ${esc(comfortLabel(histSnap.comfort || 0))}).</p>`;
   })() : "";
-  const bring = bringLines(rec);
+  const bring = bringLines(rec, swaps);
   const bringHtml = bring.length
     ? `<div class="wear-bring">${bring.map(l => `<p><span class="ic">${bigIcon(l.ic)}</span><span>${esc(l.text)}</span></p>`).join("")}</div>`
     : "";
@@ -2134,7 +2177,7 @@ function renderClosetView() {
     ${renderCloset()}
     ${renderSettings()}
     ${renderPrivacy()}
-    <div class="footer">${esc(LOCATION.name)} . v106-snapshots-replace-overrides</div>
+    <div class="footer">${esc(LOCATION.name)} . v107-specific-layer-swaps</div>
   `;
 }
 
@@ -2162,7 +2205,7 @@ function render(weather) {
       ${renderTripCta()}
       ${renderPro()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v106-snapshots-replace-overrides</div>
+      <div class="footer">${esc(LOCATION.name)} . v107-specific-layer-swaps</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2179,6 +2222,7 @@ function render(weather) {
   const nowCell = nowIdx >= 0 ? today.cells[nowIdx] : c;
   weather._lastRec = rec;
   const wearHeader = buildWearHeader(today, currentIdx, nowIdx);
+  const wearSwaps = computeLayerSwaps(today, currentIdx, rec);
 
   root.innerHTML = `
     ${renderTabNav()}
@@ -2187,12 +2231,12 @@ function render(weather) {
     ${renderTodayLine(today)}
     ${renderHourStrip(today, currentIdx, nowIdx)}
     ${renderBring(rec)}
-    ${renderWear(rec, wearHeader)}
+    ${renderWear(rec, wearHeader, wearSwaps)}
     ${renderHeadsUp(weather)}
     ${renderComing(weather)}
     ${renderTripCta()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v106-snapshots-replace-overrides</div>
+    <div class="footer">${esc(LOCATION.name)} . v107-specific-layer-swaps</div>
   `;
 
   // Pin "now" at the far left of the strip on initial render so future
@@ -2226,8 +2270,9 @@ function render(weather) {
     const cell = today.cells[idx];
     const r2 = cell.rec;
     const header = buildWearHeader(today, currentIdx, nowIdx);
+    const swaps = computeLayerSwaps(today, currentIdx, r2);
     document.getElementById("bring").outerHTML = renderBring(r2);
-    document.getElementById("wear").outerHTML = renderWear(r2, header);
+    document.getElementById("wear").outerHTML = renderWear(r2, header, swaps);
     document.getElementById("why").outerHTML = renderWhy(r2, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "));
   });
 
