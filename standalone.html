@@ -186,7 +186,7 @@
   .tl-text strong { color: var(--text-strong); font-weight: 600; }
   .day-graph-list { overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; margin: 0 -1.1rem; padding: 0 1.1rem; }
   .day-graph-list::-webkit-scrollbar { display: none; }
-  .day-graph { position: relative; height: 13rem; }
+  .day-graph { position: relative; height: 20rem; }
   .dg-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .dg-line { fill: none; stroke-width: 2; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
   .dg-line-hi { stroke: #fb923c; }
@@ -2064,7 +2064,7 @@ function renderDayGraph(days, colRem) {
   const tMin = Math.min(...allTemps);
   const tMax = Math.max(...allTemps);
   const tRange = Math.max(tMax - tMin, 1);
-  const yTop = 50, yBot = 80;
+  const yTop = 38, yBot = 84;
   const yOf = t => yBot - ((t - tMin) / tRange) * (yBot - yTop);
   const xOf = i => ((i + 0.5) / cols) * 100;
   const hiPath = "M" + days.map((d, i) => `${xOf(i).toFixed(2)},${yOf(d.hi).toFixed(2)}`).join(" L");
@@ -2181,7 +2181,7 @@ function renderClosetView() {
     ${renderCloset()}
     ${renderSettings()}
     ${renderPrivacy()}
-    <div class="footer">${esc(LOCATION.name)} . v108-daily-weather-icons</div>
+    <div class="footer">${esc(LOCATION.name)} . v109-taller-daily-graph</div>
   `;
 }
 
@@ -2209,7 +2209,7 @@ function render(weather) {
       ${renderTripCta()}
       ${renderPro()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v108-daily-weather-icons</div>
+      <div class="footer">${esc(LOCATION.name)} . v109-taller-daily-graph</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2240,7 +2240,7 @@ function render(weather) {
     ${renderComing(weather)}
     ${renderTripCta()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v108-daily-weather-icons</div>
+    <div class="footer">${esc(LOCATION.name)} . v109-taller-daily-graph</div>
   `;
 
   // Pin "now" at the far left of the strip on initial render so future
