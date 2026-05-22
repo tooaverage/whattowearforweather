@@ -154,7 +154,7 @@
   .hc-cond svg { width: 1rem; height: 1rem; display: block; }
   .hc-cond.rainy { color: var(--accent); background: var(--rain-bg); padding: .05rem .35rem; border-radius: 999px; }
   .hc-cond.rainy.maybe { color: var(--warn-text-soft); background: var(--warn-bg); }
-  .dg-rain { font-size: .58rem; font-weight: 700; color: var(--accent); background: var(--rain-bg); padding: .05rem .3rem; border-radius: 999px; top: .15rem !important; transform: translateX(-50%); font-variant-numeric: tabular-nums; line-height: 1.1; white-space: nowrap; }
+  .dg-rain { font-size: .58rem; font-weight: 700; color: var(--accent); background: var(--rain-bg); padding: .05rem .3rem; border-radius: 999px; top: 2rem !important; transform: translateX(-50%); font-variant-numeric: tabular-nums; line-height: 1.1; white-space: nowrap; }
   .dg-rain.maybe { color: var(--warn-text-soft); background: var(--warn-bg); }
   .panel { border-radius: 1rem; padding: 1rem 1.1rem; background: var(--panel-bg); border: 1px solid var(--panel-border); }
   .panel h2 { margin: 0 0 .75rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: var(--text-muted); font-weight: 600; }
@@ -186,7 +186,7 @@
   .tl-text strong { color: var(--text-strong); font-weight: 600; }
   .day-graph-list { overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity; margin: 0 -1.1rem; padding: 0 1.1rem; }
   .day-graph-list::-webkit-scrollbar { display: none; }
-  .day-graph { position: relative; height: 12rem; }
+  .day-graph { position: relative; height: 13rem; }
   .dg-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
   .dg-line { fill: none; stroke-width: 2; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
   .dg-line-hi { stroke: #fb923c; }
@@ -196,6 +196,8 @@
   .dg-col.is-today .dg-day { color: var(--warn-text); }
   .dg-col > div { position: absolute; left: 0; white-space: nowrap; font-variant-numeric: tabular-nums; line-height: 1; }
   .dg-hi { font-size: .8rem; color: var(--text-strong); font-weight: 600; transform: translate(-50%, calc(-100% - 2.45rem)); }
+  .dg-weather { top: .2rem; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; }
+  .dg-weather svg { width: 1.7rem; height: 1.7rem; display: block; }
   .dg-icon { font-size: 1.25rem; transform: translate(-50%, calc(-100% - .1rem)); display: flex; align-items: center; }
   .dg-icon svg { width: 2rem; height: 2rem; display: block; }
   .dg-lo { font-size: .72rem; color: var(--text-faint); transform: translate(-50%, .5rem); }
@@ -2062,7 +2064,7 @@ function renderDayGraph(days, colRem) {
   const tMin = Math.min(...allTemps);
   const tMax = Math.max(...allTemps);
   const tRange = Math.max(tMax - tMin, 1);
-  const yTop = 32, yBot = 75;
+  const yTop = 50, yBot = 80;
   const yOf = t => yBot - ((t - tMin) / tRange) * (yBot - yTop);
   const xOf = i => ((i + 0.5) / cols) * 100;
   const hiPath = "M" + days.map((d, i) => `${xOf(i).toFixed(2)},${yOf(d.hi).toFixed(2)}`).join(" L");
@@ -2070,6 +2072,7 @@ function renderDayGraph(days, colRem) {
   const todayDate = todayDateLocal();
   const colsHtml = days.map((d, i) => {
     const icon = BAND_ICON[d.band] || "shirt-01";
+    const [, wIcon] = wmo(d.code);
     const hiY = yOf(d.hi).toFixed(2);
     const loY = yOf(d.lo).toFixed(2);
     const isToday = d.date === todayDate;
@@ -2078,6 +2081,7 @@ function renderDayGraph(days, colRem) {
       ? `<div class="dg-rain ${prob < 40 ? "maybe" : ""}">☂ ${prob}%</div>`
       : "";
     return `<div class="dg-col${isToday ? " is-today" : ""}" style="left: ${xOf(i).toFixed(2)}%">
+      <div class="dg-weather">${bigIcon(wIcon)}</div>
       <div class="dg-hi" style="top: ${hiY}%">${fmt(d.hi)}</div>
       <div class="dg-icon" style="top: ${hiY}%">${bigIcon(icon)}</div>
       ${rainBadge}
@@ -2177,7 +2181,7 @@ function renderClosetView() {
     ${renderCloset()}
     ${renderSettings()}
     ${renderPrivacy()}
-    <div class="footer">${esc(LOCATION.name)} . v107-specific-layer-swaps</div>
+    <div class="footer">${esc(LOCATION.name)} . v108-daily-weather-icons</div>
   `;
 }
 
@@ -2205,7 +2209,7 @@ function render(weather) {
       ${renderTripCta()}
       ${renderPro()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v107-specific-layer-swaps</div>
+      <div class="footer">${esc(LOCATION.name)} . v108-daily-weather-icons</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2236,7 +2240,7 @@ function render(weather) {
     ${renderComing(weather)}
     ${renderTripCta()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v107-specific-layer-swaps</div>
+    <div class="footer">${esc(LOCATION.name)} . v108-daily-weather-icons</div>
   `;
 
   // Pin "now" at the far left of the strip on initial render so future
