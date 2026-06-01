@@ -258,6 +258,11 @@
   .closet-band { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: var(--text-muted); background: var(--hairline); padding: .15rem .45rem; border-radius: 999px; font-weight: 600; }
   .closet-cond { font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); background: var(--rain-bg-soft); padding: .15rem .45rem; border-radius: 999px; font-weight: 600; }
   .snap-cta { display: block; width: 100%; background: var(--accent); color: var(--button-primary-text); border: none; padding: .85rem 1rem; font-family: inherit; font-size: .92rem; font-weight: 600; cursor: pointer; border-radius: .65rem; margin-bottom: 1.1rem; text-align: center; letter-spacing: .01em; }
+  .swap-banner { background: var(--warn-bg-soft); border: 1px solid var(--warn-border); border-radius: .65rem; padding: .75rem .9rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: .5rem; }
+  .swap-banner .sb-line { display: flex; align-items: center; gap: .6rem; color: var(--warn-text); font-weight: 600; font-size: .95rem; line-height: 1.3; }
+  .swap-banner .sb-ic { flex: 0 0 1.5rem; font-size: 1.1rem; line-height: 0; display: inline-flex; align-items: center; }
+  .swap-banner .sb-ic svg { width: 1.5rem; height: 1.5rem; display: block; }
+  .swap-banner .sb-text { flex: 1; }
   .snap-cta:active { transform: translateY(1px); }
   .snap-overlay { position: fixed; inset: 0; background: var(--overlay-bg); z-index: 200; display: flex; align-items: flex-start; justify-content: center; padding: 2rem 1rem 1rem; overflow-y: auto; }
   .snap-card { background: var(--panel-bg-solid); border-radius: 1rem; padding: 1.25rem; width: 100%; max-width: 24rem; display: flex; flex-direction: column; gap: 1rem; border: 1px solid var(--input-border); }
@@ -1005,23 +1010,23 @@ const RECIPES = {
   warm: { base: { ic: "fig-t-shirt", v: "t-shirt", clo: 0.10 }, mid: null, outer: null, bottom: { ic: "fig-pants", v: "pants or jeans", clo: 0.24 }, footwear: { ic: "running-shoes", v: "sneakers", clo: 0.04 }, acc: [] },
   // Midpoint 16.5C, target 0.70 clo. Long-sleeve + jeans + light cardigan
   // is the established sweater-weather kit. ~0.78 total.
-  mild: { base: { ic: "fig-long-sleeve", v: "long-sleeve shirt", clo: 0.25 }, mid: { ic: "fig-cardigan", v: "light cardigan or sweater", clo: 0.25 }, outer: null, bottom: { ic: "fig-pants", v: "pants or jeans", clo: 0.24 }, footwear: { ic: "running-shoes", v: "sneakers", clo: 0.04 }, acc: [] },
+  mild: { base: { ic: "fig-t-shirt", v: "t-shirt", clo: 0.10 }, mid: { ic: "fig-cardigan", v: "light cardigan or sweater", clo: 0.25 }, outer: null, bottom: { ic: "fig-pants", v: "pants or jeans", clo: 0.24 }, footwear: { ic: "running-shoes", v: "sneakers", clo: 0.04 }, acc: [] },
   // Midpoint 12C, target 0.93 clo. Long-sleeve + sweater + jeans ~ 0.85,
   // bumped with a light jacket option to land around 0.93.
   cool: { base: { ic: "fig-long-sleeve", v: "long-sleeve shirt", clo: 0.25 }, mid: { ic: "fig-sweater", v: "sweater or fleece", clo: 0.36 }, outer: null, bottom: { ic: "fig-pants", v: "pants or jeans", clo: 0.24 }, footwear: { ic: "running-shoes", v: "sneakers", clo: 0.05 }, acc: [] },
   // Midpoint 8C, target 1.18 clo. Long-sleeve + sweater + light jacket ~
   // 1.22.
-  chilly: { base: { ic: "fig-long-sleeve", v: "long-sleeve shirt", clo: 0.25 }, mid: { ic: "fig-sweater", v: "sweater or fleece", clo: 0.36 }, outer: { ic: "fig-jacket", v: "light jacket or shell", clo: 0.30 }, bottom: { ic: "fig-pants", v: "pants or jeans", clo: 0.24 }, footwear: { ic: "running-shoes", v: "closed shoes", clo: 0.05 }, acc: [] },
+  chilly: { base: { ic: "fig-long-sleeve", v: "long-sleeve shirt", clo: 0.25 }, mid: { ic: "fig-sweater", v: "sweater or fleece", clo: 0.36 }, outer: { ic: "fig-jacket", v: "light jacket or shell", clo: 0.30 }, bottom: { ic: "fig-pants", v: "pants or jeans", clo: 0.24 }, footwear: { ic: "running-shoes", v: "closed-toe shoes", clo: 0.05 }, acc: [] },
   // Midpoint 3.5C, target 1.50 clo. Thermal long-sleeve + sweater +
   // insulated jacket + thicker pants + warm hat ~ 1.50.
-  cold: { base: { ic: "fig-long-sleeve", v: "long-sleeve thermal top", clo: 0.34 }, mid: { ic: "fig-sweater", v: "sweater or fleece", clo: 0.36 }, outer: { ic: "fig-jacket", v: "insulated jacket", clo: 0.44 }, bottom: { ic: "fig-pants", v: "thicker pants", clo: 0.28 }, footwear: { ic: "running-shoes", v: "closed shoes", clo: 0.05 }, acc: [{ ic: "fig-beanie", v: "warm hat", clo: 0.05 }] },
+  cold: { base: { ic: "fig-long-sleeve", v: "long-sleeve thermal top", clo: 0.34 }, mid: { ic: "fig-sweater", v: "sweater or fleece", clo: 0.36 }, outer: { ic: "fig-jacket", v: "insulated jacket", clo: 0.44 }, bottom: { ic: "fig-pants", v: "thicker pants", clo: 0.28 }, footwear: { ic: "running-shoes", v: "closed-toe shoes", clo: 0.05 }, acc: [{ ic: "fig-beanie", v: "warm hat", clo: 0.05 }] },
   // Midpoint -2C, target 1.95 clo. Thermal base + heavy fleece +
   // puffer-style jacket + thermal pants + boots + hat + gloves ~ 1.95.
-  very_cold: { base: { ic: "fig-long-sleeve", v: "thermal base layer", clo: 0.34 }, mid: { ic: "fig-sweater", v: "heavy fleece or wool", clo: 0.45 }, outer: { ic: "fig-puffer-jacket", v: "insulated winter jacket", clo: 0.66 }, bottom: { ic: "fig-pants", v: "lined or thermal pants", clo: 0.28 }, footwear: { ic: "armored-boot", v: "insulated boots", clo: 0.10 }, acc: [{ ic: "fig-beanie", v: "warm hat", clo: 0.05 }, { ic: "fig-gloves", v: "gloves", clo: 0.05 }] },
+  very_cold: { base: { ic: "fig-long-sleeve", v: "thermal base layer", clo: 0.34 }, mid: { ic: "fig-sweater", v: "heavy fleece or wool", clo: 0.45 }, outer: { ic: "fig-puffer-jacket", v: "insulated winter jacket", clo: 0.66 }, bottom: { ic: "fig-pants", v: "lined or thermal pants", clo: 0.28 }, footwear: { ic: "armored-boot", v: "winter boots", clo: 0.10 }, acc: [{ ic: "fig-beanie", v: "warm hat", clo: 0.05 }, { ic: "fig-gloves", v: "gloves", clo: 0.05 }] },
   // Midpoint -10C, target 2.65 clo. Heavy thermal + heavy fleece + arctic
   // parka + thermal pants under outer pants + insulated boots + hat +
   // gloves + scarf ~ 2.65.
-  freezing: { base: { ic: "fig-long-sleeve", v: "heavy thermal base", clo: 0.40 }, mid: { ic: "fig-puffer-jacket", v: "heavy down or fleece", clo: 0.55 }, outer: { ic: "fig-parka", v: "arctic parka", clo: 1.10 }, bottom: { ic: "fig-pants", v: "thermal pants under outer pants", clo: 0.32 }, footwear: { ic: "armored-boot", v: "insulated waterproof boots", clo: 0.12 }, acc: [{ ic: "fig-beanie", v: "warm hat", clo: 0.05 }, { ic: "fig-gloves", v: "insulated gloves", clo: 0.07 }, { ic: "fig-scarf", v: "scarf or neck gaiter", clo: 0.05 }] },
+  freezing: { base: { ic: "fig-long-sleeve", v: "heavy thermal base", clo: 0.40 }, mid: { ic: "fig-puffer-jacket", v: "heavy down or fleece", clo: 0.55 }, outer: { ic: "fig-parka", v: "arctic parka", clo: 1.10 }, bottom: { ic: "fig-pants", v: "thermal pants under outer pants", clo: 0.32 }, footwear: { ic: "armored-boot", v: "winter boots", clo: 0.12 }, acc: [{ ic: "fig-beanie", v: "warm hat", clo: 0.05 }, { ic: "fig-gloves", v: "insulated gloves", clo: 0.07 }, { ic: "fig-scarf", v: "scarf or neck gaiter", clo: 0.05 }] },
 };
 
 function totalClo(layers) {
@@ -1135,7 +1140,12 @@ function recommend(input) {
   const rainLikely = arc.maxProb >= CFG.rainShellProbabilityPct || arc.totalMm >= CFG.rainShellTotalMm;
   if (rainLikely) {
     outer = outer ? { ic: "fig-jacket", v: `${outer.v} (waterproof)` } : { ic: "fig-jacket", v: "waterproof rain shell" };
-    if (arc.totalMm >= 4) footwear = { ic: footwear.ic, v: `waterproof ${footwear.v}` };
+    // Swap to rain boots when rain is actually wet enough to matter.
+    // Sandals stay (warm rain is fine in sandals) and winter boots stay
+    // (already waterproof). Otherwise show rain boots.
+    if (arc.totalMm >= 1 && footwear.ic !== "sandals" && footwear.ic !== "armored-boot") {
+      footwear = { ic: "armored-boot", v: "rain boots", clo: footwear.clo };
+    }
     rationale.push(`Rain likely (${Math.round(arc.maxProb)}% peak chance, ${arc.totalMm.toFixed(1)} mm over 12h). Wear a waterproof shell.`);
   } else if (arc.maxProb >= CFG.umbrellaProbabilityPct) {
     acc.push({ ic: "umbrella", v: "compact umbrella" });
@@ -1780,18 +1790,30 @@ function renderBring(_rec) {
   return `<section id="bring" hidden></section>`;
 }
 
-function bringLines(rec, swaps) {
+function bringLines(rec) {
+  // Small inline hints inside the Wear panel. Swap/timing copy is
+  // promoted into the top-of-Wear swap banner now, so this just carries
+  // umbrella reminders.
   const umbrellaItem = rec.layers.acc.find(a => a.v.includes("umbrella"));
   const lines = [];
-  if (swaps && swaps.add) lines.push({ ic: "🎒", text: `Add ${swaps.add.item} by ${hour(swaps.add.time)}.` });
-  if (swaps && swaps.shed) lines.push({ ic: "🌤", text: `Shed your ${swaps.shed.item} after ${hour(swaps.shed.time)}.` });
   if (umbrellaItem) lines.push({ ic: "umbrella", text: "Bring a compact umbrella. Rain is possible." });
-  // Fall back to the engine's generic "pack an extra layer" copy only
-  // when we haven't found a specific add/shed transition to talk about.
-  if (rec.bring && !lines.some(l => l.text.startsWith("Add ") || l.text.startsWith("Shed "))) {
-    lines.push({ ic: "🎒", text: rec.bring });
-  }
   return lines;
+}
+
+// Build the loud swap banner shown above the Wear rows. Surfaces the
+// most actionable thing the user needs to know about today's layering
+// plan: when to add a jacket, when to shed a sweater, or the engine's
+// generic "pack an extra layer" copy when nothing more specific fits.
+function buildSwapBanner(rec, swaps) {
+  const items = [];
+  if (swaps && swaps.add) items.push({ ic: "🎒", text: `Add ${swaps.add.item} by ${hour(swaps.add.time)}` });
+  if (swaps && swaps.shed) items.push({ ic: "🌤", text: `Shed your ${swaps.shed.item} after ${hour(swaps.shed.time)}` });
+  if (!items.length && rec.bring) items.push({ ic: "🎒", text: rec.bring });
+  if (!items.length) return "";
+  const rows = items.map(i =>
+    `<div class="sb-line"><span class="sb-ic">${bigIcon(i.ic)}</span><span class="sb-text">${esc(i.text)}</span></div>`
+  ).join("");
+  return `<div class="swap-banner">${rows}</div>`;
 }
 
 // Walk today's remaining hours and find the first layer that gets
@@ -1987,12 +2009,13 @@ function renderWear(rec, headerHtml, swaps) {
     if (histSnap.extra) items.push(histSnap.extra);
     return `<p class="hist-hint">When it felt like this <span class="hist-when">${esc(relativeDay(histSnap.ts))}</span>, you wore <strong>${esc(items.join(", "))}</strong> (was ${esc(comfortLabel(histSnap.comfort || 0))}).</p>`;
   })() : "";
-  const bring = bringLines(rec, swaps);
+  const bring = bringLines(rec);
   const bringHtml = bring.length
     ? `<div class="wear-bring">${bring.map(l => `<p><span class="ic">${bigIcon(l.ic)}</span><span>${esc(l.text)}</span></p>`).join("")}</div>`
     : "";
+  const swapBanner = buildSwapBanner(rec, swaps);
   const heading = headerHtml || "Wear";
-  return `<section id="wear" class="panel" aria-live="polite" aria-atomic="true"><h2>${heading}</h2>${snapCta}${layerRows}${bringHtml}${histLine}${accs}${fb}</section>`;
+  return `<section id="wear" class="panel" aria-live="polite" aria-atomic="true"><h2>${heading}</h2>${snapCta}${swapBanner}${layerRows}${bringHtml}${histLine}${accs}${fb}</section>`;
 }
 
 function renderWhy(rec, source) {
@@ -2191,7 +2214,7 @@ function renderClosetView() {
     ${renderCloset()}
     ${renderSettings()}
     ${renderPrivacy()}
-    <div class="footer">${esc(LOCATION.name)} . v112-bigger-hourly-graph</div>
+    <div class="footer">${esc(LOCATION.name)} . v113-shoes-mild-swap-banner</div>
   `;
 }
 
@@ -2219,7 +2242,7 @@ function render(weather) {
       ${renderTripCta()}
       ${renderPro()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v112-bigger-hourly-graph</div>
+      <div class="footer">${esc(LOCATION.name)} . v113-shoes-mild-swap-banner</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2250,7 +2273,7 @@ function render(weather) {
     ${renderComing(weather)}
     ${renderTripCta()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v112-bigger-hourly-graph</div>
+    <div class="footer">${esc(LOCATION.name)} . v113-shoes-mild-swap-banner</div>
   `;
 
   // Pin "now" at the far left of the strip on initial render so future
