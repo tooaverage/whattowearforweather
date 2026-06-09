@@ -74,6 +74,11 @@ const MANIFEST = {
   "fig-mittens": "mittens-.svg",
   "fig-scarf": "scarf.svg",
   "fig-socks": "socks.svg",
+  // Gemini-generated additions in the same line style. The "umbrella"
+  // key (no fig- prefix) intentionally matches the existing Hugeicons
+  // key in standalone.html so every ic: "umbrella" reference picks up
+  // the new art without code changes.
+  "umbrella": "umbrella.svg",
 };
 
 function normalize(svgText) {
