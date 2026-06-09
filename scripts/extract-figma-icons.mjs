@@ -79,6 +79,8 @@ const MANIFEST = {
   // key in standalone.html so every ic: "umbrella" reference picks up
   // the new art without code changes.
   "umbrella": "umbrella.svg",
+  "brimmed-hat": "brimmed-hat.svg",
+  "sunscreen": "sunscreen.svg",
 };
 
 function normalize(svgText) {
