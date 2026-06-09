@@ -769,7 +769,7 @@ function bigIcon(ch) {
 // remain on the gap list for the Figma manual import pass.
 function iconForName(name) {
   const n = String(name || "").toLowerCase();
-  if (n.includes("tank")) return "fig-t-shirt";
+  if (n.includes("tank")) return "tank-top";
   if (n.includes("toque") || n.includes("tuque") || n.includes("beanie")) return "fig-beanie";
   if (n.includes("nylons") || n.includes("tights") || n.includes("stockings")) return "fig-socks";
   if (n.includes("overalls") || n.includes("dungaree")) return "fig-jogging-suit";
@@ -803,7 +803,8 @@ function iconForName(name) {
   if (n.includes("goggle")) return "sunglasses";
   if (n.includes("gilet") || n.includes("vest")) return "fig-gilet";
   if (n.includes("lab coat")) return "fig-long-sleeve";
-  if (n.includes("long sleeve") || n.includes("longsleeve")) return "fig-long-sleeve";
+  if (n.includes("long sleeve") || n.includes("long-sleeve") || n.includes("longsleeve")) return "fig-long-sleeve";
+  if (n.includes("thermal")) return "fig-long-sleeve";
   if (n.includes("hoodie")) return "fig-hoodie";
   if (n.includes("cardigan")) return "fig-cardigan";
   if (n.includes("sweater") || n.includes("pullover") || n.includes("turtleneck") || n.includes("fleece")) return "fig-sweater";
@@ -816,6 +817,8 @@ function iconForName(name) {
   if (n.includes("anorak")) return "fig-anorak";
   if (n.includes("windbreaker")) return "fig-windbreaker";
   if (n.includes("rain shell") || n.includes("raincoat") || n.includes("rain coat") || n.includes("rain jacket")) return "fig-raincoat";
+  if (n.includes("wind") && (n.includes("shell") || n.includes("resistant"))) return "fig-windbreaker";
+  if (n.includes("umbrella")) return "umbrella";
   if (n.includes("duffle") || n.includes("duffel")) return "fig-duffle-coat";
   if (n.includes("faux") && n.includes("fur")) return "fig-faux-fur-coat";
   if (n.includes("fur coat")) return "fig-fur-coat";
@@ -2238,7 +2241,7 @@ function renderClosetView() {
     ${renderCloset()}
     ${renderSettings()}
     ${renderPrivacy()}
-    <div class="footer">${esc(LOCATION.name)} . v114-resolved-consistency</div>
+    <div class="footer">${esc(LOCATION.name)} . v115-iconforname-gaps</div>
   `;
 }
 
@@ -2266,7 +2269,7 @@ function render(weather) {
       ${renderTripCta()}
       ${renderPro()}
       ${renderWhy(rec, (LAST_WEATHER && LAST_WEATHER._sources || ["Open-Meteo"]).join(" + "))}
-      <div class="footer">${esc(LOCATION.name)} . v114-resolved-consistency</div>
+      <div class="footer">${esc(LOCATION.name)} . v115-iconforname-gaps</div>
     `;
     attachToggleHandler(root);
     return;
@@ -2311,7 +2314,7 @@ function render(weather) {
     ${renderComing(weather)}
     ${renderTripCta()}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">${esc(LOCATION.name)} . v114-resolved-consistency</div>
+    <div class="footer">${esc(LOCATION.name)} . v115-iconforname-gaps</div>
   `;
 
   // Pin "now" at the far left of the strip on initial render so future
