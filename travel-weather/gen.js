@@ -281,7 +281,7 @@ function page(c) {
     <p class="muted mb-0">Figures are long run averages for a hub city, here ${rec.city}. Real conditions vary by region and year. Some links are affiliate links.</p>
   </div>
 </div></div></footer>
-<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
 <script>window.lucide && lucide.createIcons();</script>
 <script src="../../styles/affiliates.js" defer></script>
 </body>

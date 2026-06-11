@@ -162,7 +162,7 @@
 <body>
 <div class="wrap">
   <header>
-    <h1><span class="dot"><i data-lucide="compass" class="ic"></i></span>When To Go</h1>
+    <h1><span class="dot"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span>When To Go</h1>
     <p>Pick a month to see where the weather is good for travel. Tap a country for its year round arc.</p>
   </header>
 
@@ -182,9 +182,9 @@
     <div class="loading" id="mapload">Loading world map.</div>
     <div id="gridwrap" style="display:none; overflow-x:auto; padding:8px;"><table id="grid"></table></div>
     <div class="zoomctl" id="zoomctl">
-      <button id="zin" aria-label="Zoom in"><i data-lucide="plus" class="ic"></i></button>
-      <button id="zout" aria-label="Zoom out"><i data-lucide="minus" class="ic"></i></button>
-      <button id="zreset" aria-label="Reset zoom"><i data-lucide="rotate-ccw" class="ic"></i></button>
+      <button id="zin" aria-label="Zoom in"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+      <button id="zout" aria-label="Zoom out"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+      <button id="zreset" aria-label="Reset zoom"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
     </div>
     <div class="hint" id="zoomhint" style="display:none">Pinch or double tap to zoom. Names appear as you zoom in.</div>
   </div>
@@ -202,7 +202,7 @@
 
 <div id="tip"></div>
 
-<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
 <script>
 /* ============================ DATA ============================ */
 const DATA = [
