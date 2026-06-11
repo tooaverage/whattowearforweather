@@ -202,7 +202,7 @@
 
 <div id="tip"></div>
 
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
 /* ============================ DATA ============================ */
 const DATA = [
@@ -648,11 +648,10 @@ const proj = (lon, lat) => [(lon + 180) / 360 * W, (90 - lat) / 180 * H];
 const svg = document.getElementById('map');
 let mapReady = false;
 let pathByIso = new Map();
-// Higher-res 50m first (includes most small island nations), 110m as a
-// lighter fallback if the 50m fetch fails.
+// world-atlas 110m. Reliable ISO ids for every country. The 50m file mis-tags
+// some ids (Australia, Iceland and others showed as no-data), so we stay on
+// 110m; tiny island nations live in the Grid and search instead.
 const CDNS = [
-  'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json',
-  'https://unpkg.com/world-atlas@2/countries-50m.json',
   'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json',
   'https://unpkg.com/world-atlas@2/countries-110m.json',
 ];
@@ -710,8 +709,7 @@ function buildMap(topo) {
     const has = !!rec;
     // No-data features get a fill now and are not keyed below (many share a
     // null id, which would collide in the map and leave all but one unpainted).
-    buf += '<path data-iso="' + (has ? rec.iso : '') + '" d="' + d + '"'
-        + (has ? '' : ' fill="#d8dce6"') + '></path>';
+    buf += '<path data-iso="' + (has ? rec.iso : '') + '" d="' + d + '" fill="#d8dce6"></path>';
     if (has && biggest) labelSrc.push({ name: rec.name, x: biggest.x, y: biggest.y, size: biggest.size });
   }
   // Labels live in their own group above the paths.
@@ -1079,7 +1077,7 @@ function renderDetail(iso) {
     + '<div class="facts"><span>High <b>' + rec.hi[m] + '&deg;</b></span>'
     + '<span>Low <b>' + rec.lo[m] + '&deg;</b></span>'
     + '<span>Rain <b>' + rec.pr[m] + ' mm</b></span></div>'
-    + (GUIDES[rec.iso] ? '<a class="guidebtn" href="country/' + GUIDES[rec.iso] + '.html?m=' + m + '">Read the full ' + rec.name + ' guide <i data-lucide="arrow-right" class="ic"></i></a>' : '')
+    + (GUIDES[rec.iso] ? '<a class="guidebtn" href="country/' + GUIDES[rec.iso] + '/?m=' + m + '">Read the full ' + rec.name + ' guide <i data-lucide="arrow-right" class="ic"></i></a>' : '')
     + '<div class="tags">' + tagChips + '</div>'
     + '<div class="watch">'
     + '<div class="r"><span class="k"><span class="dot" style="background:' + SEASONSTYLE.high[0] + '"></span>High season</span><span class="v">' + (highR || 'none') + '</span></div>'

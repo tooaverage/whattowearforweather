@@ -1,0 +1,17 @@
+# When To Go
+
+> When To Go is an interactive world map and set of guides that show the best
+> time of year to visit any country, by month. Each country gets a 0 to 100
+> weather comfort rating per month, built from daytime heat, overnight chill,
+> rainfall and tropical-storm risk, plus its high versus low travel season and
+> any hazards like monsoon, typhoon or extreme heat.
+
+## Pages
+
+- [World map](https://whentogo.world/): pick a month, see where the weather is good across 199 countries.
+- [Best time to visit Japan](https://whentogo.world/country/japan): month by month weather and seasons for Japan.
+
+## Notes
+
+- Ratings use climate normals for one representative hub city per country, so coastal versus inland and north versus south will vary.
+- This is a planning guide based on long-run averages, not a forecast.
