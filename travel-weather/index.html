@@ -543,7 +543,7 @@ const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
 const MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const byIso = new Map(DATA.map(d => [d.iso, d]));
 // Countries with a full written guide page. Add slugs here as pages ship.
-const GUIDES = { 392: 'japan' };
+const GUIDES = { 392: 'japan', 840: 'usa', 124: 'canada', 826: 'uk', 276: 'germany', 250: 'france', 380: 'italy', 724: 'spain', 300: 'greece', 620: 'portugal', 484: 'mexico', 352: 'iceland', 764: 'thailand', 604: 'peru' };
 let state = { month: new Date().getMonth(), view: 'map', selIso: null };
 
 /* ============================ MONTH + VIEW CONTROLS ============================ */
@@ -842,7 +842,11 @@ svg.addEventListener('wheel', e => {
   e.preventDefault();
   cancelAnim();
   const p = clientToVB(e.clientX, e.clientY);
-  zoomAt(p[0], p[1], e.deltaY < 0 ? 1.2 : 1 / 1.2);
+  // Gentle, magnitude-proportional zoom, clamped so a single wheel or trackpad
+  // event can never jump far. This stops the fast, jittery in/out on desktop.
+  let factor = Math.exp(-e.deltaY * 0.0016);
+  factor = Math.max(0.94, Math.min(1.06, factor));
+  zoomAt(p[0], p[1], factor);
 }, { passive: false });
 svg.addEventListener('dblclick', e => {
   if (!mapReady) return;

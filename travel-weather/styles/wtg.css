@@ -123,7 +123,8 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 .grid--2 { grid-template-columns: repeat(2, 1fr); }
 .grid--3 { grid-template-columns: repeat(3, 1fr); }
 .grid--4 { grid-template-columns: repeat(4, 1fr); }
-@media (max-width: 760px) { .grid--2, .grid--3, .grid--4 { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .grid--2, .grid--3 { grid-template-columns: 1fr; } .grid--4 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .nav .link { display: none; } }
 
 /* ---- Chips and badges ---- */
 .chip { display: inline-flex; align-items: center; gap: 7px; padding: 8px 15px; border-radius: var(--r-pill); background: var(--card); border: 1.5px solid var(--line-2); font-weight: 700; font-size: 15px; text-decoration: none; color: var(--ink); }
@@ -157,6 +158,8 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 .strip .tile .mk.bloom { background: #ffd6e6; border-color: #ff9cc0; color: #ff3d80; }
 .strip .tile .mk.leaf { background: #ffe2c4; border-color: #ffbf85; color: #ef7d1f; }
 .strip .tile .mk.snow { background: #d8eaff; border-color: #a9cdff; color: #2f7ae6; }
+.strip .tile .mk.sun { background: #fff1c2; border-color: #ffe08a; color: #e0a200; }
+.strip .tile .mk.fest { background: #e9e2ff; border-color: #cdbfff; color: #6d4aff; }
 .strip .lab { margin-top: 12px; font-weight: 800; font-size: 13px; color: var(--ink-2); }
 @media (max-width: 760px) { .strip { grid-template-columns: repeat(6, 1fr); row-gap: 20px; } }
 
