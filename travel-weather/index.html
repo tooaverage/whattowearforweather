@@ -844,8 +844,8 @@ svg.addEventListener('wheel', e => {
   const p = clientToVB(e.clientX, e.clientY);
   // Gentle, magnitude-proportional zoom, clamped so a single wheel or trackpad
   // event can never jump far. This stops the fast, jittery in/out on desktop.
-  let factor = Math.exp(-e.deltaY * 0.0028);
-  factor = Math.max(0.85, Math.min(1.18, factor));
+  let factor = Math.exp(-e.deltaY * 0.006);
+  factor = Math.max(0.7, Math.min(1.45, factor));
   zoomAt(p[0], p[1], factor);
 }, { passive: false });
 svg.addEventListener('dblclick', e => {
