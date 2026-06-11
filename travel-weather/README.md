@@ -3,7 +3,7 @@
 An interactive world map that shows, by color, when each country is good to visit.
 Pick a month and the map paints every country in five steps from red (avoid)
 through orange and yellow to green (ideal). Tap a country to see its full year
-arc and the best months to go. Covers over 150 countries.
+arc and the best months to go. Covers over 180 countries.
 
 This is a standalone project. It shares nothing with the rest of this repo and
 is meant to be lifted into its own repo later.
@@ -13,9 +13,13 @@ is meant to be lifted into its own repo later.
 Open `index.html` in any browser. No build, no server, no keys.
 
 - `index.html` is the whole app: HTML, CSS, data and engine in one file.
-- The world map geometry is fetched at runtime from a CDN (world-atlas). If that
-  fetch is blocked, the app falls back to the Grid view, which shows every
-  country and every month and works fully offline from the embedded data.
+- The world map geometry is fetched at runtime from a CDN (world-atlas 50m,
+  falling back to 110m), which includes most small island nations. If the fetch
+  is blocked, the app falls back to the Grid view, which shows every country and
+  every month and works fully offline from the embedded data.
+- Seasonal patterns have been cross-checked against published best-time-to-visit
+  guides across every region and the tricky climate types (monsoon, dual rainy
+  seasons, hurricane and cyclone belts, southern hemisphere, equatorial islands).
 
 ## How scores work
 
