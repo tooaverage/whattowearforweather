@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f1320">
+<title>When To Go: World Travel Weather</title>
+<style>
+  :root {
+    --bg: #0f1320;
+    --panel: #161b2c;
+    --panel2: #1d2336;
+    --line: #2a3146;
+    --ink: #e8ecf6;
+    --dim: #9aa3bd;
+    --accent: #6ea8ff;
+    --nodata: #262d40;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 16px 14px 60px; }
+  header h1 { font-size: 20px; margin: 4px 0 2px; letter-spacing: 0.2px; }
+  header p { margin: 0 0 14px; color: var(--dim); font-size: 13px; }
+
+  .controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+  .months { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+  .months button {
+    flex: 0 0 auto; min-width: 46px; padding: 8px 10px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: background .12s, border-color .12s;
+  }
+  .months button.on { background: var(--accent); border-color: var(--accent); color: #08111f; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .seg button { padding: 7px 12px; background: var(--panel); color: var(--dim); border: 0; cursor: pointer; font-size: 13px; font-weight: 600; }
+  .seg button.on { background: var(--panel2); color: var(--ink); }
+  .search { flex: 1 1 160px; min-width: 140px; }
+  .search input {
+    width: 100%; padding: 8px 11px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--panel); color: var(--ink); font-size: 13px;
+  }
+  .search input::placeholder { color: var(--dim); }
+
+  .stage { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  svg#map { display: block; width: 100%; height: auto; background: linear-gradient(180deg, #121829, #0d111d); touch-action: manipulation; }
+  svg#map path { stroke: #0e1220; stroke-width: 0.4; cursor: pointer; transition: opacity .1s; }
+  svg#map path.sel { stroke: #fff; stroke-width: 1.4; }
+  svg#map path.dim { opacity: 0.35; }
+  .ocean { fill: transparent; }
+
+  .loading, .err { padding: 30px 16px; text-align: center; color: var(--dim); font-size: 13px; }
+  .err b { color: var(--ink); }
+
+  /* Grid heatmap */
+  #grid { width: 100%; border-collapse: collapse; font-size: 12px; }
+  #grid th { color: var(--dim); font-weight: 600; padding: 4px 3px; position: sticky; top: 0; background: var(--bg); }
+  #grid th.name, #grid td.name { text-align: left; white-space: nowrap; padding-left: 4px; }
+  #grid td.name { color: var(--ink); font-size: 12px; }
+  #grid td.name small { color: var(--dim); }
+  #grid td.region { padding: 10px 4px 2px; color: var(--accent); font-weight: 700; letter-spacing: .4px; text-transform: uppercase; font-size: 10px; }
+  #grid .cell { width: 26px; height: 22px; text-align: center; color: #08111f; font-weight: 700; cursor: pointer; border-radius: 4px; font-size: 11px; }
+  #grid .cell.on { outline: 2px solid #fff; outline-offset: -2px; }
+
+  .legend { display: flex; align-items: center; gap: 10px; margin: 10px 2px 0; color: var(--dim); font-size: 12px; }
+  .legend .bar { flex: 1; height: 10px; border-radius: 6px; background: linear-gradient(90deg, hsl(4 58% 44%), hsl(64 58% 44%), hsl(125 58% 44%)); }
+
+  /* Tooltip */
+  #tip {
+    position: fixed; pointer-events: none; z-index: 20; background: #0b0f1aee; border: 1px solid var(--line);
+    border-radius: 9px; padding: 7px 10px; font-size: 12px; max-width: 220px; opacity: 0; transition: opacity .08s;
+  }
+  #tip b { display: block; font-size: 13px; margin-bottom: 1px; }
+  #tip .sc { font-weight: 700; }
+
+  /* Detail panel */
+  #detail { margin-top: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: none; }
+  #detail.show { display: block; }
+  #detail .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  #detail h2 { margin: 0; font-size: 17px; }
+  #detail .sub { color: var(--dim); font-size: 12px; margin-top: 2px; }
+  #detail .close { background: var(--panel2); border: 1px solid var(--line); color: var(--dim); border-radius: 8px; padding: 4px 9px; cursor: pointer; font-size: 13px; }
+  .arc { display: flex; gap: 4px; margin: 14px 0 6px; }
+  .arc .mo { flex: 1; text-align: center; }
+  .arc .swatch { height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #08111f; cursor: pointer; }
+  .arc .swatch.on { outline: 2px solid #fff; outline-offset: -2px; }
+  .arc .lab { font-size: 10px; color: var(--dim); margin-top: 3px; }
+  .facts { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; font-size: 13px; color: var(--dim); }
+  .facts b { color: var(--ink); }
+  .verdict { margin-top: 10px; font-size: 13px; }
+  .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-weight: 700; color: #08111f; font-size: 12px; }
+  .foot { color: var(--dim); font-size: 11px; margin-top: 18px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>When To Go</h1>
+    <p>Pick a month to see where the weather is good for travel. Tap a country for its year-round arc.</p>
+  </header>
+
+  <div class="controls">
+    <div class="months" id="months"></div>
+    <div class="row">
+      <div class="seg" id="viewseg">
+        <button data-view="map" class="on">Map</button>
+        <button data-view="grid">Grid</button>
+      </div>
+      <div class="search"><input id="search" type="search" placeholder="Find a country" autocomplete="off"></div>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <svg id="map" viewBox="0 22 1000 396" preserveAspectRatio="xMidYMid meet" style="display:none"></svg>
+    <div class="loading" id="mapload">Loading world map.</div>
+    <div id="gridwrap" style="display:none; overflow-x:auto; padding:8px;"><table id="grid"></table></div>
+  </div>
+
+  <div class="legend">
+    <span>Avoid</span><span class="bar"></span><span>Ideal</span>
+  </div>
+
+  <div id="detail"></div>
+
+  <p class="foot">
+    Scores blend daytime temperature, overnight chill and monthly rainfall into a 0 to 100 comfort rating, then color it.
+    Each country uses climate normals for one hub city (shown in the panel), so coastal versus inland or north versus south will vary.
+    A planning guide, not a forecast.
+  </p>
+</div>
+
+<div id="tip"></div>
+
+<script>
+/* ============================ DATA ============================ */
+const DATA = [
+  { iso: 250, name: 'France', city: 'Paris', region: 'Europe', hi: [7,8,12,15,19,22,25,25,21,16,11,7], lo: [3,3,5,7,11,14,16,16,13,10,6,3], pr: [51,41,48,51,63,55,54,52,55,60,52,58] },
+  { iso: 724, name: 'Spain', city: 'Madrid', region: 'Europe', hi: [10,13,17,19,24,30,34,33,28,20,14,10], lo: [2,3,5,7,11,16,19,19,15,10,6,3], pr: [33,35,26,37,43,21,11,10,23,49,47,41] },
+  { iso: 380, name: 'Italy', city: 'Rome', region: 'Europe', hi: [12,13,16,18,23,27,30,31,27,22,16,13], lo: [3,4,6,8,12,16,19,19,16,12,8,4], pr: [80,75,65,70,45,30,20,30,70,110,115,95] },
+  { iso: 826, name: 'United Kingdom', city: 'London', region: 'Europe', hi: [8,9,12,15,18,21,23,23,20,15,11,8], lo: [3,3,4,6,9,12,14,14,11,9,5,3], pr: [55,40,42,44,49,45,45,50,49,69,59,55] },
+  { iso: 276, name: 'Germany', city: 'Berlin', region: 'Europe', hi: [3,5,9,15,20,23,25,25,20,14,8,4], lo: [-2,-1,1,5,9,12,15,14,11,7,3,0], pr: [42,33,41,37,54,69,56,58,45,37,44,55] },
+  { iso: 300, name: 'Greece', city: 'Athens', region: 'Europe', hi: [13,14,16,20,25,30,33,33,29,23,18,14], lo: [6,6,8,11,15,20,23,23,19,15,11,8], pr: [56,47,41,30,23,11,6,6,14,52,57,65] },
+  { iso: 620, name: 'Portugal', city: 'Lisbon', region: 'Europe', hi: [15,16,18,20,22,26,28,29,27,22,18,15], lo: [8,9,10,11,13,16,18,18,17,14,11,9], pr: [110,76,55,62,42,17,5,6,30,84,110,103] },
+  { iso: 528, name: 'Netherlands', city: 'Amsterdam', region: 'Europe', hi: [6,7,10,14,18,20,22,22,19,14,10,6], lo: [1,1,3,5,9,12,14,14,11,8,4,2], pr: [68,47,59,42,50,63,71,68,70,73,80,76] },
+  { iso: 756, name: 'Switzerland', city: 'Zurich', region: 'Europe', hi: [3,5,10,14,19,22,24,24,19,14,7,4], lo: [-3,-2,1,4,8,11,13,13,10,6,1,-2], pr: [60,55,70,80,110,120,110,120,90,75,75,70] },
+  { iso: 352, name: 'Iceland', city: 'Reykjavik', region: 'Europe', hi: [3,4,4,6,9,12,13,13,11,7,4,3], lo: [-2,-2,-1,1,4,7,9,8,6,3,0,-2], pr: [76,72,82,58,44,50,52,62,67,86,73,79] },
+  { iso: 578, name: 'Norway', city: 'Oslo', region: 'Europe', hi: [-1,0,4,10,16,20,22,21,15,9,3,0], lo: [-6,-6,-3,1,6,10,13,12,8,3,-1,-4], pr: [49,36,47,41,53,65,81,89,76,84,73,55] },
+  { iso: 752, name: 'Sweden', city: 'Stockholm', region: 'Europe', hi: [-1,0,3,9,16,20,22,21,16,9,4,1], lo: [-5,-5,-3,1,6,11,13,13,9,5,1,-2], pr: [39,27,26,30,30,45,72,66,55,50,53,46] },
+  { iso: 191, name: 'Croatia', city: 'Split', region: 'Europe', hi: [10,11,14,18,23,27,30,30,25,20,15,11], lo: [5,5,7,10,15,18,21,21,17,13,9,6], pr: [75,60,65,65,60,55,35,45,70,90,110,95] },
+  { iso: 792, name: 'Turkey', city: 'Istanbul', region: 'Europe', hi: [9,9,11,16,21,26,28,28,25,20,15,11], lo: [3,3,4,8,12,16,19,19,16,12,8,5], pr: [105,80,70,45,35,35,35,40,60,90,100,120] },
+  { iso: 643, name: 'Russia', city: 'Moscow', region: 'Europe', hi: [-4,-3,3,11,18,22,24,22,15,8,1,-3], lo: [-9,-10,-4,2,8,12,14,12,7,2,-3,-8], pr: [42,36,34,44,51,75,94,77,65,59,58,56] },
+  { iso: 372, name: 'Ireland', city: 'Dublin', region: 'Europe', hi: [8,8,10,12,15,18,20,19,17,14,10,8], lo: [3,3,4,5,7,10,12,12,10,8,5,4], pr: [63,50,54,51,55,57,50,66,57,80,73,77] },
+  { iso: 40, name: 'Austria', city: 'Vienna', region: 'Europe', hi: [3,5,10,15,20,23,26,25,20,14,7,4], lo: [-2,-1,2,6,11,14,16,16,12,7,3,-1], pr: [37,39,46,45,64,72,69,66,52,38,46,45] },
+  { iso: 203, name: 'Czechia', city: 'Prague', region: 'Europe', hi: [2,4,9,15,20,23,25,25,19,13,6,3], lo: [-4,-3,0,3,8,11,13,13,9,4,0,-2], pr: [24,23,28,31,61,73,66,70,40,31,32,25] },
+  { iso: 616, name: 'Poland', city: 'Warsaw', region: 'Europe', hi: [0,1,6,13,19,22,24,24,18,12,5,1], lo: [-5,-5,-2,3,8,11,13,12,8,3,-1,-4], pr: [33,28,32,37,56,69,73,69,51,40,39,36] },
+  { iso: 504, name: 'Morocco', city: 'Marrakech', region: 'Africa & Middle East', hi: [18,20,23,26,29,34,38,38,33,28,22,19], lo: [6,8,10,12,15,18,21,21,18,15,11,7], pr: [33,38,38,30,15,5,2,3,8,24,32,31] },
+  { iso: 818, name: 'Egypt', city: 'Cairo', region: 'Africa & Middle East', hi: [19,21,24,29,33,35,35,35,33,30,25,21], lo: [9,10,12,15,18,21,22,22,20,18,15,11], pr: [5,4,4,1,1,0,0,0,0,1,3,6] },
+  { iso: 710, name: 'South Africa', city: 'Cape Town', region: 'Africa & Middle East', hi: [26,27,25,23,20,18,18,18,19,21,24,25], lo: [16,16,14,12,9,8,7,8,9,11,13,15], pr: [15,17,20,48,79,84,89,66,43,32,21,18] },
+  { iso: 404, name: 'Kenya', city: 'Nairobi', region: 'Africa & Middle East', hi: [25,26,26,24,23,22,21,22,25,26,24,23], lo: [12,13,14,14,13,11,11,11,11,13,14,13], pr: [40,50,90,200,160,40,18,20,30,70,150,90] },
+  { iso: 834, name: 'Tanzania', city: 'Dar es Salaam', region: 'Africa & Middle East', hi: [31,31,31,30,29,29,28,28,29,30,31,31], lo: [24,24,23,23,22,20,19,19,19,21,23,24], pr: [70,55,135,290,190,40,30,25,30,70,125,115] },
+  { iso: 788, name: 'Tunisia', city: 'Tunis', region: 'Africa & Middle East', hi: [16,17,19,22,26,31,34,34,31,26,21,17], lo: [7,7,9,11,15,19,22,22,20,16,12,8], pr: [55,50,40,35,22,11,3,8,40,55,55,60] },
+  { iso: 784, name: 'United Arab Emirates', city: 'Dubai', region: 'Africa & Middle East', hi: [24,25,28,33,38,40,41,41,39,35,30,26], lo: [14,15,18,21,25,27,30,30,27,23,19,16], pr: [18,25,22,7,1,0,0,0,0,1,3,15] },
+  { iso: 376, name: 'Israel', city: 'Tel Aviv', region: 'Africa & Middle East', hi: [18,18,20,23,26,28,30,31,30,28,24,20], lo: [10,10,12,14,18,21,23,24,22,18,14,11], pr: [125,90,60,18,3,0,0,0,1,28,75,120] },
+  { iso: 400, name: 'Jordan', city: 'Amman', region: 'Africa & Middle East', hi: [12,13,17,23,28,31,32,33,31,27,20,14], lo: [4,4,6,9,13,16,18,18,16,13,9,5], pr: [65,60,45,15,5,0,0,0,0,8,30,55] },
+  { iso: 682, name: 'Saudi Arabia', city: 'Riyadh', region: 'Africa & Middle East', hi: [20,23,28,33,38,42,42,43,40,34,27,22], lo: [8,10,15,19,24,26,28,27,24,18,13,9], pr: [12,8,20,25,10,0,0,0,0,1,5,12] },
+  { iso: 566, name: 'Nigeria', city: 'Lagos', region: 'Africa & Middle East', hi: [32,33,33,32,31,29,28,28,29,30,32,32], lo: [23,25,25,25,24,23,23,23,23,23,24,23], pr: [28,46,102,150,205,310,245,90,150,190,63,25] },
+  { iso: 231, name: 'Ethiopia', city: 'Addis Ababa', region: 'Africa & Middle East', hi: [24,24,25,25,25,23,21,21,22,23,23,23], lo: [8,9,11,11,11,11,11,11,10,8,6,6], pr: [15,30,58,82,84,138,280,290,150,30,8,5] },
+  { iso: 450, name: 'Madagascar', city: 'Antananarivo', region: 'Africa & Middle East', hi: [26,26,26,25,23,21,20,21,23,26,27,27], lo: [16,16,16,14,12,10,9,9,11,13,15,16], pr: [300,270,200,55,20,8,8,10,12,60,150,290] },
+  { iso: 392, name: 'Japan', city: 'Tokyo', region: 'Asia', hi: [10,11,14,19,23,26,30,31,27,22,17,12], lo: [2,2,5,10,15,19,23,24,20,15,9,4], pr: [52,56,118,125,138,168,154,168,210,198,93,51] },
+  { iso: 156, name: 'China', city: 'Beijing', region: 'Asia', hi: [2,5,12,20,26,30,31,30,26,19,10,4], lo: [-9,-6,0,7,13,18,21,20,14,7,-1,-7], pr: [3,5,9,26,29,71,176,182,49,22,7,3] },
+  { iso: 356, name: 'India', city: 'Delhi', region: 'Asia', hi: [20,24,30,37,40,39,35,34,34,33,28,22], lo: [7,10,15,21,26,28,27,26,24,18,11,8], pr: [20,18,15,10,30,75,210,245,120,15,5,8] },
+  { iso: 764, name: 'Thailand', city: 'Bangkok', region: 'Asia', hi: [32,33,34,35,34,33,32,32,32,31,31,31], lo: [22,24,25,27,26,26,25,25,25,24,23,21], pr: [15,20,40,90,250,150,155,200,330,290,55,10] },
+  { iso: 704, name: 'Vietnam', city: 'Hanoi', region: 'Asia', hi: [20,20,23,28,32,33,33,32,31,29,26,22], lo: [14,16,18,22,25,27,27,26,25,22,18,15], pr: [20,28,40,90,190,240,290,320,260,130,45,22] },
+  { iso: 360, name: 'Indonesia', city: 'Bali', region: 'Asia', hi: [31,31,31,32,31,30,29,29,30,31,31,31], lo: [24,24,24,24,23,22,22,22,23,24,24,24], pr: [345,275,230,90,75,65,60,40,55,80,140,290] },
+  { iso: 524, name: 'Nepal', city: 'Kathmandu', region: 'Asia', hi: [19,21,25,28,29,29,28,28,28,27,24,20], lo: [3,5,8,12,16,19,20,20,19,14,8,4], pr: [15,18,35,60,120,245,375,345,200,50,8,5] },
+  { iso: 144, name: 'Sri Lanka', city: 'Colombo', region: 'Asia', hi: [31,31,32,32,31,30,30,30,30,30,30,30], lo: [23,23,24,25,26,26,25,25,25,24,24,23], pr: [60,70,130,250,340,200,135,110,160,350,315,170] },
+  { iso: 608, name: 'Philippines', city: 'Manila', region: 'Asia', hi: [30,31,33,34,34,33,31,31,31,31,31,30], lo: [22,22,24,25,25,25,24,24,24,24,23,22], pr: [20,10,15,30,130,255,420,430,355,200,115,65] },
+  { iso: 458, name: 'Malaysia', city: 'Kuala Lumpur', region: 'Asia', hi: [32,33,33,33,33,33,32,32,32,32,32,31], lo: [23,23,24,24,24,24,23,23,23,23,23,23], pr: [170,165,240,290,200,130,135,170,195,280,330,235] },
+  { iso: 410, name: 'South Korea', city: 'Seoul', region: 'Asia', hi: [2,5,11,18,24,28,29,30,26,20,11,4], lo: [-6,-3,1,7,13,18,22,22,17,9,2,-4], pr: [20,25,45,65,105,130,395,365,170,50,50,22] },
+  { iso: 116, name: 'Cambodia', city: 'Siem Reap', region: 'Asia', hi: [32,33,35,36,35,33,32,32,32,31,31,31], lo: [20,22,24,25,25,25,25,25,24,24,22,20], pr: [2,5,25,55,140,165,175,190,250,250,90,18] },
+  { iso: 364, name: 'Iran', city: 'Tehran', region: 'Asia', hi: [8,11,16,23,29,35,37,36,32,25,16,10], lo: [-1,1,5,11,16,21,24,23,19,13,6,1], pr: [37,33,40,30,15,3,3,2,2,15,25,33] },
+  { iso: 496, name: 'Mongolia', city: 'Ulaanbaatar', region: 'Asia', hi: [-15,-11,-1,8,17,22,23,22,16,7,-5,-13], lo: [-26,-24,-15,-5,2,7,11,9,2,-7,-17,-23], pr: [2,2,3,7,15,40,70,65,25,8,5,3] },
+  { iso: 840, name: 'United States', city: 'New York', region: 'Americas', hi: [4,6,10,16,22,27,29,28,24,18,12,6], lo: [-3,-2,1,7,12,18,21,20,16,9,4,-1], pr: [90,78,100,100,95,90,115,105,95,90,90,95] },
+  { iso: 124, name: 'Canada', city: 'Toronto', region: 'Americas', hi: [-1,0,5,12,19,24,27,26,22,14,7,1], lo: [-7,-7,-3,3,9,14,17,16,12,6,1,-4], pr: [55,50,55,65,80,70,75,75,75,65,75,60] },
+  { iso: 484, name: 'Mexico', city: 'Mexico City', region: 'Americas', hi: [22,24,26,27,26,24,23,23,23,23,22,21], lo: [6,7,9,11,12,13,12,12,12,10,8,6], pr: [10,5,10,25,55,135,170,150,130,60,15,8] },
+  { iso: 76, name: 'Brazil', city: 'Rio de Janeiro', region: 'Americas', hi: [30,31,30,28,26,25,25,25,25,26,28,29], lo: [23,24,23,22,20,19,18,19,19,21,22,23], pr: [115,105,100,135,80,55,45,45,65,90,100,135] },
+  { iso: 32, name: 'Argentina', city: 'Buenos Aires', region: 'Americas', hi: [30,29,27,23,19,16,15,17,19,22,26,29], lo: [20,19,17,13,10,8,7,8,10,12,15,18], pr: [120,115,125,100,75,60,55,60,75,110,95,100] },
+  { iso: 604, name: 'Peru', city: 'Cusco', region: 'Americas', hi: [20,20,20,21,21,20,20,21,21,22,22,21], lo: [7,7,7,5,3,1,0,1,4,6,7,7], pr: [145,130,110,45,10,5,5,8,20,45,75,120] },
+  { iso: 152, name: 'Chile', city: 'Santiago', region: 'Americas', hi: [30,29,27,23,18,15,15,17,19,23,26,29], lo: [12,11,9,7,5,3,3,4,6,8,9,11], pr: [0,2,5,12,40,70,75,55,30,15,8,5] },
+  { iso: 170, name: 'Colombia', city: 'Cartagena', region: 'Americas', hi: [31,31,31,32,32,32,32,32,31,31,31,31], lo: [24,24,25,25,26,26,25,25,25,25,25,24], pr: [1,1,2,25,90,110,95,110,130,180,110,40] },
+  { iso: 188, name: 'Costa Rica', city: 'San Jose', region: 'Americas', hi: [26,27,28,28,27,26,26,26,26,26,26,26], lo: [15,15,16,17,17,17,16,16,16,16,16,15], pr: [6,10,14,80,230,280,200,240,355,300,140,40] },
+  { iso: 192, name: 'Cuba', city: 'Havana', region: 'Americas', hi: [26,27,28,29,30,31,32,32,31,29,27,26], lo: [18,18,19,21,22,23,24,24,24,23,21,19], pr: [65,45,45,40,120,165,105,135,150,170,80,55] },
+  { iso: 218, name: 'Ecuador', city: 'Quito', region: 'Americas', hi: [20,20,20,20,20,21,21,22,22,21,20,20], lo: [9,10,10,10,10,9,9,9,9,9,9,9], pr: [100,115,140,170,120,55,25,30,70,110,100,95] },
+  { iso: 68, name: 'Bolivia', city: 'La Paz', region: 'Americas', hi: [15,15,16,16,16,15,15,16,16,17,17,16], lo: [5,5,5,4,2,1,0,1,3,5,5,5], pr: [110,90,65,35,15,8,10,15,30,40,50,95] },
+  { iso: 36, name: 'Australia', city: 'Sydney', region: 'Oceania', hi: [26,26,25,23,20,18,17,19,21,23,24,26], lo: [19,19,18,15,12,9,8,9,12,14,16,18], pr: [100,120,130,125,120,130,100,80,70,75,85,80] },
+  { iso: 554, name: 'New Zealand', city: 'Auckland', region: 'Oceania', hi: [23,24,23,20,18,16,15,15,17,18,20,22], lo: [16,16,15,13,11,9,8,9,10,12,13,15], pr: [75,65,80,90,115,135,145,120,105,100,85,90] },
+];
+
+/* ============================ ENGINE (pure) ============================ */
+const CFG = {
+  idealHiLow: 21, idealHiHigh: 27,
+  coldHiPerDeg: 4.2, hotHiPerDeg: 4.0,
+  coldNightStart: 6, coldNightPerDeg: 2.0,
+  swelterStart: 33, swelterPerDeg: 2.5,
+  rainDry: 35, rainPerMm: 0.46,
+  wTemp: 0.6, wRain: 0.4,
+  bands: [[78,'ideal','Ideal'],[62,'great','Great'],[46,'good','Good'],[30,'fair','Fair'],[0,'avoid','Avoid']],
+};
+const clamp = (v, lo, hi) => v < lo ? lo : v > hi ? hi : v;
+function tempScore(hi, lo) {
+  let s = 100;
+  if (hi < CFG.idealHiLow) s -= (CFG.idealHiLow - hi) * CFG.coldHiPerDeg;
+  else if (hi > CFG.idealHiHigh) s -= (hi - CFG.idealHiHigh) * CFG.hotHiPerDeg;
+  if (lo < CFG.coldNightStart) s -= (CFG.coldNightStart - lo) * CFG.coldNightPerDeg;
+  if (hi > CFG.swelterStart) s -= (hi - CFG.swelterStart) * CFG.swelterPerDeg;
+  return clamp(s, 0, 100);
+}
+function rainScore(pr) {
+  let s = 100;
+  if (pr > CFG.rainDry) s -= (pr - CFG.rainDry) * CFG.rainPerMm;
+  return clamp(s, 0, 100);
+}
+function score(rec, m) {
+  return Math.round(tempScore(rec.hi[m], rec.lo[m]) * CFG.wTemp + rainScore(rec.pr[m]) * CFG.wRain);
+}
+function band(s) {
+  for (const [min, key, label] of CFG.bands) if (s >= min) return { key, label };
+  return { key: 'avoid', label: 'Avoid' };
+}
+function scoreColor(s) {
+  const hue = 4 + (clamp(s, 0, 100) / 100) * 121;
+  return 'hsl(' + Math.round(hue) + ' 58% 44%)';
+}
+function monthRanking(rec) {
+  const scored = rec.hi.map((_, m) => ({ m, s: score(rec, m) }));
+  const sorted = scored.slice().sort((a, b) => b.s - a.s);
+  return { sorted, best: sorted[0].m, worst: sorted[sorted.length - 1].m };
+}
+
+/* ============================ APP STATE ============================ */
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const byIso = new Map(DATA.map(d => [d.iso, d]));
+let state = { month: new Date().getMonth(), view: 'map', selIso: null };
+
+/* ============================ MONTH + VIEW CONTROLS ============================ */
+const monthsEl = document.getElementById('months');
+MONTHS.forEach((m, i) => {
+  const b = document.createElement('button');
+  b.textContent = m;
+  b.dataset.m = i;
+  if (i === state.month) b.classList.add('on');
+  b.addEventListener('click', () => setMonth(i));
+  monthsEl.appendChild(b);
+});
+function setMonth(i) {
+  state.month = i;
+  monthsEl.querySelectorAll('button').forEach((b, k) => b.classList.toggle('on', k === i));
+  paint();
+  if (state.selIso != null) renderDetail(state.selIso);
+}
+
+const viewseg = document.getElementById('viewseg');
+viewseg.querySelectorAll('button').forEach(b => {
+  b.addEventListener('click', () => setView(b.dataset.view));
+});
+function setView(v) {
+  state.view = v;
+  viewseg.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.view === v));
+  document.getElementById('map').style.display = (v === 'map' && mapReady) ? 'block' : 'none';
+  document.getElementById('mapload').style.display = (v === 'map' && !mapReady) ? 'block' : 'none';
+  document.getElementById('gridwrap').style.display = (v === 'grid') ? 'block' : 'none';
+  if (v === 'grid') buildGrid();
+  paint();
+}
+
+/* ============================ SEARCH ============================ */
+document.getElementById('search').addEventListener('input', e => {
+  const q = e.target.value.trim().toLowerCase();
+  if (!q) return;
+  const hit = DATA.find(d => d.name.toLowerCase().startsWith(q) || d.city.toLowerCase().startsWith(q))
+           || DATA.find(d => d.name.toLowerCase().includes(q) || d.city.toLowerCase().includes(q));
+  if (hit) { select(hit.iso, true); }
+});
+
+/* ============================ TINY TOPOJSON DECODER ============================ */
+// Decodes a world-atlas Topology object into [{id, polys}] where polys is an
+// array of polygons, each an array of rings, each an array of [lon,lat].
+function decodeTopo(topo, objName) {
+  const t = topo.transform, sx = t.scale[0], sy = t.scale[1], tx = t.translate[0], ty = t.translate[1];
+  const arcs = topo.arcs.map(arc => {
+    let x = 0, y = 0;
+    return arc.map(p => { x += p[0]; y += p[1]; return [x * sx + tx, y * sy + ty]; });
+  });
+  const arcAt = i => i < 0 ? arcs[~i].slice().reverse() : arcs[i];
+  const ring = ids => {
+    const pts = [];
+    ids.forEach((id, k) => { const a = arcAt(id); for (let j = k ? 1 : 0; j < a.length; j++) pts.push(a[j]); });
+    return pts;
+  };
+  const poly = rings => rings.map(ring);
+  return topo.objects[objName].geometries.map(g => {
+    let polys = [];
+    if (g.type === 'Polygon') polys = [poly(g.arcs)];
+    else if (g.type === 'MultiPolygon') polys = g.arcs.map(poly);
+    return { id: g.id == null ? null : +g.id, polys };
+  });
+}
+
+/* ============================ MAP ============================ */
+const W = 1000, H = 500;
+const proj = (lon, lat) => [(lon + 180) / 360 * W, (90 - lat) / 180 * H];
+const svg = document.getElementById('map');
+let mapReady = false;
+let pathByIso = new Map();
+const CDNS = [
+  'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json',
+  'https://unpkg.com/world-atlas@2/countries-110m.json',
+];
+
+async function loadMap() {
+  let topo = null;
+  for (const url of CDNS) {
+    try {
+      const r = await fetch(url, { mode: 'cors' });
+      if (r.ok) { topo = await r.json(); break; }
+    } catch (e) { /* try next */ }
+  }
+  if (!topo) { mapFailed(); return; }
+  try { buildMap(topo); } catch (e) { mapFailed(); }
+}
+
+function buildMap(topo) {
+  const feats = decodeTopo(topo, 'countries');
+  let buf = '';
+  for (const f of feats) {
+    let d = '';
+    for (const polygon of f.polys) {
+      for (const r of polygon) {
+        if (r.length < 2) continue;
+        for (let i = 0; i < r.length; i++) {
+          const p = proj(r[i][0], r[i][1]);
+          d += (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1);
+        }
+        d += 'Z';
+      }
+    }
+    if (!d) continue;
+    const has = byIso.has(f.id);
+    buf += '<path data-iso="' + (f.id == null ? '' : f.id) + '" d="' + d + '"'
+        + (has ? '' : ' class="ocean-x"') + '></path>';
+  }
+  svg.innerHTML = buf;
+  svg.querySelectorAll('path').forEach(p => {
+    const iso = p.dataset.iso ? +p.dataset.iso : null;
+    pathByIso.set(iso, p);
+    if (byIso.has(iso)) {
+      p.addEventListener('click', () => select(iso, false));
+      p.addEventListener('mousemove', e => showTip(e, iso));
+      p.addEventListener('mouseleave', hideTip);
+    }
+  });
+  mapReady = true;
+  document.getElementById('mapload').style.display = 'none';
+  if (state.view === 'map') svg.style.display = 'block';
+  paint();
+}
+
+function mapFailed() {
+  document.getElementById('mapload').innerHTML =
+    '<b>Map could not load.</b><br>Showing the grid instead. The grid has every country and works offline.';
+  setView('grid');
+}
+
+/* ============================ PAINT ============================ */
+function paint() {
+  if (mapReady) {
+    pathByIso.forEach((p, iso) => {
+      const rec = byIso.get(iso);
+      if (rec) {
+        p.setAttribute('fill', scoreColor(score(rec, state.month)));
+        p.classList.toggle('dim', state.selIso != null && state.selIso !== iso);
+        p.classList.toggle('sel', state.selIso === iso);
+      } else {
+        p.setAttribute('fill', '#262d40');
+      }
+    });
+  }
+  if (state.view === 'grid') paintGrid();
+}
+
+/* ============================ GRID ============================ */
+let gridBuilt = false;
+function buildGrid() {
+  if (gridBuilt) { paintGrid(); return; }
+  const tbl = document.getElementById('grid');
+  const regions = [...new Set(DATA.map(d => d.region))];
+  let html = '<thead><tr><th class="name">Country</th>';
+  MONTHS.forEach(m => html += '<th>' + m + '</th>');
+  html += '</tr></thead><tbody>';
+  for (const region of regions) {
+    html += '<tr><td class="region" colspan="13">' + region + '</td></tr>';
+    for (const d of DATA.filter(x => x.region === region)) {
+      html += '<tr data-iso="' + d.iso + '"><td class="name">' + d.name + ' <small>' + d.city + '</small></td>';
+      for (let m = 0; m < 12; m++) {
+        const s = score(d, m);
+        html += '<td class="cell" data-iso="' + d.iso + '" data-m="' + m + '" '
+             + 'style="background:' + scoreColor(s) + '">' + s + '</td>';
+      }
+      html += '</tr>';
+    }
+  }
+  html += '</tbody>';
+  tbl.innerHTML = html;
+  tbl.querySelectorAll('.cell').forEach(c => {
+    c.addEventListener('click', () => { setMonth(+c.dataset.m); select(+c.dataset.iso, true); });
+  });
+  tbl.querySelectorAll('td.name').forEach(c => {
+    c.addEventListener('click', () => select(+c.closest('tr').dataset.iso, true));
+  });
+  gridBuilt = true;
+  paintGrid();
+}
+function paintGrid() {
+  document.querySelectorAll('#grid .cell').forEach(c => {
+    c.classList.toggle('on', +c.dataset.m === state.month);
+  });
+}
+
+/* ============================ TOOLTIP ============================ */
+const tip = document.getElementById('tip');
+function showTip(e, iso) {
+  const rec = byIso.get(iso);
+  if (!rec) return;
+  const s = score(rec, state.month);
+  const b = band(s);
+  tip.innerHTML = '<b>' + rec.name + '</b>' + MONTHS_FULL[state.month]
+    + ': <span class="sc" style="color:' + scoreColor(s) + '">' + b.label + ' ' + s + '</span>';
+  tip.style.opacity = '1';
+  const pad = 14;
+  let x = e.clientX + pad, y = e.clientY + pad;
+  if (x + 230 > window.innerWidth) x = e.clientX - 230;
+  tip.style.left = x + 'px';
+  tip.style.top = y + 'px';
+}
+function hideTip() { tip.style.opacity = '0'; }
+
+/* ============================ SELECT + DETAIL ============================ */
+function select(iso, scrollTo) {
+  state.selIso = iso;
+  paint();
+  renderDetail(iso);
+  if (scrollTo) document.getElementById('detail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+const detailEl = document.getElementById('detail');
+function renderDetail(iso) {
+  const rec = byIso.get(iso);
+  if (!rec) return;
+  const rank = monthRanking(rec);
+  const rankOf = new Array(12);
+  rank.sorted.forEach((x, i) => rankOf[x.m] = i);
+  const m = state.month, s = score(rec, m), b = band(s);
+
+  const goodMonths = rank.sorted.filter(x => x.s >= 62).map(x => x.m).sort((a, c) => a - c);
+  const shoulder = rank.sorted.filter(x => x.s >= 46 && x.s < 62).map(x => x.m).sort((a, c) => a - c);
+
+  let arc = '<div class="arc">';
+  for (let i = 0; i < 12; i++) {
+    const sc = score(rec, i);
+    arc += '<div class="mo"><div class="swatch' + (i === m ? ' on' : '') + '" '
+        + 'data-m="' + i + '" style="background:' + scoreColor(sc) + '" title="' + MONTHS_FULL[i] + ' ' + sc + '">'
+        + sc + '</div><div class="lab">' + MONTHS[i][0] + '</div></div>';
+  }
+  arc += '</div>';
+
+  detailEl.innerHTML =
+    '<div class="top"><div><h2>' + rec.name + '</h2>'
+    + '<div class="sub">' + rec.city + ' &middot; ' + rec.region + '</div></div>'
+    + '<button class="close" id="closeDetail">Close</button></div>'
+    + arc
+    + '<div class="verdict"><span class="pill" style="background:' + scoreColor(s) + '">'
+    + b.label + ' ' + s + '</span> &nbsp;' + MONTHS_FULL[m] + ' in ' + rec.city + '</div>'
+    + '<div class="facts"><span>High <b>' + rec.hi[m] + '&deg;</b></span>'
+    + '<span>Low <b>' + rec.lo[m] + '&deg;</b></span>'
+    + '<span>Rain <b>' + rec.pr[m] + ' mm</b></span></div>'
+    + '<div class="verdict">Best: <b>' + monthList(goodMonths) + '</b></div>'
+    + (shoulder.length ? '<div class="verdict" style="color:var(--dim)">Shoulder: ' + monthList(shoulder) + '</div>' : '');
+
+  detailEl.classList.add('show');
+  document.getElementById('closeDetail').addEventListener('click', () => {
+    state.selIso = null; detailEl.classList.remove('show'); paint();
+  });
+  detailEl.querySelectorAll('.swatch').forEach(sw => {
+    sw.addEventListener('click', () => setMonth(+sw.dataset.m));
+  });
+}
+function monthList(arr) {
+  if (!arr.length) return 'no standout months';
+  return arr.map(i => MONTHS[i]).join(', ');
+}
+
+/* ============================ GO ============================ */
+loadMap();
