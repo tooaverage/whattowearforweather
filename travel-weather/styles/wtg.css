@@ -154,9 +154,9 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 }
 .strip .tile .mk .ic { width: 15px; height: 15px; }
 /* Soft, light, tinted icon badges */
-.strip .tile .mk.bloom { background: #ffe3ef; border-color: #ffc4d8; color: #ff4f87; }
-.strip .tile .mk.leaf { background: #ffe9d2; border-color: #ffd3aa; color: #f0832a; }
-.strip .tile .mk.snow { background: #e2efff; border-color: #bcd8ff; color: #2f7ae6; }
+.strip .tile .mk.bloom { background: #ffd6e6; border-color: #ff9cc0; color: #ff3d80; }
+.strip .tile .mk.leaf { background: #ffe2c4; border-color: #ffbf85; color: #ef7d1f; }
+.strip .tile .mk.snow { background: #d8eaff; border-color: #a9cdff; color: #2f7ae6; }
 .strip .lab { margin-top: 12px; font-weight: 800; font-size: 13px; color: var(--ink-2); }
 @media (max-width: 760px) { .strip { grid-template-columns: repeat(6, 1fr); row-gap: 20px; } }
 
@@ -166,9 +166,10 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 
 /* ---- Data table ---- */
 .table { width: 100%; border-collapse: collapse; font-size: 15px; }
-.table th, .table td { text-align: left; padding: 13px 14px; border-bottom: 1.5px solid var(--line); }
+.table th, .table td { text-align: left; padding: 13px 14px; border-bottom: 1.5px solid var(--line); vertical-align: top; }
 .table th { font-family: var(--sans); font-weight: 800; font-size: 14px; color: var(--ink-2); }
-.table .m { font-weight: 800; }
+.table .m { font-weight: 800; white-space: nowrap; }
+.table td .badge { white-space: nowrap; }
 .table-wrap { overflow-x: auto; border: 1.5px solid var(--line); border-radius: var(--r); background: var(--card); }
 
 /* ---- Stat tiles ---- */
@@ -183,15 +184,17 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 .faq details[open] summary .ic { transform: rotate(45deg); }
 .faq .a { padding: 0 0 18px; color: var(--ink-2); }
 
-/* ---- Affiliate links: highlighted, action-oriented, distinct colour ---- */
-.aff { color: var(--brand); font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
-.aff:hover { text-decoration: underline; }
-.aff .ic { width: 1em; height: 1em; }
+/* ---- Affiliate links: highlighted, action-oriented, distinct colour.
+   Inline so they wrap naturally inside table cells and prose. ---- */
+.aff { color: var(--brand); font-weight: 800; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 2px; }
+.aff .ic { width: 1em; height: 1em; vertical-align: -0.15em; }
 .toursrow { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
 
 /* ---- Affiliate / where to stay block ---- */
 .embed { aspect-ratio: 16 / 10; border-radius: var(--r); overflow: hidden; border: 1.5px solid var(--line-2); background: #e9eef0; }
-@media (max-width: 760px) { .embed { aspect-ratio: 4 / 5; } }
+.staygrid { display: grid; grid-template-columns: 1.55fr 1fr; gap: var(--gap); align-items: stretch; }
+.embed--stay { aspect-ratio: auto; min-height: 520px; }
+@media (max-width: 760px) { .staygrid { grid-template-columns: 1fr; } .embed--stay { min-height: 380px; } }
 .disc { font-size: 13px; color: var(--ink-2); }
 
 /* ---- Footer ---- */

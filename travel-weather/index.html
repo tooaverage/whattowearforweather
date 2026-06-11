@@ -115,6 +115,8 @@
   #detail h2 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 22px; }
   #detail .sub { color: var(--dim); font-size: 13px; margin-top: 2px; }
   #detail .close { background: var(--card); border: 1.5px solid var(--ink); color: var(--ink); border-radius: 999px; padding: 8px 15px; cursor: pointer; font-weight: 800; font-size: 13px; }
+  .guidebtn { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 11px 18px; border-radius: 999px; background: var(--brand); color: var(--card); border: 2px solid var(--ink); font-weight: 800; font-size: 14px; text-decoration: none; }
+  .guidebtn:hover { transform: translateY(-2px); }
   @media (max-width: 700px) {
     #detail.show {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; margin: 0;
@@ -540,6 +542,8 @@ function monthRanking(rec) {
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const byIso = new Map(DATA.map(d => [d.iso, d]));
+// Countries with a full written guide page. Add slugs here as pages ship.
+const GUIDES = { 392: 'japan' };
 let state = { month: new Date().getMonth(), view: 'map', selIso: null };
 
 /* ============================ MONTH + VIEW CONTROLS ============================ */
@@ -1075,6 +1079,7 @@ function renderDetail(iso) {
     + '<div class="facts"><span>High <b>' + rec.hi[m] + '&deg;</b></span>'
     + '<span>Low <b>' + rec.lo[m] + '&deg;</b></span>'
     + '<span>Rain <b>' + rec.pr[m] + ' mm</b></span></div>'
+    + (GUIDES[rec.iso] ? '<a class="guidebtn" href="country/' + GUIDES[rec.iso] + '.html?m=' + m + '">Read the full ' + rec.name + ' guide <i data-lucide="arrow-right" class="ic"></i></a>' : '')
     + '<div class="tags">' + tagChips + '</div>'
     + '<div class="watch">'
     + '<div class="r"><span class="k"><span class="dot" style="background:' + SEASONSTYLE.high[0] + '"></span>High season</span><span class="v">' + (highR || 'none') + '</span></div>'
