@@ -3,7 +3,7 @@
 An interactive world map that shows, by color, when each country is good to visit.
 Pick a month and the map paints every country in five steps from red (avoid)
 through orange and yellow to green (ideal). Tap a country to see its full year
-arc and the best months to go. Covers over 100 countries.
+arc and the best months to go. Covers over 150 countries.
 
 This is a standalone project. It shares nothing with the rest of this repo and
 is meant to be lifted into its own repo later.
