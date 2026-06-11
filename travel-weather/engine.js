@@ -20,6 +20,15 @@ const CFG = {
   // Blend.
   wTemp: 0.6,
   wRain: 0.4,
+  // Tropical-storm season (typhoon/hurricane/cyclone) is a curated per-country
+  // field, not visible in average rainfall, so it gets a flat score penalty.
+  stormPenalty: 17,
+  // Hazard tag thresholds.
+  monsoonMm: 230, // heavy monsoon rain
+  wetMm: 130, // notably wet
+  heatHi: 35, // extreme-heat days
+  coldHiMax: 5, // daytime stays cold
+  coldLoMax: -8, // hard overnight cold
   // Score -> band. Each entry is [minScore, key, label].
   bands: [
     [78, 'ideal', 'Ideal'],
@@ -49,11 +58,62 @@ function rainScore(pr, cfg) {
   return clamp(s, 0, 100);
 }
 
+function hasStorm(rec, m) {
+  return !!(rec.storm && rec.storm.mo.indexOf(m) !== -1);
+}
+
 // score(rec, monthIndex) -> 0..100 comfort for visiting that month.
 function score(rec, m, cfg = CFG) {
   const t = tempScore(rec.hi[m], rec.lo[m], cfg);
   const r = rainScore(rec.pr[m], cfg);
-  return Math.round(t * cfg.wTemp + r * cfg.wRain);
+  let s = t * cfg.wTemp + r * cfg.wRain;
+  if (hasStorm(rec, m)) s -= cfg.stormPenalty;
+  return Math.round(clamp(s, 0, 100));
+}
+
+// Weather hazards for a month, worst-first. Curated storm season plus flags
+// derived from the climate data. Each tag has a key (for color) and a label.
+function monthTags(rec, m, cfg = CFG) {
+  const tags = [];
+  if (hasStorm(rec, m)) tags.push({ key: 'storm', label: rec.storm.type + ' risk' });
+  const pr = rec.pr[m];
+  if (pr >= cfg.monsoonMm) tags.push({ key: 'monsoon', label: 'Heavy monsoon rain' });
+  else if (pr >= cfg.wetMm) tags.push({ key: 'wet', label: 'Wet season' });
+  if (rec.hi[m] >= cfg.heatHi) tags.push({ key: 'heat', label: 'Extreme heat' });
+  if (rec.hi[m] <= cfg.coldHiMax || rec.lo[m] <= cfg.coldLoMax) tags.push({ key: 'cold', label: 'Hard cold' });
+  return tags;
+}
+
+// Travel season by weather quality: the four best-scoring months are High,
+// the next four Shoulder, the rest Low. A proxy for crowds and prices, which
+// for most destinations track the good-weather months.
+function seasonOf(rec, m, cfg = CFG) {
+  const sorted = monthRanking(rec, cfg).sorted;
+  const pos = sorted.findIndex(x => x.m === m);
+  if (pos < 4) return { key: 'high', label: 'High season' };
+  if (pos < 8) return { key: 'shoulder', label: 'Shoulder season' };
+  return { key: 'low', label: 'Low season' };
+}
+
+// Group month indices into contiguous ranges, wrapping across December, e.g.
+// [6,7,8,11] -> "Jul to Sep, Dec". Used for storm and season summaries.
+const RT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function rangeText(months) {
+  const has = new Array(12).fill(false);
+  months.forEach(m => has[m] = true);
+  if (has.every(Boolean)) return 'all year';
+  if (!months.length) return '';
+  let start = 0;
+  while (has[start]) start++;
+  const parts = [];
+  let run = [];
+  for (let c = 0; c < 12; c++) {
+    const m = (start + c) % 12;
+    if (has[m]) run.push(m);
+    else if (run.length) { parts.push(run); run = []; }
+  }
+  if (run.length) parts.push(run);
+  return parts.map(r => r.length === 1 ? RT_MONTHS[r[0]] : RT_MONTHS[r[0]] + ' to ' + RT_MONTHS[r[r.length - 1]]).join(', ');
 }
 
 function band(s, cfg = CFG) {
@@ -75,5 +135,5 @@ function monthRanking(rec, cfg = CFG) {
 }
 
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { CFG, score, band, scoreColor, monthRanking, tempScore, rainScore };
+  module.exports = { CFG, score, band, scoreColor, monthRanking, tempScore, rainScore, monthTags, seasonOf, hasStorm, rangeText };
 }

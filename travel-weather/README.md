@@ -21,11 +21,23 @@ Open `index.html` in any browser. No build, no server, no keys.
 
 Each country uses climate normals (average high, average low, monthly rainfall)
 for one representative hub city, shown in the detail panel. The engine blends
-three things into a 0 to 100 comfort score per month:
+into a 0 to 100 comfort score per month:
 
 - daytime high temperature, with an ideal band around 21 to 27 C
 - overnight chill, penalized when nights get cold
 - monthly rainfall, penalized as it climbs
+- a penalty during tropical-storm season (typhoon, hurricane, cyclone), which
+  is a curated per-country field because it does not show up in average rainfall
+
+Tapping a country also surfaces the season factors people mean by high vs low
+season:
+
+- hazard tags per month: storm risk, heavy monsoon, wet season, extreme heat,
+  hard cold. These show as colored dots under the year arc and as chips for the
+  selected month.
+- a high / shoulder / low season readout. Here season tracks weather quality
+  (the four best-weather months are High), which for most destinations lines up
+  with crowds and prices.
 
 All thresholds live in the `CFG` block. The scoring functions are pure: no DOM,
 no globals, no network. `engine.js` and `data.js` are the same logic and data
@@ -39,5 +51,7 @@ This is a planning guide based on long-run averages, not a forecast.
 - Embed the map geometry so there is no runtime fetch at all
 - More countries, and sub-country regions for large or varied countries
 - Pull live climate normals from an API instead of hand-curated data
+- Real crowd and price data for true high vs low season, not a weather proxy
+- More hazards: wildfire smoke, air quality, sea temperature for beach trips
 - Filters: beach vs city vs hiking, tolerance for heat or rain
 - Shareable links that open on a chosen month and country

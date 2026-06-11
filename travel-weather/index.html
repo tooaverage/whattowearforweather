@@ -111,11 +111,21 @@
   .arc .mo { flex: 1; text-align: center; }
   .arc .swatch { height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #08111f; cursor: pointer; }
   .arc .swatch.on { outline: 2px solid #fff; outline-offset: -2px; }
-  .arc .lab { font-size: 10px; color: var(--dim); margin-top: 3px; }
+  .arc .haz { height: 7px; margin-top: 3px; display: flex; gap: 2px; justify-content: center; }
+  .arc .haz i { width: 6px; height: 6px; border-radius: 50%; }
+  .arc .lab { font-size: 10px; color: var(--dim); margin-top: 2px; }
   .facts { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; font-size: 13px; color: var(--dim); }
   .facts b { color: var(--ink); }
   .verdict { margin-top: 10px; font-size: 13px; }
   .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-weight: 700; color: #08111f; font-size: 12px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .tag { padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .tag.none { background: var(--panel2); color: var(--dim); }
+  .watch { margin-top: 12px; font-size: 13px; border-top: 1px solid var(--line); padding-top: 10px; }
+  .watch .r { display: flex; gap: 8px; align-items: baseline; margin-top: 5px; }
+  .watch .k { color: var(--dim); flex: 0 0 96px; }
+  .watch .v { color: var(--ink); }
+  .watch .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
   .foot { color: var(--dim); font-size: 11px; margin-top: 18px; line-height: 1.5; }
 </style>
 </head>
@@ -156,9 +166,9 @@
   <div id="detail"></div>
 
   <p class="foot">
-    Scores blend daytime temperature, overnight chill and monthly rainfall into a 0 to 100 comfort rating, then color it.
-    Each country uses climate normals for one hub city (shown in the panel), so coastal versus inland or north versus south will vary.
-    A planning guide, not a forecast.
+    Color is a 0 to 100 comfort score from daytime heat, overnight chill and rainfall, with a penalty in typhoon, hurricane and cyclone season.
+    Tap a country for its hazards (storm, monsoon, extreme heat, hard cold) and its high versus low travel season, which here tracks the best-weather months.
+    Each country uses climate normals for one hub city, so coastal versus inland or north versus south will vary. A planning guide, not a forecast.
   </p>
 </div>
 
@@ -198,16 +208,16 @@ const DATA = [
   { iso: 682, name: 'Saudi Arabia', city: 'Riyadh', region: 'Africa & Middle East', hi: [20,23,28,33,38,42,42,43,40,34,27,22], lo: [8,10,15,19,24,26,28,27,24,18,13,9], pr: [12,8,20,25,10,0,0,0,0,1,5,12] },
   { iso: 566, name: 'Nigeria', city: 'Lagos', region: 'Africa & Middle East', hi: [32,33,33,32,31,29,28,28,29,30,32,32], lo: [23,25,25,25,24,23,23,23,23,23,24,23], pr: [28,46,102,150,205,310,245,90,150,190,63,25] },
   { iso: 231, name: 'Ethiopia', city: 'Addis Ababa', region: 'Africa & Middle East', hi: [24,24,25,25,25,23,21,21,22,23,23,23], lo: [8,9,11,11,11,11,11,11,10,8,6,6], pr: [15,30,58,82,84,138,280,290,150,30,8,5] },
-  { iso: 450, name: 'Madagascar', city: 'Antananarivo', region: 'Africa & Middle East', hi: [26,26,26,25,23,21,20,21,23,26,27,27], lo: [16,16,16,14,12,10,9,9,11,13,15,16], pr: [300,270,200,55,20,8,8,10,12,60,150,290] },
-  { iso: 392, name: 'Japan', city: 'Tokyo', region: 'Asia', hi: [10,11,14,19,23,26,30,31,27,22,17,12], lo: [2,2,5,10,15,19,23,24,20,15,9,4], pr: [52,56,118,125,138,168,154,168,210,198,93,51] },
+  { iso: 450, name: 'Madagascar', city: 'Antananarivo', region: 'Africa & Middle East', hi: [26,26,26,25,23,21,20,21,23,26,27,27], lo: [16,16,16,14,12,10,9,9,11,13,15,16], pr: [300,270,200,55,20,8,8,10,12,60,150,290], storm: { type: 'Cyclone', mo: [11,0,1,2] } },
+  { iso: 392, name: 'Japan', city: 'Tokyo', region: 'Asia', hi: [10,11,14,19,23,26,30,31,27,22,17,12], lo: [2,2,5,10,15,19,23,24,20,15,9,4], pr: [52,56,118,125,138,168,154,168,210,198,93,51], storm: { type: 'Typhoon', mo: [7,8,9] } },
   { iso: 156, name: 'China', city: 'Beijing', region: 'Asia', hi: [2,5,12,20,26,30,31,30,26,19,10,4], lo: [-9,-6,0,7,13,18,21,20,14,7,-1,-7], pr: [3,5,9,26,29,71,176,182,49,22,7,3] },
   { iso: 356, name: 'India', city: 'Delhi', region: 'Asia', hi: [20,24,30,37,40,39,35,34,34,33,28,22], lo: [7,10,15,21,26,28,27,26,24,18,11,8], pr: [20,18,15,10,30,75,210,245,120,15,5,8] },
   { iso: 764, name: 'Thailand', city: 'Bangkok', region: 'Asia', hi: [32,33,34,35,34,33,32,32,32,31,31,31], lo: [22,24,25,27,26,26,25,25,25,24,23,21], pr: [15,20,40,90,250,150,155,200,330,290,55,10] },
-  { iso: 704, name: 'Vietnam', city: 'Hanoi', region: 'Asia', hi: [20,20,23,28,32,33,33,32,31,29,26,22], lo: [14,16,18,22,25,27,27,26,25,22,18,15], pr: [20,28,40,90,190,240,290,320,260,130,45,22] },
+  { iso: 704, name: 'Vietnam', city: 'Hanoi', region: 'Asia', hi: [20,20,23,28,32,33,33,32,31,29,26,22], lo: [14,16,18,22,25,27,27,26,25,22,18,15], pr: [20,28,40,90,190,240,290,320,260,130,45,22], storm: { type: 'Typhoon', mo: [7,8,9,10] } },
   { iso: 360, name: 'Indonesia', city: 'Bali', region: 'Asia', hi: [31,31,31,32,31,30,29,29,30,31,31,31], lo: [24,24,24,24,23,22,22,22,23,24,24,24], pr: [345,275,230,90,75,65,60,40,55,80,140,290] },
   { iso: 524, name: 'Nepal', city: 'Kathmandu', region: 'Asia', hi: [19,21,25,28,29,29,28,28,28,27,24,20], lo: [3,5,8,12,16,19,20,20,19,14,8,4], pr: [15,18,35,60,120,245,375,345,200,50,8,5] },
   { iso: 144, name: 'Sri Lanka', city: 'Colombo', region: 'Asia', hi: [31,31,32,32,31,30,30,30,30,30,30,30], lo: [23,23,24,25,26,26,25,25,25,24,24,23], pr: [60,70,130,250,340,200,135,110,160,350,315,170] },
-  { iso: 608, name: 'Philippines', city: 'Manila', region: 'Asia', hi: [30,31,33,34,34,33,31,31,31,31,31,30], lo: [22,22,24,25,25,25,24,24,24,24,23,22], pr: [20,10,15,30,130,255,420,430,355,200,115,65] },
+  { iso: 608, name: 'Philippines', city: 'Manila', region: 'Asia', hi: [30,31,33,34,34,33,31,31,31,31,31,30], lo: [22,22,24,25,25,25,24,24,24,24,23,22], pr: [20,10,15,30,130,255,420,430,355,200,115,65], storm: { type: 'Typhoon', mo: [5,6,7,8,9,10] } },
   { iso: 458, name: 'Malaysia', city: 'Kuala Lumpur', region: 'Asia', hi: [32,33,33,33,33,33,32,32,32,32,32,31], lo: [23,23,24,24,24,24,23,23,23,23,23,23], pr: [170,165,240,290,200,130,135,170,195,280,330,235] },
   { iso: 410, name: 'South Korea', city: 'Seoul', region: 'Asia', hi: [2,5,11,18,24,28,29,30,26,20,11,4], lo: [-6,-3,1,7,13,18,22,22,17,9,2,-4], pr: [20,25,45,65,105,130,395,365,170,50,50,22] },
   { iso: 116, name: 'Cambodia', city: 'Siem Reap', region: 'Asia', hi: [32,33,35,36,35,33,32,32,32,31,31,31], lo: [20,22,24,25,25,25,25,25,24,24,22,20], pr: [2,5,25,55,140,165,175,190,250,250,90,18] },
@@ -222,7 +232,7 @@ const DATA = [
   { iso: 152, name: 'Chile', city: 'Santiago', region: 'Americas', hi: [30,29,27,23,18,15,15,17,19,23,26,29], lo: [12,11,9,7,5,3,3,4,6,8,9,11], pr: [0,2,5,12,40,70,75,55,30,15,8,5] },
   { iso: 170, name: 'Colombia', city: 'Cartagena', region: 'Americas', hi: [31,31,31,32,32,32,32,32,31,31,31,31], lo: [24,24,25,25,26,26,25,25,25,25,25,24], pr: [1,1,2,25,90,110,95,110,130,180,110,40] },
   { iso: 188, name: 'Costa Rica', city: 'San Jose', region: 'Americas', hi: [26,27,28,28,27,26,26,26,26,26,26,26], lo: [15,15,16,17,17,17,16,16,16,16,16,15], pr: [6,10,14,80,230,280,200,240,355,300,140,40] },
-  { iso: 192, name: 'Cuba', city: 'Havana', region: 'Americas', hi: [26,27,28,29,30,31,32,32,31,29,27,26], lo: [18,18,19,21,22,23,24,24,24,23,21,19], pr: [65,45,45,40,120,165,105,135,150,170,80,55] },
+  { iso: 192, name: 'Cuba', city: 'Havana', region: 'Americas', hi: [26,27,28,29,30,31,32,32,31,29,27,26], lo: [18,18,19,21,22,23,24,24,24,23,21,19], pr: [65,45,45,40,120,165,105,135,150,170,80,55], storm: { type: 'Hurricane', mo: [7,8,9,10] } },
   { iso: 218, name: 'Ecuador', city: 'Quito', region: 'Americas', hi: [20,20,20,20,20,21,21,22,22,21,20,20], lo: [9,10,10,10,10,9,9,9,9,9,9,9], pr: [100,115,140,170,120,55,25,30,70,110,100,95] },
   { iso: 68, name: 'Bolivia', city: 'La Paz', region: 'Americas', hi: [15,15,16,16,16,15,15,16,16,17,17,16], lo: [5,5,5,4,2,1,0,1,3,5,5,5], pr: [110,90,65,35,15,8,10,15,30,40,50,95] },
   { iso: 36, name: 'Australia', city: 'Sydney', region: 'Oceania', hi: [26,26,25,23,20,18,17,19,21,23,24,26], lo: [19,19,18,15,12,9,8,9,12,14,16,18], pr: [100,120,130,125,120,130,100,80,70,75,85,80] },
@@ -237,7 +247,17 @@ const CFG = {
   swelterStart: 33, swelterPerDeg: 2.5,
   rainDry: 35, rainPerMm: 0.46,
   wTemp: 0.6, wRain: 0.4,
+  stormPenalty: 17,
+  monsoonMm: 230, wetMm: 130, heatHi: 35, coldHiMax: 5, coldLoMax: -8,
   bands: [[78,'ideal','Ideal'],[62,'great','Great'],[46,'good','Good'],[30,'fair','Fair'],[0,'avoid','Avoid']],
+};
+// Tag styling: [fill, ink] per hazard key.
+const TAGSTYLE = {
+  storm: ['#c0392b', '#fff'], monsoon: ['#2d6cdf', '#fff'], wet: ['#3a7bd5', '#fff'],
+  heat: ['#e07b1a', '#1a0f00'], cold: ['#5aa9e6', '#08111f'],
+};
+const SEASONSTYLE = {
+  high: ['#2e9e5b', '#06140b'], shoulder: ['#caa53a', '#1a1400'], low: ['#7a8296', '#0b0e16'],
 };
 const clamp = (v, lo, hi) => v < lo ? lo : v > hi ? hi : v;
 function tempScore(hi, lo) {
@@ -253,12 +273,52 @@ function rainScore(pr) {
   if (pr > CFG.rainDry) s -= (pr - CFG.rainDry) * CFG.rainPerMm;
   return clamp(s, 0, 100);
 }
+function hasStorm(rec, m) { return !!(rec.storm && rec.storm.mo.indexOf(m) !== -1); }
 function score(rec, m) {
-  return Math.round(tempScore(rec.hi[m], rec.lo[m]) * CFG.wTemp + rainScore(rec.pr[m]) * CFG.wRain);
+  let s = tempScore(rec.hi[m], rec.lo[m]) * CFG.wTemp + rainScore(rec.pr[m]) * CFG.wRain;
+  if (hasStorm(rec, m)) s -= CFG.stormPenalty;
+  return Math.round(clamp(s, 0, 100));
 }
 function band(s) {
   for (const [min, key, label] of CFG.bands) if (s >= min) return { key, label };
   return { key: 'avoid', label: 'Avoid' };
+}
+// Weather hazards for a month, worst-first.
+function monthTags(rec, m) {
+  const tags = [];
+  if (hasStorm(rec, m)) tags.push({ key: 'storm', label: rec.storm.type + ' risk' });
+  const pr = rec.pr[m];
+  if (pr >= CFG.monsoonMm) tags.push({ key: 'monsoon', label: 'Heavy monsoon rain' });
+  else if (pr >= CFG.wetMm) tags.push({ key: 'wet', label: 'Wet season' });
+  if (rec.hi[m] >= CFG.heatHi) tags.push({ key: 'heat', label: 'Extreme heat' });
+  if (rec.hi[m] <= CFG.coldHiMax || rec.lo[m] <= CFG.coldLoMax) tags.push({ key: 'cold', label: 'Hard cold' });
+  return tags;
+}
+// Travel season by weather quality: four best months High, next four Shoulder, rest Low.
+function seasonOf(rec, m) {
+  const sorted = monthRanking(rec).sorted;
+  const pos = sorted.findIndex(x => x.m === m);
+  if (pos < 4) return { key: 'high', label: 'High season' };
+  if (pos < 8) return { key: 'shoulder', label: 'Shoulder season' };
+  return { key: 'low', label: 'Low season' };
+}
+// Group month indices into contiguous ranges, wrapping across December.
+function rangeText(months) {
+  const has = new Array(12).fill(false);
+  months.forEach(m => has[m] = true);
+  if (has.every(Boolean)) return 'all year';
+  if (!months.length) return '';
+  let start = 0;
+  while (has[start]) start++;
+  const parts = [];
+  let run = [];
+  for (let c = 0; c < 12; c++) {
+    const m = (start + c) % 12;
+    if (has[m]) run.push(m);
+    else if (run.length) { parts.push(run); run = []; }
+  }
+  if (run.length) parts.push(run);
+  return parts.map(r => r.length === 1 ? MONTHS[r[0]] : MONTHS[r[0]] + ' to ' + MONTHS[r[r.length - 1]]).join(', ');
 }
 function scoreColor(s) {
   const hue = 4 + (clamp(s, 0, 100) / 100) * 121;
@@ -609,22 +669,44 @@ const detailEl = document.getElementById('detail');
 function renderDetail(iso) {
   const rec = byIso.get(iso);
   if (!rec) return;
-  const rank = monthRanking(rec);
-  const rankOf = new Array(12);
-  rank.sorted.forEach((x, i) => rankOf[x.m] = i);
   const m = state.month, s = score(rec, m), b = band(s);
 
-  const goodMonths = rank.sorted.filter(x => x.s >= 62).map(x => x.m).sort((a, c) => a - c);
-  const shoulder = rank.sorted.filter(x => x.s >= 46 && x.s < 62).map(x => x.m).sort((a, c) => a - c);
+  const season = seasonOf(rec, m);
+  const tags = monthTags(rec, m);
+
+  // Months in each season tier and each hazard, for the summary.
+  const seasonMonths = k => { const a = []; for (let i = 0; i < 12; i++) if (seasonOf(rec, i).key === k) a.push(i); return a; };
+  const hazardMonths = key => { const a = []; for (let i = 0; i < 12; i++) if (monthTags(rec, i).some(t => t.key === key)) a.push(i); return a; };
+  const rainyMonths = () => { const a = []; for (let i = 0; i < 12; i++) if (rec.pr[i] >= CFG.wetMm) a.push(i); return a; };
 
   let arc = '<div class="arc">';
   for (let i = 0; i < 12; i++) {
     const sc = score(rec, i);
+    let dots = '';
+    monthTags(rec, i).slice(0, 2).forEach(t => { dots += '<i style="background:' + TAGSTYLE[t.key][0] + '"></i>'; });
     arc += '<div class="mo"><div class="swatch' + (i === m ? ' on' : '') + '" '
         + 'data-m="' + i + '" style="background:' + scoreColor(sc) + '" title="' + MONTHS_FULL[i] + ' ' + sc + '">'
-        + sc + '</div><div class="lab">' + MONTHS[i][0] + '</div></div>';
+        + sc + '</div><div class="haz">' + dots + '</div><div class="lab">' + MONTHS[i][0] + '</div></div>';
   }
   arc += '</div>';
+
+  const tagChips = tags.length
+    ? tags.map(t => '<span class="tag" style="background:' + TAGSTYLE[t.key][0] + ';color:' + TAGSTYLE[t.key][1] + '">' + t.label + '</span>').join('')
+    : '<span class="tag none">No major weather hazards</span>';
+
+  // Watch-out rows: only show a hazard line if it occurs at all.
+  const rows = [];
+  if (rec.storm) rows.push(['storm', rec.storm.type + ' season', rangeText(rec.storm.mo)]);
+  const rainy = rainyMonths();
+  if (rainy.length) rows.push([rainy.some(i => rec.pr[i] >= CFG.monsoonMm) ? 'monsoon' : 'wet', 'Rainy season', rangeText(rainy)]);
+  const heat = hazardMonths('heat'); if (heat.length) rows.push(['heat', 'Extreme heat', rangeText(heat)]);
+  const cold = hazardMonths('cold'); if (cold.length) rows.push(['cold', 'Hard cold', rangeText(cold)]);
+  const watchRows = rows.map(r =>
+    '<div class="r"><span class="k"><span class="dot" style="background:' + TAGSTYLE[r[0]][0] + '"></span>' + r[1]
+    + '</span><span class="v">' + r[2] + '</span></div>').join('');
+
+  const highR = rangeText(seasonMonths('high'));
+  const lowR = rangeText(seasonMonths('low'));
 
   detailEl.innerHTML =
     '<div class="handle"></div>'
@@ -633,12 +715,18 @@ function renderDetail(iso) {
     + '<button class="close" id="closeDetail">Close</button></div>'
     + arc
     + '<div class="verdict"><span class="pill" style="background:' + scoreColor(s) + '">'
-    + b.label + ' ' + s + '</span> &nbsp;' + MONTHS_FULL[m] + ' in ' + rec.city + '</div>'
+    + b.label + ' ' + s + '</span> '
+    + '<span class="pill" style="background:' + SEASONSTYLE[season.key][0] + ';color:' + SEASONSTYLE[season.key][1] + '">'
+    + season.label + '</span> &nbsp;' + MONTHS_FULL[m] + ' in ' + rec.city + '</div>'
     + '<div class="facts"><span>High <b>' + rec.hi[m] + '&deg;</b></span>'
     + '<span>Low <b>' + rec.lo[m] + '&deg;</b></span>'
     + '<span>Rain <b>' + rec.pr[m] + ' mm</b></span></div>'
-    + '<div class="verdict">Best: <b>' + monthList(goodMonths) + '</b></div>'
-    + (shoulder.length ? '<div class="verdict" style="color:var(--dim)">Shoulder: ' + monthList(shoulder) + '</div>' : '');
+    + '<div class="tags">' + tagChips + '</div>'
+    + '<div class="watch">'
+    + '<div class="r"><span class="k"><span class="dot" style="background:' + SEASONSTYLE.high[0] + '"></span>High season</span><span class="v">' + (highR || 'none') + '</span></div>'
+    + '<div class="r"><span class="k"><span class="dot" style="background:' + SEASONSTYLE.low[0] + '"></span>Low season</span><span class="v">' + (lowR || 'none') + '</span></div>'
+    + watchRows
+    + '</div>';
 
   detailEl.classList.add('show');
   document.getElementById('closeDetail').addEventListener('click', () => {
@@ -647,10 +735,6 @@ function renderDetail(iso) {
   detailEl.querySelectorAll('.swatch').forEach(sw => {
     sw.addEventListener('click', () => setMonth(+sw.dataset.m));
   });
-}
-function monthList(arr) {
-  if (!arr.length) return 'no standout months';
-  return arr.map(i => MONTHS[i]).join(', ');
 }
 
 /* ============================ GO ============================ */
