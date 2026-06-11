@@ -149,10 +149,14 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 .strip .tile.peak { border-color: var(--ink); }
 .strip .tile .mk {
   position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
-  background: var(--card); border: 2px solid var(--ink); border-radius: 50%;
+  background: var(--card); border: 2px solid var(--line-2); border-radius: 50%;
   width: 28px; height: 28px; display: grid; place-items: center; color: var(--ink);
 }
 .strip .tile .mk .ic { width: 15px; height: 15px; }
+/* Soft, light, tinted icon badges */
+.strip .tile .mk.bloom { background: #ffe3ef; border-color: #ffc4d8; color: #ff4f87; }
+.strip .tile .mk.leaf { background: #ffe9d2; border-color: #ffd3aa; color: #f0832a; }
+.strip .tile .mk.snow { background: #e2efff; border-color: #bcd8ff; color: #2f7ae6; }
 .strip .lab { margin-top: 12px; font-weight: 800; font-size: 13px; color: var(--ink-2); }
 @media (max-width: 760px) { .strip { grid-template-columns: repeat(6, 1fr); row-gap: 20px; } }
 
@@ -178,6 +182,12 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 .faq summary .ic { color: var(--brand); flex: none; transition: transform .15s ease; }
 .faq details[open] summary .ic { transform: rotate(45deg); }
 .faq .a { padding: 0 0 18px; color: var(--ink-2); }
+
+/* ---- Affiliate links: highlighted, action-oriented, distinct colour ---- */
+.aff { color: var(--brand); font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.aff:hover { text-decoration: underline; }
+.aff .ic { width: 1em; height: 1em; }
+.toursrow { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
 
 /* ---- Affiliate / where to stay block ---- */
 .embed { aspect-ratio: 16 / 10; border-radius: var(--r); overflow: hidden; border: 1.5px solid var(--line-2); background: #e9eef0; }
