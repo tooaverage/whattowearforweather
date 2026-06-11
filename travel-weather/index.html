@@ -3,153 +3,165 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0f1320">
-<title>When To Go: World Travel Weather</title>
+<meta name="theme-color" content="#f4efe4">
+<title>When To Go: best time to visit anywhere, by month</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f1320;
-    --panel: #161b2c;
-    --panel2: #1d2336;
-    --line: #2a3146;
-    --ink: #e8ecf6;
-    --dim: #9aa3bd;
-    --accent: #6ea8ff;
-    --nodata: #262d40;
+    --paper: #f4efe4;
+    --paper2: #eae3d3;
+    --card: #fffdf7;
+    --ink: #232038;
+    --dim: #6f6a83;
+    --line: #e2d9c6;
+    --line2: #d3c8b0;
+    --brand: #3a51e6;
+    --nodata: #ded5c2;
+    --ocean: #e6eef1;
+    --display: "Fredoka", "Nunito", system-ui, sans-serif;
+    --sans: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
-    background: var(--bg);
+    background: var(--paper);
     color: var(--ink);
-    font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font: 15px/1.5 var(--sans);
     -webkit-font-smoothing: antialiased;
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
-  .wrap { max-width: 1100px; margin: 0 auto; padding: 16px 14px 60px; }
-  header h1 { font-size: 20px; margin: 4px 0 2px; letter-spacing: 0.2px; }
-  header p { margin: 0 0 14px; color: var(--dim); font-size: 13px; }
+  .ic { width: 1.1em; height: 1.1em; stroke-width: 2.2; vertical-align: -0.16em; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 18px 14px 64px; }
+  header h1 { font-family: var(--display); font-size: 30px; font-weight: 600; margin: 4px 0 2px; display: inline-flex; align-items: center; gap: 10px; }
+  header h1 .dot { width: 26px; height: 26px; border-radius: 50%; background: var(--brand); display: inline-grid; place-items: center; color: var(--card); }
+  header h1 .dot .ic { width: 16px; height: 16px; }
+  header p { margin: 2px 0 16px; color: var(--dim); font-size: 14px; }
 
   .controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
-  .months { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scroll-snap-type: x proximity; }
+  .months { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scroll-snap-type: x proximity; }
   .months button {
-    flex: 0 0 auto; min-width: 52px; padding: 10px 12px; border-radius: 10px; scroll-snap-align: center;
-    border: 1px solid var(--line); background: var(--panel); color: var(--ink);
-    font-size: 13px; font-weight: 600; cursor: pointer; transition: background .12s, border-color .12s;
+    flex: 0 0 auto; min-width: 54px; padding: 11px 13px; border-radius: 999px; scroll-snap-align: center;
+    border: 1.5px solid var(--line2); background: var(--card); color: var(--ink);
+    font-family: var(--sans); font-size: 14px; font-weight: 700; cursor: pointer; transition: transform .08s, background .12s, border-color .12s;
   }
-  .months button.on { background: var(--accent); border-color: var(--accent); color: #08111f; }
+  .months button:hover { border-color: var(--ink); }
+  .months button.on { background: var(--brand); border-color: var(--ink); color: var(--card); }
   .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-  .seg button { padding: 7px 12px; background: var(--panel); color: var(--dim); border: 0; cursor: pointer; font-size: 13px; font-weight: 600; }
-  .seg button.on { background: var(--panel2); color: var(--ink); }
+  .seg { display: inline-flex; border: 1.5px solid var(--line2); border-radius: 999px; overflow: hidden; background: var(--card); }
+  .seg button { padding: 9px 16px; background: transparent; color: var(--dim); border: 0; cursor: pointer; font-family: var(--sans); font-size: 14px; font-weight: 800; }
+  .seg button.on { background: var(--ink); color: var(--card); }
   .search { flex: 1 1 160px; min-width: 140px; }
   .search input {
-    width: 100%; padding: 8px 11px; border-radius: 10px; border: 1px solid var(--line);
-    background: var(--panel); color: var(--ink); font-size: 13px;
+    width: 100%; padding: 11px 14px; border-radius: 999px; border: 1.5px solid var(--line2);
+    background: var(--card); color: var(--ink); font-family: var(--sans); font-size: 14px;
   }
   .search input::placeholder { color: var(--dim); }
 
-  .stage { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-  svg#map { display: block; width: 100%; height: auto; background: #0d111d; touch-action: pan-y; }
+  .stage { position: relative; background: var(--ocean); border: 1.5px solid var(--line2); border-radius: 22px; overflow: hidden; }
+  svg#map { display: block; width: 100%; height: auto; background: var(--ocean); touch-action: pan-y; }
   svg#map.zoomed { cursor: grab; }
-  svg#map path { stroke: #0e1220; stroke-width: 0.4; cursor: pointer; transition: opacity .1s; vector-effect: non-scaling-stroke; }
-  svg#map path.sel { stroke: #fff; stroke-width: 1.4; }
-  svg#map path.dim { opacity: 0.35; }
-  .ocean { fill: transparent; }
+  svg#map path { stroke: var(--paper); stroke-width: 0.5; cursor: pointer; transition: opacity .1s; vector-effect: non-scaling-stroke; }
+  svg#map path.sel { stroke: var(--ink); stroke-width: 1.6; }
+  svg#map path.dim { opacity: 0.4; }
   .clabel {
-    fill: #f4f7ff; paint-order: stroke; stroke: #0b0f1a; stroke-width: 3px;
-    stroke-linejoin: round; vector-effect: non-scaling-stroke; font-weight: 600;
+    fill: var(--ink); paint-order: stroke; stroke: var(--paper); stroke-width: 3px;
+    stroke-linejoin: round; vector-effect: non-scaling-stroke; font-family: var(--sans); font-weight: 800;
     pointer-events: none; text-anchor: middle; dominant-baseline: central;
   }
 
-  .zoomctl { position: absolute; right: 8px; top: 8px; display: none; flex-direction: column; gap: 6px; z-index: 5; }
+  .zoomctl { position: absolute; right: 10px; top: 10px; display: none; flex-direction: column; gap: 8px; z-index: 5; }
   .zoomctl button {
-    width: 40px; height: 40px; border-radius: 11px; border: 1px solid var(--line);
-    background: #0b0f1add; color: var(--ink); font-size: 19px; line-height: 1; cursor: pointer;
+    width: 42px; height: 42px; border-radius: 13px; border: 1.5px solid var(--ink);
+    background: var(--card); color: var(--ink); cursor: pointer; display: grid; place-items: center;
   }
-  .zoomctl button:active { background: var(--panel2); }
-  .hint { position: absolute; left: 10px; bottom: 8px; color: var(--dim); font-size: 11px; pointer-events: none; z-index: 5; }
+  .zoomctl button .ic { width: 20px; height: 20px; }
+  .zoomctl button:active { background: var(--paper2); }
+  .hint { position: absolute; left: 12px; bottom: 10px; color: var(--ink); background: #fffdf7cc; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; pointer-events: none; z-index: 5; }
 
-  .loading, .err { padding: 30px 16px; text-align: center; color: var(--dim); font-size: 13px; }
+  .loading, .err { padding: 34px 16px; text-align: center; color: var(--dim); font-size: 14px; }
   .err b { color: var(--ink); }
 
   /* Grid heatmap */
-  #grid { width: 100%; border-collapse: collapse; font-size: 12px; }
-  #grid th { color: var(--dim); font-weight: 600; padding: 4px 3px; position: sticky; top: 0; background: var(--panel); z-index: 2; }
-  #grid th.name, #grid td.name { text-align: left; white-space: nowrap; padding-left: 4px; position: sticky; left: 0; background: var(--panel); }
+  #grid { width: 100%; border-collapse: collapse; font-size: 12px; background: var(--card); }
+  #grid th { color: var(--dim); font-weight: 800; padding: 5px 3px; position: sticky; top: 0; background: var(--card); z-index: 2; }
+  #grid th.name, #grid td.name { text-align: left; white-space: nowrap; padding-left: 6px; position: sticky; left: 0; background: var(--card); }
   #grid th.name { z-index: 3; }
   #grid td.name { color: var(--ink); font-size: 12px; max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
   #grid td.name small { color: var(--dim); }
-  #grid td.region { padding: 10px 4px 2px; color: var(--accent); font-weight: 700; letter-spacing: .4px; text-transform: uppercase; font-size: 10px; }
-  #grid td.region span { position: sticky; left: 4px; display: inline-block; }
-  #grid .cell { min-width: 30px; height: 27px; text-align: center; color: #08111f; font-weight: 700; cursor: pointer; border-radius: 4px; font-size: 11px; }
-  #grid .cell.on { outline: 2px solid #fff; outline-offset: -2px; }
+  #grid td.region { padding: 12px 6px 3px; color: var(--brand); font-weight: 800; font-size: 13px; font-family: var(--display); }
+  #grid td.region span { position: sticky; left: 6px; display: inline-block; }
+  #grid .cell { min-width: 30px; height: 28px; text-align: center; color: #14130f; font-weight: 800; cursor: pointer; border-radius: 6px; font-size: 11px; }
+  #grid .cell.on { outline: 2.5px solid var(--ink); outline-offset: -2px; }
 
-  .legend { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 10px 2px 0; color: var(--dim); font-size: 12px; }
-  .legend .it { display: inline-flex; align-items: center; gap: 5px; }
-  .legend .sw { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+  .legend { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 12px 2px 0; color: var(--dim); font-size: 13px; font-weight: 700; }
+  .legend .it { display: inline-flex; align-items: center; gap: 6px; }
+  .legend .sw { width: 15px; height: 15px; border-radius: 5px; display: inline-block; border: 1.5px solid rgba(0,0,0,.14); }
 
   /* Tooltip */
   #tip {
-    position: fixed; pointer-events: none; z-index: 20; background: #0b0f1aee; border: 1px solid var(--line);
-    border-radius: 9px; padding: 7px 10px; font-size: 12px; max-width: 220px; opacity: 0; transition: opacity .08s;
+    position: fixed; pointer-events: none; z-index: 20; background: var(--card); border: 1.5px solid var(--ink);
+    border-radius: 12px; padding: 8px 12px; font-size: 12px; max-width: 230px; opacity: 0; transition: opacity .08s; color: var(--ink);
   }
-  #tip b { display: block; font-size: 13px; margin-bottom: 1px; }
-  #tip .sc { font-weight: 700; }
+  #tip b { display: block; font-size: 14px; font-family: var(--display); margin-bottom: 1px; }
+  #tip .sc { font-weight: 800; }
 
   /* Detail panel */
-  #detail { margin-top: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: none; }
+  #detail { margin-top: 14px; background: var(--card); border: 1.5px solid var(--line2); border-radius: 22px; padding: 16px; display: none; }
   #detail.show { display: block; }
   #detail .handle { display: none; }
   #detail .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-  #detail h2 { margin: 0; font-size: 17px; }
-  #detail .sub { color: var(--dim); font-size: 12px; margin-top: 2px; }
-  #detail .close { background: var(--panel2); border: 1px solid var(--line); color: var(--ink); border-radius: 9px; padding: 7px 13px; cursor: pointer; font-size: 13px; }
+  #detail h2 { margin: 0; font-family: var(--display); font-weight: 600; font-size: 22px; }
+  #detail .sub { color: var(--dim); font-size: 13px; margin-top: 2px; }
+  #detail .close { background: var(--card); border: 1.5px solid var(--ink); color: var(--ink); border-radius: 999px; padding: 8px 15px; cursor: pointer; font-weight: 800; font-size: 13px; }
   @media (max-width: 700px) {
     #detail.show {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; margin: 0;
-      border-radius: 16px 16px 0 0; border-bottom: 0; max-height: 62vh; overflow-y: auto;
-      box-shadow: 0 -10px 30px #000a;
+      border-radius: 22px 22px 0 0; border-bottom: 0; border-top: 2px solid var(--ink); max-height: 64vh; overflow-y: auto;
       padding-bottom: calc(16px + env(safe-area-inset-bottom));
     }
-    #detail .handle { display: block; width: 42px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 10px; }
+    #detail .handle { display: block; width: 44px; height: 5px; border-radius: 3px; background: var(--line2); margin: 0 auto 12px; }
   }
-  .arc { display: flex; gap: 4px; margin: 14px 0 6px; }
+  .arc { display: flex; gap: 4px; margin: 16px 0 6px; }
   .arc .mo { flex: 1; text-align: center; }
-  .arc .swatch { height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #08111f; cursor: pointer; }
-  .arc .swatch.on { outline: 2px solid #fff; outline-offset: -2px; }
-  .arc .haz { height: 7px; margin-top: 3px; display: flex; gap: 2px; justify-content: center; }
+  .arc .swatch { height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #14130f; cursor: pointer; border: 1.5px solid rgba(0,0,0,.14); }
+  .arc .swatch.on { outline: 2.5px solid var(--ink); outline-offset: -2px; }
+  .arc .haz { height: 7px; margin-top: 4px; display: flex; gap: 2px; justify-content: center; }
   .arc .haz i { width: 6px; height: 6px; border-radius: 50%; }
-  .arc .lab { font-size: 10px; color: var(--dim); margin-top: 2px; }
-  .facts { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; font-size: 13px; color: var(--dim); }
+  .arc .lab { font-size: 11px; color: var(--dim); margin-top: 3px; font-weight: 700; }
+  .facts { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: 14px; color: var(--dim); }
   .facts b { color: var(--ink); }
-  .verdict { margin-top: 10px; font-size: 13px; }
-  .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-weight: 700; color: #08111f; font-size: 12px; }
-  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-  .tag { padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; }
-  .tag.none { background: var(--panel2); color: var(--dim); }
-  .watch { margin-top: 12px; font-size: 13px; border-top: 1px solid var(--line); padding-top: 10px; }
-  .watch .r { display: flex; gap: 8px; align-items: baseline; margin-top: 5px; }
-  .watch .k { color: var(--dim); flex: 0 0 96px; }
+  .verdict { margin-top: 12px; font-size: 14px; }
+  .pill { display: inline-block; padding: 4px 11px; border-radius: 999px; font-weight: 800; color: #14130f; font-size: 12px; border: 1.5px solid rgba(0,0,0,.14); }
+  .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+  .tag { padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 800; }
+  .tag.none { background: var(--paper2); color: var(--dim); }
+  .watch { margin-top: 14px; font-size: 14px; border-top: 1.5px solid var(--line); padding-top: 12px; }
+  .watch .r { display: flex; gap: 8px; align-items: baseline; margin-top: 6px; }
+  .watch .k { color: var(--dim); flex: 0 0 104px; font-weight: 700; }
   .watch .v { color: var(--ink); }
-  .watch .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
-  .guideline { margin-top: 11px; font-size: 13px; color: var(--dim); }
-  .guideline .ok { color: #5cc98c; font-weight: 700; }
-  .guideline .diff { color: #e0b54a; font-weight: 700; }
-  .onnow { margin-top: 12px; font-size: 13px; border-top: 1px solid var(--line); padding-top: 10px; }
-  .onnow .hd { color: var(--dim); font-size: 12px; }
-  .onnow .h { display: flex; gap: 8px; align-items: baseline; margin-top: 6px; }
-  .onnow .em { font-size: 15px; line-height: 1; }
+  .watch .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .guideline { margin-top: 12px; font-size: 14px; color: var(--dim); }
+  .guideline .ok { color: #1f9255; font-weight: 800; }
+  .guideline .diff { color: #c2851a; font-weight: 800; }
+  .onnow { margin-top: 14px; font-size: 14px; border-top: 1.5px solid var(--line); padding-top: 12px; }
+  .onnow .hd { color: var(--dim); font-size: 13px; font-weight: 700; }
+  .onnow .h { display: flex; gap: 9px; align-items: center; margin-top: 7px; }
+  .onnow .em { color: var(--brand); display: inline-flex; }
+  .onnow .em .ic { width: 17px; height: 17px; }
   .onnow .t { color: var(--dim); }
-  .onnow .h.active .t { color: var(--ink); font-weight: 600; }
-  .onnow .mo { color: var(--accent); font-size: 12px; margin-left: 6px; }
-  .foot { color: var(--dim); font-size: 11px; margin-top: 18px; line-height: 1.5; }
+  .onnow .h.active .t { color: var(--ink); font-weight: 700; }
+  .onnow .mo { color: var(--brand); font-size: 13px; margin-left: 6px; font-weight: 700; }
+  .foot { color: var(--dim); font-size: 12px; margin-top: 20px; line-height: 1.6; }
+  .foot a { color: var(--brand); }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>When To Go</h1>
-    <p>Pick a month to see where the weather is good for travel. Tap a country for its year-round arc.</p>
+    <h1><span class="dot"><i data-lucide="compass" class="ic"></i></span>When To Go</h1>
+    <p>Pick a month to see where the weather is good for travel. Tap a country for its year round arc.</p>
   </header>
 
   <div class="controls">
@@ -168,9 +180,9 @@
     <div class="loading" id="mapload">Loading world map.</div>
     <div id="gridwrap" style="display:none; overflow-x:auto; padding:8px;"><table id="grid"></table></div>
     <div class="zoomctl" id="zoomctl">
-      <button id="zin" aria-label="Zoom in">+</button>
-      <button id="zout" aria-label="Zoom out">&#8722;</button>
-      <button id="zreset" aria-label="Reset zoom">&#8634;</button>
+      <button id="zin" aria-label="Zoom in"><i data-lucide="plus" class="ic"></i></button>
+      <button id="zout" aria-label="Zoom out"><i data-lucide="minus" class="ic"></i></button>
+      <button id="zreset" aria-label="Reset zoom"><i data-lucide="rotate-ccw" class="ic"></i></button>
     </div>
     <div class="hint" id="zoomhint" style="display:none">Pinch or double tap to zoom. Names appear as you zoom in.</div>
   </div>
@@ -188,6 +200,7 @@
 
 <div id="tip"></div>
 
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 <script>
 /* ============================ DATA ============================ */
 const DATA = [
@@ -395,7 +408,7 @@ const DATA = [
 /* ============================ EDITORIAL LAYER (UI only) ============================ */
 // Month-tagged highlights and what travel guides say. This does not affect the
 // climate score or colors; it adds context and a guides-vs-data check. Expandable.
-const HLKIND = { wildlife: '🦁', festival: '🎉', nature: '🍁', lights: '🌌', bloom: '🌸', dive: '🐠' };
+const HLKIND = { wildlife: 'paw-print', festival: 'party-popper', nature: 'leaf', lights: 'sparkles', bloom: 'flower-2', dive: 'fish' };
 const HL = {
   404: [{ k: 'wildlife', mo: [6,7,8,9], t: 'Great Migration in the Masai Mara' }],
   834: [{ k: 'wildlife', mo: [0,1], t: 'Wildebeest calving on the Serengeti' }, { k: 'wildlife', mo: [5,6,7,8,9], t: 'Prime dry-season safari' }],
@@ -694,7 +707,7 @@ function buildMap(topo) {
     // No-data features get a fill now and are not keyed below (many share a
     // null id, which would collide in the map and leave all but one unpainted).
     buf += '<path data-iso="' + (has ? rec.iso : '') + '" d="' + d + '"'
-        + (has ? '' : ' fill="#222a3d"') + '></path>';
+        + (has ? '' : ' fill="#ded5c2"') + '></path>';
     if (has && biggest) labelSrc.push({ name: rec.name, x: biggest.x, y: biggest.y, size: biggest.size });
   }
   // Labels live in their own group above the paths.
@@ -1044,7 +1057,7 @@ function renderDetail(iso) {
     const sorted = hls.slice().sort((a, b) => (b.mo.indexOf(m) !== -1 ? 1 : 0) - (a.mo.indexOf(m) !== -1 ? 1 : 0));
     hlHtml = '<div class="onnow"><div class="hd">What is on</div>'
       + sorted.map(h => '<div class="h' + (h.mo.indexOf(m) !== -1 ? ' active' : '') + '">'
-        + '<span class="em">' + (HLKIND[h.k] || '&bull;') + '</span>'
+        + '<span class="em"><i data-lucide="' + (HLKIND[h.k] || 'star') + '" class="ic"></i></span>'
         + '<span class="t">' + h.t + '<span class="mo">' + rangeText(h.mo) + '</span></span></div>').join('')
       + '</div>';
   }
@@ -1077,6 +1090,7 @@ function renderDetail(iso) {
   detailEl.querySelectorAll('.swatch').forEach(sw => {
     sw.addEventListener('click', () => setMonth(+sw.dataset.m));
   });
+  if (window.lucide) lucide.createIcons({ root: detailEl });
 }
 
 /* ============================ LEGEND ============================ */
@@ -1084,4 +1098,8 @@ document.getElementById('legend').innerHTML = CFG.bands
   .map(b => '<span class="it"><span class="sw" style="background:' + b[3] + '"></span>' + b[2] + '</span>').join('');
 
 /* ============================ GO ============================ */
+if (window.lucide) lucide.createIcons();
 loadMap();
+</script>
+</body>
+</html>
