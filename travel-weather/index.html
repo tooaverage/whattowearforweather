@@ -30,9 +30,9 @@
   header p { margin: 0 0 14px; color: var(--dim); font-size: 13px; }
 
   .controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
-  .months { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+  .months { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scroll-snap-type: x proximity; }
   .months button {
-    flex: 0 0 auto; min-width: 46px; padding: 8px 10px; border-radius: 10px;
+    flex: 0 0 auto; min-width: 52px; padding: 10px 12px; border-radius: 10px; scroll-snap-align: center;
     border: 1px solid var(--line); background: var(--panel); color: var(--ink);
     font-size: 13px; font-weight: 600; cursor: pointer; transition: background .12s, border-color .12s;
   }
@@ -49,23 +49,34 @@
   .search input::placeholder { color: var(--dim); }
 
   .stage { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-  svg#map { display: block; width: 100%; height: auto; background: linear-gradient(180deg, #121829, #0d111d); touch-action: manipulation; }
-  svg#map path { stroke: #0e1220; stroke-width: 0.4; cursor: pointer; transition: opacity .1s; }
+  svg#map { display: block; width: 100%; height: auto; background: linear-gradient(180deg, #121829, #0d111d); touch-action: pan-y; }
+  svg#map.zoomed { cursor: grab; }
+  svg#map path { stroke: #0e1220; stroke-width: 0.4; cursor: pointer; transition: opacity .1s; vector-effect: non-scaling-stroke; }
   svg#map path.sel { stroke: #fff; stroke-width: 1.4; }
   svg#map path.dim { opacity: 0.35; }
   .ocean { fill: transparent; }
+
+  .zoomctl { position: absolute; right: 8px; top: 8px; display: none; flex-direction: column; gap: 6px; z-index: 5; }
+  .zoomctl button {
+    width: 40px; height: 40px; border-radius: 11px; border: 1px solid var(--line);
+    background: #0b0f1add; color: var(--ink); font-size: 19px; line-height: 1; cursor: pointer;
+  }
+  .zoomctl button:active { background: var(--panel2); }
+  .hint { position: absolute; left: 10px; bottom: 8px; color: var(--dim); font-size: 11px; pointer-events: none; z-index: 5; }
 
   .loading, .err { padding: 30px 16px; text-align: center; color: var(--dim); font-size: 13px; }
   .err b { color: var(--ink); }
 
   /* Grid heatmap */
   #grid { width: 100%; border-collapse: collapse; font-size: 12px; }
-  #grid th { color: var(--dim); font-weight: 600; padding: 4px 3px; position: sticky; top: 0; background: var(--bg); }
-  #grid th.name, #grid td.name { text-align: left; white-space: nowrap; padding-left: 4px; }
-  #grid td.name { color: var(--ink); font-size: 12px; }
+  #grid th { color: var(--dim); font-weight: 600; padding: 4px 3px; position: sticky; top: 0; background: var(--panel); z-index: 2; }
+  #grid th.name, #grid td.name { text-align: left; white-space: nowrap; padding-left: 4px; position: sticky; left: 0; background: var(--panel); }
+  #grid th.name { z-index: 3; }
+  #grid td.name { color: var(--ink); font-size: 12px; max-width: 130px; overflow: hidden; text-overflow: ellipsis; }
   #grid td.name small { color: var(--dim); }
   #grid td.region { padding: 10px 4px 2px; color: var(--accent); font-weight: 700; letter-spacing: .4px; text-transform: uppercase; font-size: 10px; }
-  #grid .cell { width: 26px; height: 22px; text-align: center; color: #08111f; font-weight: 700; cursor: pointer; border-radius: 4px; font-size: 11px; }
+  #grid td.region span { position: sticky; left: 4px; display: inline-block; }
+  #grid .cell { min-width: 30px; height: 27px; text-align: center; color: #08111f; font-weight: 700; cursor: pointer; border-radius: 4px; font-size: 11px; }
   #grid .cell.on { outline: 2px solid #fff; outline-offset: -2px; }
 
   .legend { display: flex; align-items: center; gap: 10px; margin: 10px 2px 0; color: var(--dim); font-size: 12px; }
@@ -82,13 +93,23 @@
   /* Detail panel */
   #detail { margin-top: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: none; }
   #detail.show { display: block; }
+  #detail .handle { display: none; }
   #detail .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
   #detail h2 { margin: 0; font-size: 17px; }
   #detail .sub { color: var(--dim); font-size: 12px; margin-top: 2px; }
-  #detail .close { background: var(--panel2); border: 1px solid var(--line); color: var(--dim); border-radius: 8px; padding: 4px 9px; cursor: pointer; font-size: 13px; }
+  #detail .close { background: var(--panel2); border: 1px solid var(--line); color: var(--ink); border-radius: 9px; padding: 7px 13px; cursor: pointer; font-size: 13px; }
+  @media (max-width: 700px) {
+    #detail.show {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; margin: 0;
+      border-radius: 16px 16px 0 0; border-bottom: 0; max-height: 62vh; overflow-y: auto;
+      box-shadow: 0 -10px 30px #000a;
+      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+    #detail .handle { display: block; width: 42px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 10px; }
+  }
   .arc { display: flex; gap: 4px; margin: 14px 0 6px; }
   .arc .mo { flex: 1; text-align: center; }
-  .arc .swatch { height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #08111f; cursor: pointer; }
+  .arc .swatch { height: 34px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #08111f; cursor: pointer; }
   .arc .swatch.on { outline: 2px solid #fff; outline-offset: -2px; }
   .arc .lab { font-size: 10px; color: var(--dim); margin-top: 3px; }
   .facts { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 8px; font-size: 13px; color: var(--dim); }
@@ -120,6 +141,12 @@
     <svg id="map" viewBox="0 22 1000 396" preserveAspectRatio="xMidYMid meet" style="display:none"></svg>
     <div class="loading" id="mapload">Loading world map.</div>
     <div id="gridwrap" style="display:none; overflow-x:auto; padding:8px;"><table id="grid"></table></div>
+    <div class="zoomctl" id="zoomctl">
+      <button id="zin" aria-label="Zoom in">+</button>
+      <button id="zout" aria-label="Zoom out">&#8722;</button>
+      <button id="zreset" aria-label="Reset zoom">&#8634;</button>
+    </div>
+    <div class="hint" id="zoomhint" style="display:none">Pinch or double tap to zoom</div>
   </div>
 
   <div class="legend">
@@ -262,9 +289,16 @@ MONTHS.forEach((m, i) => {
 function setMonth(i) {
   state.month = i;
   monthsEl.querySelectorAll('button').forEach((b, k) => b.classList.toggle('on', k === i));
+  const btn = monthsEl.children[i];
+  if (btn) monthsEl.scrollTo({ left: btn.offsetLeft - monthsEl.clientWidth / 2 + btn.offsetWidth / 2, behavior: 'smooth' });
   paint();
   if (state.selIso != null) renderDetail(state.selIso);
 }
+// Center the current month chip on first paint.
+requestAnimationFrame(() => {
+  const btn = monthsEl.children[state.month];
+  if (btn) monthsEl.scrollTo({ left: btn.offsetLeft - monthsEl.clientWidth / 2 + btn.offsetWidth / 2 });
+});
 
 const viewseg = document.getElementById('viewseg');
 viewseg.querySelectorAll('button').forEach(b => {
@@ -276,6 +310,8 @@ function setView(v) {
   document.getElementById('map').style.display = (v === 'map' && mapReady) ? 'block' : 'none';
   document.getElementById('mapload').style.display = (v === 'map' && !mapReady) ? 'block' : 'none';
   document.getElementById('gridwrap').style.display = (v === 'grid') ? 'block' : 'none';
+  document.getElementById('zoomctl').style.display = (v === 'map' && mapReady) ? 'flex' : 'none';
+  document.getElementById('zoomhint').style.display = (v === 'map' && mapReady) ? 'block' : 'none';
   if (v === 'grid') buildGrid();
   paint();
 }
@@ -362,13 +398,19 @@ function buildMap(topo) {
     pathByIso.set(iso, p);
     if (byIso.has(iso)) {
       p.addEventListener('click', () => select(iso, false));
-      p.addEventListener('mousemove', e => showTip(e, iso));
-      p.addEventListener('mouseleave', hideTip);
+      if (canHover) {
+        p.addEventListener('mousemove', e => showTip(e, iso));
+        p.addEventListener('mouseleave', hideTip);
+      }
     }
   });
   mapReady = true;
   document.getElementById('mapload').style.display = 'none';
-  if (state.view === 'map') svg.style.display = 'block';
+  if (state.view === 'map') {
+    svg.style.display = 'block';
+    document.getElementById('zoomctl').style.display = 'flex';
+    document.getElementById('zoomhint').style.display = 'block';
+  }
   paint();
 }
 
@@ -377,6 +419,108 @@ function mapFailed() {
     '<b>Map could not load.</b><br>Showing the grid instead. The grid has every country and works offline.';
   setView('grid');
 }
+
+/* ============================ MAP ZOOM + PAN ============================ */
+// Zoom works by shrinking the SVG viewBox. Pinch, double tap, wheel, or the
+// buttons zoom; one finger (or mouse drag) pans once zoomed in. While not
+// zoomed, touch-action pan-y leaves vertical page scrolling to the browser.
+const BASE = { x: 0, y: 22, w: 1000, h: 396 };
+let vb = { ...BASE };
+const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+function applyVB() {
+  svg.setAttribute('viewBox', vb.x.toFixed(1) + ' ' + vb.y.toFixed(1) + ' ' + vb.w.toFixed(1) + ' ' + vb.h.toFixed(1));
+  const zoomed = vb.w < BASE.w - 1;
+  svg.classList.toggle('zoomed', zoomed);
+  svg.style.touchAction = zoomed ? 'none' : 'pan-y';
+}
+function clientToVB(cx, cy) {
+  const r = svg.getBoundingClientRect();
+  return [vb.x + (cx - r.left) / r.width * vb.w, vb.y + (cy - r.top) / r.height * vb.h];
+}
+// factor > 1 zooms in, keeping viewBox point (px, py) fixed on screen.
+function zoomAt(px, py, factor) {
+  const w = clamp(vb.w / factor, BASE.w / 10, BASE.w);
+  const h = w * BASE.h / BASE.w;
+  vb.x = clamp(px - (px - vb.x) * (w / vb.w), BASE.x, BASE.x + BASE.w - w);
+  vb.y = clamp(py - (py - vb.y) * (h / vb.h), BASE.y, BASE.y + BASE.h - h);
+  vb.w = w; vb.h = h;
+  applyVB();
+}
+function panBy(dxPx, dyPx) {
+  const r = svg.getBoundingClientRect();
+  vb.x = clamp(vb.x - dxPx / r.width * vb.w, BASE.x, BASE.x + BASE.w - vb.w);
+  vb.y = clamp(vb.y - dyPx / r.height * vb.h, BASE.y, BASE.y + BASE.h - vb.h);
+  applyVB();
+}
+document.getElementById('zin').addEventListener('click', () => zoomAt(vb.x + vb.w / 2, vb.y + vb.h / 2, 1.7));
+document.getElementById('zout').addEventListener('click', () => zoomAt(vb.x + vb.w / 2, vb.y + vb.h / 2, 1 / 1.7));
+document.getElementById('zreset').addEventListener('click', () => { vb = { ...BASE }; applyVB(); });
+
+svg.addEventListener('wheel', e => {
+  if (!mapReady) return;
+  e.preventDefault();
+  const p = clientToVB(e.clientX, e.clientY);
+  zoomAt(p[0], p[1], e.deltaY < 0 ? 1.25 : 0.8);
+}, { passive: false });
+svg.addEventListener('dblclick', e => {
+  if (!mapReady) return;
+  e.preventDefault();
+  const p = clientToVB(e.clientX, e.clientY);
+  zoomAt(p[0], p[1], 2.2);
+});
+
+// Pointer gestures. ptrs holds active pointers with start and last positions.
+const ptrs = new Map();
+let gestureMoved = false, pinchD = 0, lastTap = { t: 0, x: 0, y: 0 };
+
+svg.addEventListener('pointerdown', e => {
+  if (!mapReady) return;
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY });
+  if (ptrs.size === 1) gestureMoved = false;
+  if (ptrs.size === 2) {
+    const [a, b] = [...ptrs.values()];
+    pinchD = Math.hypot(a.x - b.x, a.y - b.y);
+    gestureMoved = true;
+  } else if (e.pointerType === 'touch') {
+    // Manual double-tap detection: dblclick is unreliable on touch.
+    const dt = Date.now() - lastTap.t;
+    if (dt < 320 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 40) {
+      const p = clientToVB(e.clientX, e.clientY);
+      zoomAt(p[0], p[1], 2.2);
+      lastTap.t = 0;
+      gestureMoved = true; // swallow the click this tap would fire
+    } else {
+      lastTap = { t: Date.now(), x: e.clientX, y: e.clientY };
+    }
+  }
+});
+svg.addEventListener('pointermove', e => {
+  const prev = ptrs.get(e.pointerId);
+  if (!prev) return;
+  if (e.pointerType === 'mouse' && e.buttons === 0) { ptrs.delete(e.pointerId); return; }
+  const cur = { x: e.clientX, y: e.clientY, sx: prev.sx, sy: prev.sy };
+  ptrs.set(e.pointerId, cur);
+  if (Math.hypot(cur.x - cur.sx, cur.y - cur.sy) > 8) gestureMoved = true;
+  if (ptrs.size === 2) {
+    const [a, b] = [...ptrs.values()];
+    const d = Math.hypot(a.x - b.x, a.y - b.y);
+    if (pinchD > 0 && d > 0) {
+      const mid = clientToVB((a.x + b.x) / 2, (a.y + b.y) / 2);
+      zoomAt(mid[0], mid[1], d / pinchD);
+    }
+    pinchD = d;
+  } else if (ptrs.size === 1 && svg.classList.contains('zoomed')) {
+    panBy(cur.x - prev.x, cur.y - prev.y);
+  }
+});
+function endPtr(e) { ptrs.delete(e.pointerId); pinchD = 0; }
+window.addEventListener('pointerup', endPtr);
+window.addEventListener('pointercancel', endPtr);
+// After a drag or pinch, swallow the click so it does not select a country.
+svg.addEventListener('click', e => {
+  if (gestureMoved) { e.stopPropagation(); e.preventDefault(); gestureMoved = false; }
+}, true);
 
 /* ============================ PAINT ============================ */
 function paint() {
@@ -405,7 +549,7 @@ function buildGrid() {
   MONTHS.forEach(m => html += '<th>' + m + '</th>');
   html += '</tr></thead><tbody>';
   for (const region of regions) {
-    html += '<tr><td class="region" colspan="13">' + region + '</td></tr>';
+    html += '<tr><td class="region" colspan="13"><span>' + region + '</span></td></tr>';
     for (const d of DATA.filter(x => x.region === region)) {
       html += '<tr data-iso="' + d.iso + '"><td class="name">' + d.name + ' <small>' + d.city + '</small></td>';
       for (let m = 0; m < 12; m++) {
@@ -456,7 +600,9 @@ function select(iso, scrollTo) {
   state.selIso = iso;
   paint();
   renderDetail(iso);
-  if (scrollTo) document.getElementById('detail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  // On small screens the detail is a fixed bottom sheet: nothing to scroll to.
+  const isSheet = window.matchMedia('(max-width: 700px)').matches;
+  if (scrollTo && !isSheet) document.getElementById('detail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 const detailEl = document.getElementById('detail');
@@ -481,7 +627,8 @@ function renderDetail(iso) {
   arc += '</div>';
 
   detailEl.innerHTML =
-    '<div class="top"><div><h2>' + rec.name + '</h2>'
+    '<div class="handle"></div>'
+    + '<div class="top"><div><h2>' + rec.name + '</h2>'
     + '<div class="sub">' + rec.city + ' &middot; ' + rec.region + '</div></div>'
     + '<button class="close" id="closeDetail">Close</button></div>'
     + arc
