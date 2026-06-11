@@ -22,7 +22,11 @@ window.AFFIL = {
 (function () {
   const A = window.AFFIL;
   const enc = encodeURIComponent;
-  const tp = (url, program) => 'https://tp.media/r?marker=' + enc(A.tpMarker) + '&p=' + program + '&u=' + enc(url);
+  // Until a real marker is set, links go straight to the destination, so the
+  // page is fully functional and crawlable now. Set the marker later and the
+  // same links become affiliate links with no other change.
+  const live = A.tpMarker && A.tpMarker.indexOf('REPLACE') === -1;
+  const tp = (url, program) => live ? ('https://tp.media/r?marker=' + enc(A.tpMarker) + '&p=' + program + '&u=' + enc(url)) : url;
   const MONTHS = ['january','february','march','april','may','june','july','august','september','october','november','december'];
 
   // A representative future date range for a named month, so deep links arrive
