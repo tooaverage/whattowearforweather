@@ -3,23 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#f4efe4">
+<meta name="theme-color" content="#f2f4f8">
 <title>When To Go: best time to visit anywhere, by month</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --paper: #f4efe4;
-    --paper2: #eae3d3;
-    --card: #fffdf7;
-    --ink: #232038;
-    --dim: #6f6a83;
-    --line: #e2d9c6;
-    --line2: #d3c8b0;
+    --paper: #f2f4f8;
+    --paper2: #e8ebf2;
+    --card: #ffffff;
+    --ink: #20223a;
+    --dim: #686a82;
+    --line: #e4e7ef;
+    --line2: #d6dae6;
     --brand: #3a51e6;
-    --nodata: #ded5c2;
-    --ocean: #e6eef1;
+    --nodata: #d8dce6;
+    --ocean: #e2edf3;
     --display: "Fredoka", "Nunito", system-ui, sans-serif;
     --sans: "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
@@ -707,7 +707,7 @@ function buildMap(topo) {
     // No-data features get a fill now and are not keyed below (many share a
     // null id, which would collide in the map and leave all but one unpainted).
     buf += '<path data-iso="' + (has ? rec.iso : '') + '" d="' + d + '"'
-        + (has ? '' : ' fill="#ded5c2"') + '></path>';
+        + (has ? '' : ' fill="#d8dce6"') + '></path>';
     if (has && biggest) labelSrc.push({ name: rec.name, x: biggest.x, y: biggest.y, size: biggest.size });
   }
   // Labels live in their own group above the paths.

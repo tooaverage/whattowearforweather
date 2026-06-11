@@ -14,14 +14,14 @@
    ========================================================================= */
 
 :root {
-  /* Surfaces: soft, warm, a little unusual */
-  --paper: #f4efe4;      /* page */
-  --paper-2: #eae3d3;    /* tint band (deeper) */
-  --card: #fffdf7;       /* cards */
-  --ink: #232038;        /* deep aubergine ink, not black */
-  --ink-2: #6f6a83;      /* muted body */
-  --line: #e2d9c6;       /* hairline / tonal border */
-  --line-2: #d3c8b0;
+  /* Surfaces: clean, cool off-white. No beige. */
+  --paper: #f2f4f8;      /* page */
+  --paper-2: #e8ebf2;    /* tint band */
+  --card: #ffffff;       /* cards */
+  --ink: #20223a;        /* deep ink, neutral */
+  --ink-2: #686a82;      /* muted body */
+  --line: #e4e7ef;       /* hairline / tonal border */
+  --line-2: #d6dae6;
 
   /* Brand: blueberry blue sits outside the red-to-green data scale on purpose,
      so the chrome never gets confused with the map colours. Yellow and pink
@@ -135,20 +135,26 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 .badge--fair { background: var(--s-fair); }
 .badge--avoid { background: var(--s-avoid); color: #fff; }
 
-/* ---- Month strip (the signature element) ---- */
-.strip { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; }
+/* ---- Month strip (the signature element) ----
+   Square tiles. The score sits dead centre. On peak months a small round
+   icon badge floats over the top edge, the way the highlight chips do. */
+.strip { display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px; }
 .strip .mo { text-align: center; }
 .strip .tile {
-  border-radius: 16px; aspect-ratio: 1 / 1.25; display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 3px; color: #14130f; font-weight: 800;
-  border: 2px solid rgba(0,0,0,.14); position: relative;
+  position: relative; border-radius: 16px; aspect-ratio: 1 / 1;
+  display: grid; place-items: center; color: #14130f; font-weight: 800;
+  border: 2px solid rgba(0,0,0,.14);
 }
-.strip .tile .sc { font-size: clamp(13px, 1.8vw, 18px); }
-.strip .tile.peak { border-color: var(--ink); border-width: 3px; }
-.strip .tile .mk { position: absolute; top: -11px; background: var(--card); border: 2px solid var(--ink); border-radius: 50%; width: 24px; height: 24px; display: grid; place-items: center; color: var(--ink); }
-.strip .tile .mk .ic { width: 13px; height: 13px; }
-.strip .lab { margin-top: 8px; font-weight: 800; font-size: 13px; color: var(--ink-2); }
-@media (max-width: 760px) { .strip { grid-template-columns: repeat(6, 1fr); } }
+.strip .tile .sc { font-size: clamp(15px, 2vw, 21px); }
+.strip .tile.peak { border-color: var(--ink); }
+.strip .tile .mk {
+  position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+  background: var(--card); border: 2px solid var(--ink); border-radius: 50%;
+  width: 28px; height: 28px; display: grid; place-items: center; color: var(--ink);
+}
+.strip .tile .mk .ic { width: 15px; height: 15px; }
+.strip .lab { margin-top: 12px; font-weight: 800; font-size: 13px; color: var(--ink-2); }
+@media (max-width: 760px) { .strip { grid-template-columns: repeat(6, 1fr); row-gap: 20px; } }
 
 .sw { width: 14px; height: 14px; border-radius: 5px; display: inline-block; border: 1.5px solid rgba(0,0,0,.14); }
 .s-ideal { background: var(--s-ideal); } .s-great { background: var(--s-great); }
