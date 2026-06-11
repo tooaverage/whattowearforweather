@@ -598,8 +598,31 @@ function decodeTopo(topo, objName) {
     let polys = [];
     if (g.type === 'Polygon') polys = [poly(g.arcs)];
     else if (g.type === 'MultiPolygon') polys = g.arcs.map(poly);
-    return { id: g.id == null ? null : +g.id, polys };
+    return { id: g.id == null ? null : +g.id, name: (g.properties && g.properties.name) || '', polys };
   });
+}
+
+// Match a map feature to a country record by ISO id, then by name. The 50m
+// world-atlas tags some countries with ids that do not line up with the ISO
+// numerics in our data (Australia among them), so name is the safety net.
+const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[^a-z]/g, '');
+const byName = new Map(DATA.map(d => [norm(d.name), d]));
+const NAME_ISO = {
+  unitedstatesofamerica: 840, czechrepublic: 203, bosniaandherz: 70, dominicanrep: 214,
+  eqguinea: 226, ssudan: 728, demrepcongo: 180, congo: 178, cotedivoire: 384,
+  laopdr: 418, lao: 418, republicofkorea: 410, dprk: 408, korea: 410,
+  macedonia: 807, timorleste: 626, caboverde: 132, swaziland: 748,
+  bruneidarussalam: 96, russianfederation: 643, vietnam: 704, tanzania: 834,
+  unitedrepublicoftanzania: 834, solomonis: 90, thebahamas: 44, thegambia: 270,
+  guineabissau: 624, centralafricanrep: 140, frpolynesia: 258, papuanewguinea: 598,
+  northmacedonia: 807, ivorycoast: 384, southkorea: 410, northkorea: 408,
+};
+function resolveCountry(f) {
+  if (f.id != null && byIso.has(f.id)) return byIso.get(f.id);
+  const n = norm(f.name);
+  if (byName.has(n)) return byName.get(n);
+  if (NAME_ISO[n] != null) return byIso.get(NAME_ISO[n]);
+  return null;
 }
 
 /* ============================ MAP ============================ */
@@ -666,12 +689,13 @@ function buildMap(topo) {
       }
     }
     if (!d) continue;
-    const has = byIso.has(f.id);
-    // No-data features get a fill now. They are not keyed below (many share a
+    const rec = resolveCountry(f);
+    const has = !!rec;
+    // No-data features get a fill now and are not keyed below (many share a
     // null id, which would collide in the map and leave all but one unpainted).
-    buf += '<path data-iso="' + (f.id == null ? '' : f.id) + '" d="' + d + '"'
+    buf += '<path data-iso="' + (has ? rec.iso : '') + '" d="' + d + '"'
         + (has ? '' : ' fill="#222a3d"') + '></path>';
-    if (has && biggest) labelSrc.push({ name: byIso.get(f.id).name, x: biggest.x, y: biggest.y, size: biggest.size });
+    if (has && biggest) labelSrc.push({ name: rec.name, x: biggest.x, y: biggest.y, size: biggest.size });
   }
   // Labels live in their own group above the paths.
   let lbuf = '<g id="labels">';
