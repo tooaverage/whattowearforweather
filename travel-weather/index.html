@@ -49,7 +49,7 @@
   .search input::placeholder { color: var(--dim); }
 
   .stage { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
-  svg#map { display: block; width: 100%; height: auto; background: linear-gradient(180deg, #121829, #0d111d); touch-action: pan-y; }
+  svg#map { display: block; width: 100%; height: auto; background: #0d111d; touch-action: pan-y; }
   svg#map.zoomed { cursor: grab; }
   svg#map path { stroke: #0e1220; stroke-width: 0.4; cursor: pointer; transition: opacity .1s; vector-effect: non-scaling-stroke; }
   svg#map path.sel { stroke: #fff; stroke-width: 1.4; }
@@ -667,8 +667,10 @@ function buildMap(topo) {
     }
     if (!d) continue;
     const has = byIso.has(f.id);
+    // No-data features get a fill now. They are not keyed below (many share a
+    // null id, which would collide in the map and leave all but one unpainted).
     buf += '<path data-iso="' + (f.id == null ? '' : f.id) + '" d="' + d + '"'
-        + (has ? '' : ' class="ocean-x"') + '></path>';
+        + (has ? '' : ' fill="#222a3d"') + '></path>';
     if (has && biggest) labelSrc.push({ name: byIso.get(f.id).name, x: biggest.x, y: biggest.y, size: biggest.size });
   }
   // Labels live in their own group above the paths.
@@ -682,8 +684,9 @@ function buildMap(topo) {
   svg.querySelectorAll('.clabel').forEach(t => { labelEls[+t.dataset.li].el = t; });
   svg.querySelectorAll('path').forEach(p => {
     const iso = p.dataset.iso ? +p.dataset.iso : null;
+    if (iso == null || !byIso.has(iso)) return; // no-data: already filled, skip
     pathByIso.set(iso, p);
-    if (byIso.has(iso)) {
+    {
       p.addEventListener('click', () => select(iso, false));
       if (canHover) {
         p.addEventListener('mousemove', e => showTip(e, iso));
