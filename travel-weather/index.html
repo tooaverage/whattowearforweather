@@ -55,6 +55,11 @@
   svg#map path.sel { stroke: #fff; stroke-width: 1.4; }
   svg#map path.dim { opacity: 0.35; }
   .ocean { fill: transparent; }
+  .clabel {
+    fill: #f4f7ff; paint-order: stroke; stroke: #0b0f1a; stroke-width: 3px;
+    stroke-linejoin: round; vector-effect: non-scaling-stroke; font-weight: 600;
+    pointer-events: none; text-anchor: middle; dominant-baseline: central;
+  }
 
   .zoomctl { position: absolute; right: 8px; top: 8px; display: none; flex-direction: column; gap: 6px; z-index: 5; }
   .zoomctl button {
@@ -157,7 +162,7 @@
       <button id="zout" aria-label="Zoom out">&#8722;</button>
       <button id="zreset" aria-label="Reset zoom">&#8634;</button>
     </div>
-    <div class="hint" id="zoomhint" style="display:none">Pinch or double tap to zoom</div>
+    <div class="hint" id="zoomhint" style="display:none">Pinch or double tap to zoom. Names appear as you zoom in.</div>
   </div>
 
   <div class="legend" id="legend"></div>
@@ -479,24 +484,54 @@ async function loadMap() {
 function buildMap(topo) {
   const feats = decodeTopo(topo, 'countries');
   let buf = '';
+  const labelSrc = [];
   for (const f of feats) {
     let d = '';
+    let biggest = null, biggestArea = -1;
     for (const polygon of f.polys) {
-      for (const r of polygon) {
+      for (let ri = 0; ri < polygon.length; ri++) {
+        const r = polygon[ri];
         if (r.length < 2) continue;
+        let prevLon = null;
         for (let i = 0; i < r.length; i++) {
-          const p = proj(r[i][0], r[i][1]);
-          d += (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1);
+          const lon = r[i][0], lat = r[i][1];
+          const p = proj(lon, lat);
+          // Break the path where a ring jumps across the 180 deg meridian,
+          // otherwise a flat projection draws a line straight across the map
+          // (the Russia/Antarctica artifact).
+          const brk = prevLon !== null && Math.abs(lon - prevLon) > 180;
+          d += ((i === 0 || brk) ? 'M' : 'L') + p[0].toFixed(1) + ' ' + p[1].toFixed(1);
+          prevLon = lon;
         }
         d += 'Z';
+        // Track the largest outer ring for label placement.
+        if (ri === 0) {
+          let minx = 1e9, maxx = -1e9, miny = 1e9, maxy = -1e9;
+          for (const pt of r) {
+            const p = proj(pt[0], pt[1]);
+            if (p[0] < minx) minx = p[0]; if (p[0] > maxx) maxx = p[0];
+            if (p[1] < miny) miny = p[1]; if (p[1] > maxy) maxy = p[1];
+          }
+          const area = (maxx - minx) * (maxy - miny);
+          if (area > biggestArea) { biggestArea = area; biggest = { x: (minx + maxx) / 2, y: (miny + maxy) / 2, size: Math.max(maxx - minx, maxy - miny) }; }
+        }
       }
     }
     if (!d) continue;
     const has = byIso.has(f.id);
     buf += '<path data-iso="' + (f.id == null ? '' : f.id) + '" d="' + d + '"'
         + (has ? '' : ' class="ocean-x"') + '></path>';
+    if (has && biggest) labelSrc.push({ name: byIso.get(f.id).name, x: biggest.x, y: biggest.y, size: biggest.size });
   }
-  svg.innerHTML = buf;
+  // Labels live in their own group above the paths.
+  let lbuf = '<g id="labels">';
+  labelSrc.forEach((L, i) => {
+    lbuf += '<text class="clabel" data-li="' + i + '" x="' + L.x.toFixed(1) + '" y="' + L.y.toFixed(1) + '">' + L.name + '</text>';
+  });
+  lbuf += '</g>';
+  svg.innerHTML = buf + lbuf;
+  labelEls = labelSrc;
+  svg.querySelectorAll('.clabel').forEach(t => { labelEls[+t.dataset.li].el = t; });
   svg.querySelectorAll('path').forEach(p => {
     const iso = p.dataset.iso ? +p.dataset.iso : null;
     pathByIso.set(iso, p);
@@ -515,6 +550,7 @@ function buildMap(topo) {
     document.getElementById('zoomctl').style.display = 'flex';
     document.getElementById('zoomhint').style.display = 'block';
   }
+  applyVB();
   paint();
 }
 
@@ -525,75 +561,128 @@ function mapFailed() {
 }
 
 /* ============================ MAP ZOOM + PAN ============================ */
-// Zoom works by shrinking the SVG viewBox. Pinch, double tap, wheel, or the
-// buttons zoom; one finger (or mouse drag) pans once zoomed in. While not
-// zoomed, touch-action pan-y leaves vertical page scrolling to the browser.
+// Zoom shrinks the SVG viewBox. Pinch, double tap, wheel and the buttons zoom;
+// one finger or a mouse drag pans once zoomed in, with momentum on release.
+// Button and double-tap zooms are eased for a smooth, map-like feel.
 const BASE = { x: 0, y: 22, w: 1000, h: 396 };
 let vb = { ...BASE };
+let labelEls = [];
 const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+let anim = 0;
+function cancelAnim() { if (anim) { cancelAnimationFrame(anim); anim = 0; } }
 
 function applyVB() {
-  svg.setAttribute('viewBox', vb.x.toFixed(1) + ' ' + vb.y.toFixed(1) + ' ' + vb.w.toFixed(1) + ' ' + vb.h.toFixed(1));
+  svg.setAttribute('viewBox', vb.x.toFixed(2) + ' ' + vb.y.toFixed(2) + ' ' + vb.w.toFixed(2) + ' ' + vb.h.toFixed(2));
   const zoomed = vb.w < BASE.w - 1;
   svg.classList.toggle('zoomed', zoomed);
   svg.style.touchAction = zoomed ? 'none' : 'pan-y';
+  updateLabels();
+}
+function updateLabels() {
+  if (!labelEls.length) return;
+  const grp = document.getElementById('labels');
+  if (!grp) return;
+  if (vb.w > BASE.w * 0.6) { grp.style.display = 'none'; return; }
+  grp.style.display = '';
+  const wpx = svg.clientWidth || 360;
+  const fU = 12 * vb.w / wpx; // user units giving roughly 12px on screen
+  const pad = fU;
+  const x0 = vb.x - pad, x1 = vb.x + vb.w + pad, y0 = vb.y - pad, y1 = vb.y + vb.h + pad;
+  for (const L of labelEls) {
+    if (!L.el) continue;
+    const show = L.x > x0 && L.x < x1 && L.y > y0 && L.y < y1 && L.size > fU * 1.3;
+    if (show) { L.el.setAttribute('font-size', fU.toFixed(2)); L.el.style.display = ''; }
+    else L.el.style.display = 'none';
+  }
 }
 function clientToVB(cx, cy) {
   const r = svg.getBoundingClientRect();
   return [vb.x + (cx - r.left) / r.width * vb.w, vb.y + (cy - r.top) / r.height * vb.h];
 }
-// factor > 1 zooms in, keeping viewBox point (px, py) fixed on screen.
-function zoomAt(px, py, factor) {
-  const w = clamp(vb.w / factor, BASE.w / 10, BASE.w);
+// Target viewBox for a zoom that keeps point (px, py) fixed on screen.
+function zoomTarget(px, py, factor) {
+  const w = clamp(vb.w / factor, BASE.w / 12, BASE.w);
   const h = w * BASE.h / BASE.w;
-  vb.x = clamp(px - (px - vb.x) * (w / vb.w), BASE.x, BASE.x + BASE.w - w);
-  vb.y = clamp(py - (py - vb.y) * (h / vb.h), BASE.y, BASE.y + BASE.h - h);
-  vb.w = w; vb.h = h;
-  applyVB();
+  return {
+    x: clamp(px - (px - vb.x) * (w / vb.w), BASE.x, BASE.x + BASE.w - w),
+    y: clamp(py - (py - vb.y) * (h / vb.h), BASE.y, BASE.y + BASE.h - h),
+    w, h,
+  };
 }
+function zoomAt(px, py, factor) { vb = zoomTarget(px, py, factor); applyVB(); } // instant (pinch)
 function panBy(dxPx, dyPx) {
   const r = svg.getBoundingClientRect();
   vb.x = clamp(vb.x - dxPx / r.width * vb.w, BASE.x, BASE.x + BASE.w - vb.w);
   vb.y = clamp(vb.y - dyPx / r.height * vb.h, BASE.y, BASE.y + BASE.h - vb.h);
   applyVB();
 }
-document.getElementById('zin').addEventListener('click', () => zoomAt(vb.x + vb.w / 2, vb.y + vb.h / 2, 1.7));
-document.getElementById('zout').addEventListener('click', () => zoomAt(vb.x + vb.w / 2, vb.y + vb.h / 2, 1 / 1.7));
-document.getElementById('zreset').addEventListener('click', () => { vb = { ...BASE }; applyVB(); });
+const easeOut = t => 1 - Math.pow(1 - t, 3);
+function animateTo(target, dur) {
+  cancelAnim();
+  const from = { ...vb }, t0 = performance.now();
+  (function step(now) {
+    const k = Math.min(1, (now - t0) / dur), e = easeOut(k);
+    vb = {
+      x: from.x + (target.x - from.x) * e, y: from.y + (target.y - from.y) * e,
+      w: from.w + (target.w - from.w) * e, h: from.h + (target.h - from.h) * e,
+    };
+    applyVB();
+    if (k < 1) anim = requestAnimationFrame(step); else anim = 0;
+  })(t0);
+}
+function startInertia(vx, vy) {
+  cancelAnim();
+  let last = performance.now();
+  (function step(now) {
+    const dt = Math.min(40, now - last); last = now;
+    const decay = Math.pow(0.9, dt / 16);
+    vx *= decay; vy *= decay;
+    panBy(vx * dt, vy * dt);
+    if (Math.hypot(vx, vy) > 0.015 && svg.classList.contains('zoomed')) anim = requestAnimationFrame(step);
+    else anim = 0;
+  })(last);
+}
+
+document.getElementById('zin').addEventListener('click', () => animateTo(zoomTarget(vb.x + vb.w / 2, vb.y + vb.h / 2, 1.8), 220));
+document.getElementById('zout').addEventListener('click', () => animateTo(zoomTarget(vb.x + vb.w / 2, vb.y + vb.h / 2, 1 / 1.8), 220));
+document.getElementById('zreset').addEventListener('click', () => animateTo({ ...BASE }, 260));
 
 svg.addEventListener('wheel', e => {
   if (!mapReady) return;
   e.preventDefault();
+  cancelAnim();
   const p = clientToVB(e.clientX, e.clientY);
-  zoomAt(p[0], p[1], e.deltaY < 0 ? 1.25 : 0.8);
+  zoomAt(p[0], p[1], e.deltaY < 0 ? 1.2 : 1 / 1.2);
 }, { passive: false });
 svg.addEventListener('dblclick', e => {
   if (!mapReady) return;
   e.preventDefault();
   const p = clientToVB(e.clientX, e.clientY);
-  zoomAt(p[0], p[1], 2.2);
+  animateTo(zoomTarget(p[0], p[1], 2.4), 240);
 });
 
 // Pointer gestures. ptrs holds active pointers with start and last positions.
 const ptrs = new Map();
 let gestureMoved = false, pinchD = 0, lastTap = { t: 0, x: 0, y: 0 };
+let panV = { x: 0, y: 0, t: 0 };
 
 svg.addEventListener('pointerdown', e => {
   if (!mapReady) return;
+  cancelAnim();
   ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY });
-  if (ptrs.size === 1) gestureMoved = false;
+  if (ptrs.size === 1) { gestureMoved = false; panV = { x: 0, y: 0, t: performance.now() }; }
   if (ptrs.size === 2) {
     const [a, b] = [...ptrs.values()];
     pinchD = Math.hypot(a.x - b.x, a.y - b.y);
     gestureMoved = true;
   } else if (e.pointerType === 'touch') {
-    // Manual double-tap detection: dblclick is unreliable on touch.
+    // Manual double-tap: dblclick is unreliable on touch.
     const dt = Date.now() - lastTap.t;
     if (dt < 320 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 40) {
       const p = clientToVB(e.clientX, e.clientY);
-      zoomAt(p[0], p[1], 2.2);
+      animateTo(zoomTarget(p[0], p[1], 2.4), 240);
       lastTap.t = 0;
-      gestureMoved = true; // swallow the click this tap would fire
+      gestureMoved = true;
     } else {
       lastTap = { t: Date.now(), x: e.clientX, y: e.clientY };
     }
@@ -615,10 +704,22 @@ svg.addEventListener('pointermove', e => {
     }
     pinchD = d;
   } else if (ptrs.size === 1 && svg.classList.contains('zoomed')) {
-    panBy(cur.x - prev.x, cur.y - prev.y);
+    const dx = cur.x - prev.x, dy = cur.y - prev.y;
+    const now = performance.now(), dt = now - panV.t || 16;
+    panV = { x: dx / dt, y: dy / dt, t: now };
+    panBy(dx, dy);
   }
 });
-function endPtr(e) { ptrs.delete(e.pointerId); pinchD = 0; }
+function endPtr(e) {
+  const wasLast = ptrs.size === 1 && ptrs.has(e.pointerId);
+  ptrs.delete(e.pointerId);
+  pinchD = 0;
+  // Fling: only when the final finger lifts after a fresh pan while zoomed.
+  if (wasLast && svg.classList.contains('zoomed') && performance.now() - panV.t < 90
+      && Math.hypot(panV.x, panV.y) > 0.05) {
+    startInertia(clamp(panV.x, -4, 4), clamp(panV.y, -4, 4));
+  }
+}
 window.addEventListener('pointerup', endPtr);
 window.addEventListener('pointercancel', endPtr);
 // After a drag or pinch, swallow the click so it does not select a country.
