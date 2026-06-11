@@ -1,9 +1,9 @@
 # When To Go
 
 An interactive world map that shows, by color, when each country is good to visit.
-Pick a month and the map paints every country from red (avoid) through amber
-(shoulder) to green (ideal). Tap a country to see its full year arc and the best
-months to go.
+Pick a month and the map paints every country in five steps from red (avoid)
+through orange and yellow to green (ideal). Tap a country to see its full year
+arc and the best months to go. Covers over 100 countries.
 
 This is a standalone project. It shares nothing with the rest of this repo and
 is meant to be lifted into its own repo later.
@@ -20,11 +20,18 @@ Open `index.html` in any browser. No build, no server, no keys.
 ## How scores work
 
 Each country uses climate normals (average high, average low, monthly rainfall)
-for one representative hub city, shown in the detail panel. The engine blends
-into a 0 to 100 comfort score per month:
+for one representative hub city, shown in the detail panel. The engine turns
+those into a 0 to 100 comfort score per month, then maps the score to five
+strong discrete colors (red, orange, yellow, light green, green) so good and
+bad seasons read at a glance.
 
-- daytime high temperature, with an ideal band around 21 to 27 C
-- overnight chill, penalized when nights get cold
+Comfort is limited by the worst factor: a dry but freezing month is still bad,
+and a warm but storm-prone month is still bad. The score leans on whichever of
+temperature and rain is worse, then folds in:
+
+- daytime high temperature, with an ideal band around 20 to 28 C
+- overnight chill, penalized hard when nights get cold
+- extreme heat, penalized hard above the low 30s C
 - monthly rainfall, penalized as it climbs
 - a penalty during tropical-storm season (typhoon, hurricane, cyclone), which
   is a curated per-country field because it does not show up in average rainfall

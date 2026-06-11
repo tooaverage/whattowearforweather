@@ -4,38 +4,42 @@
 
 const CFG = {
   // Daytime-high comfort. Full marks inside the ideal band, linear falloff outside.
-  idealHiLow: 21,
-  idealHiHigh: 27,
-  coldHiPerDeg: 4.2, // score lost per deg C below idealHiLow
+  idealHiLow: 20,
+  idealHiHigh: 28,
+  coldHiPerDeg: 5.0, // score lost per deg C below idealHiLow
   hotHiPerDeg: 4.0, // score lost per deg C above idealHiHigh
   // Cold-night penalty kicks in below this nightly low.
-  coldNightStart: 6,
-  coldNightPerDeg: 2.0,
+  coldNightStart: 4,
+  coldNightPerDeg: 2.4,
   // Extra heat penalty for sticky, very hot days.
-  swelterStart: 33,
-  swelterPerDeg: 2.5,
+  swelterStart: 32,
+  swelterPerDeg: 4.3,
   // Rainfall comfort, by monthly precipitation in mm.
-  rainDry: 35, // at or below: perfect
-  rainPerMm: 0.46, // score lost per mm above rainDry
-  // Blend.
-  wTemp: 0.6,
-  wRain: 0.4,
+  rainDry: 45, // at or below: perfect
+  rainPerMm: 0.5, // score lost per mm above rainDry
+  // Comfort is limited by the worst factor: a dry but freezing month is still
+  // bad. Final score leans on the worse of temperature and rain (wWorst) and
+  // blends the rest. This is what pushes cold-wet and monsoon months to red.
+  wWorst: 0.62,
+  wTemp: 0.55, // weight of temperature in the averaged remainder
+  wRain: 0.45,
   // Tropical-storm season (typhoon/hurricane/cyclone) is a curated per-country
   // field, not visible in average rainfall, so it gets a flat score penalty.
-  stormPenalty: 17,
+  stormPenalty: 22,
   // Hazard tag thresholds.
   monsoonMm: 230, // heavy monsoon rain
   wetMm: 130, // notably wet
   heatHi: 35, // extreme-heat days
-  coldHiMax: 5, // daytime stays cold
-  coldLoMax: -8, // hard overnight cold
-  // Score -> band. Each entry is [minScore, key, label].
+  coldHiMax: 7, // daytime stays cold
+  coldLoMax: -6, // hard overnight cold
+  // Score -> band. Each entry is [minScore, key, label, color]. Colors are
+  // strong and discrete (red through green), not a soft gradient.
   bands: [
-    [78, 'ideal', 'Ideal'],
-    [62, 'great', 'Great'],
-    [46, 'good', 'Good'],
-    [30, 'fair', 'Fair'],
-    [0, 'avoid', 'Avoid'],
+    [74, 'ideal', 'Ideal', '#1f9e57'],
+    [58, 'great', 'Great', '#7cc24a'],
+    [44, 'good', 'Good', '#f2cf2e'],
+    [29, 'fair', 'Fair', '#ef8a2c'],
+    [0, 'avoid', 'Avoid', '#e23b2e'],
   ],
 };
 
@@ -66,9 +70,22 @@ function hasStorm(rec, m) {
 function score(rec, m, cfg = CFG) {
   const t = tempScore(rec.hi[m], rec.lo[m], cfg);
   const r = rainScore(rec.pr[m], cfg);
-  let s = t * cfg.wTemp + r * cfg.wRain;
+  const worse = Math.min(t, r);
+  const avg = t * cfg.wTemp + r * cfg.wRain;
+  let s = cfg.wWorst * worse + (1 - cfg.wWorst) * avg;
   if (hasStorm(rec, m)) s -= cfg.stormPenalty;
   return Math.round(clamp(s, 0, 100));
+}
+
+function band(s, cfg = CFG) {
+  for (const b of cfg.bands) if (s >= b[0]) return { key: b[1], label: b[2], color: b[3] };
+  const last = cfg.bands[cfg.bands.length - 1];
+  return { key: last[1], label: last[2], color: last[3] };
+}
+
+// Discrete band color for a score: strong red-to-green steps.
+function scoreColor(s) {
+  return band(s).color;
 }
 
 // Weather hazards for a month, worst-first. Curated storm season plus flags
@@ -114,17 +131,6 @@ function rangeText(months) {
   }
   if (run.length) parts.push(run);
   return parts.map(r => r.length === 1 ? RT_MONTHS[r[0]] : RT_MONTHS[r[0]] + ' to ' + RT_MONTHS[r[r.length - 1]]).join(', ');
-}
-
-function band(s, cfg = CFG) {
-  for (const [min, key, label] of cfg.bands) if (s >= min) return { key, label };
-  return cfg.bands[cfg.bands.length - 1];
-}
-
-// Continuous red -> amber -> green fill for a score, tuned for a dark theme.
-function scoreColor(s) {
-  const hue = 4 + (clamp(s, 0, 100) / 100) * 121; // 4=red .. 125=green
-  return `hsl(${hue.toFixed(0)} 58% 44%)`;
 }
 
 // Months sorted best-first, plus the single peak month index.
