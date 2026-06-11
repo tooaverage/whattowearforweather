@@ -132,6 +132,16 @@
   .watch .k { color: var(--dim); flex: 0 0 96px; }
   .watch .v { color: var(--ink); }
   .watch .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+  .guideline { margin-top: 11px; font-size: 13px; color: var(--dim); }
+  .guideline .ok { color: #5cc98c; font-weight: 700; }
+  .guideline .diff { color: #e0b54a; font-weight: 700; }
+  .onnow { margin-top: 12px; font-size: 13px; border-top: 1px solid var(--line); padding-top: 10px; }
+  .onnow .hd { color: var(--dim); font-size: 12px; }
+  .onnow .h { display: flex; gap: 8px; align-items: baseline; margin-top: 6px; }
+  .onnow .em { font-size: 15px; line-height: 1; }
+  .onnow .t { color: var(--dim); }
+  .onnow .h.active .t { color: var(--ink); font-weight: 600; }
+  .onnow .mo { color: var(--accent); font-size: 12px; margin-left: 6px; }
   .foot { color: var(--dim); font-size: 11px; margin-top: 18px; line-height: 1.5; }
 </style>
 </head>
@@ -366,7 +376,60 @@ const DATA = [
   { iso: 584, name: 'Marshall Islands', city: 'Majuro', region: 'Oceania', hi: [30,30,30,30,31,31,31,31,31,31,31,30], lo: [25,25,25,25,25,25,25,25,25,25,25,25], pr: [200,160,180,220,250,280,300,300,310,330,300,270] },
   { iso: 585, name: 'Palau', city: 'Koror', region: 'Oceania', hi: [31,31,31,31,31,31,31,31,31,31,31,31], lo: [24,24,24,25,25,25,24,24,24,24,24,24], pr: [280,210,210,230,320,420,430,400,330,330,260,280] },
   { iso: 520, name: 'Nauru', city: 'Yaren', region: 'Oceania', hi: [30,30,30,30,31,31,31,31,31,31,31,30], lo: [25,25,25,25,25,25,25,25,25,25,25,25], pr: [280,250,190,150,120,110,140,150,130,130,170,250] },
+  { iso: 20, name: 'Andorra', city: 'Andorra la Vella', region: 'Europe', hi: [5,7,11,13,18,22,25,24,20,15,9,6], lo: [-2,-1,1,3,7,11,14,14,10,7,2,0], pr: [40,40,45,70,90,80,65,75,70,70,60,50] },
+  { iso: 383, name: 'Kosovo', city: 'Pristina', region: 'Europe', hi: [3,6,11,17,22,26,28,28,23,17,10,4], lo: [-4,-3,0,4,9,12,14,14,10,6,2,-2], pr: [40,40,45,55,70,55,50,45,45,50,70,55] },
+  { iso: 438, name: 'Liechtenstein', city: 'Vaduz', region: 'Europe', hi: [4,6,11,15,20,23,25,24,20,15,8,5], lo: [-3,-2,1,4,8,11,13,13,10,6,1,-2], pr: [55,50,55,70,90,120,130,130,90,65,70,60] },
+  { iso: 492, name: 'Monaco', city: 'Monaco', region: 'Europe', hi: [13,13,15,17,20,24,27,27,24,21,16,14], lo: [8,8,10,12,16,19,22,22,19,16,11,9], pr: [70,75,65,60,45,35,20,30,65,110,105,80] },
+  { iso: 674, name: 'San Marino', city: 'San Marino', region: 'Europe', hi: [7,8,11,15,20,24,27,27,22,17,11,8], lo: [1,1,4,7,11,15,18,18,14,10,5,2], pr: [55,55,60,70,65,55,45,55,70,85,90,70] },
+  { iso: 275, name: 'Palestine', city: 'Ramallah', region: 'Africa & Middle East', hi: [12,13,17,22,26,28,29,30,29,26,20,14], lo: [5,5,8,11,15,17,18,19,17,15,11,7], pr: [140,130,80,30,5,0,0,0,1,25,75,120] },
+  { iso: 624, name: 'Guinea-Bissau', city: 'Bissau', region: 'Africa & Middle East', hi: [31,33,34,34,33,32,30,30,31,32,33,31], lo: [17,18,19,20,22,23,23,23,23,23,22,18], pr: [1,1,1,1,15,130,420,500,360,180,40,3] },
+  { iso: 678, name: 'Sao Tome and Principe', city: 'Sao Tome', region: 'Africa & Middle East', hi: [30,30,31,31,30,28,27,28,29,29,30,30], lo: [22,22,23,23,23,22,21,21,21,22,22,22], pr: [90,100,130,120,110,20,5,8,30,110,130,100] },
+  { iso: 28, name: 'Antigua and Barbuda', city: 'Saint Johns', region: 'Americas', hi: [28,28,29,30,30,31,31,31,31,31,30,29], lo: [22,22,22,23,24,25,24,24,24,24,23,23], pr: [65,45,40,55,85,75,110,125,120,125,165,90], storm: { type: 'Hurricane', mo: [7,8,9,10] } },
+  { iso: 212, name: 'Dominica', city: 'Roseau', region: 'Americas', hi: [28,28,29,29,30,30,31,31,31,30,29,29], lo: [20,20,20,21,22,23,23,23,23,22,22,21], pr: [130,90,80,90,140,200,260,280,280,260,240,180], storm: { type: 'Hurricane', mo: [7,8,9,10] } },
+  { iso: 308, name: 'Grenada', city: 'Saint Georges', region: 'Americas', hi: [29,29,30,30,31,31,30,31,31,30,30,29], lo: [23,23,23,24,25,25,24,24,24,24,24,23], pr: [110,55,40,40,90,180,200,200,170,200,210,180], storm: { type: 'Hurricane', mo: [7,8,9,10] } },
+  { iso: 659, name: 'Saint Kitts and Nevis', city: 'Basseterre', region: 'Americas', hi: [28,28,29,30,30,31,31,31,31,31,30,29], lo: [22,22,22,23,24,25,24,24,24,24,23,23], pr: [70,50,55,65,95,90,120,130,120,130,140,90], storm: { type: 'Hurricane', mo: [7,8,9,10] } },
+  { iso: 662, name: 'Saint Lucia', city: 'Castries', region: 'Americas', hi: [28,28,29,30,30,30,30,31,31,30,30,29], lo: [22,22,23,23,24,24,24,24,23,23,23,22], pr: [120,80,75,80,110,180,235,245,260,250,225,170], storm: { type: 'Hurricane', mo: [7,8,9,10] } },
+  { iso: 670, name: 'Saint Vincent and the Grenadines', city: 'Kingstown', region: 'Americas', hi: [28,28,29,30,30,30,30,31,31,30,30,29], lo: [22,22,22,23,24,24,24,24,24,24,23,23], pr: [130,90,80,75,110,200,250,250,260,250,230,180], storm: { type: 'Hurricane', mo: [7,8,9,10] } },
 ];
+
+/* ============================ EDITORIAL LAYER (UI only) ============================ */
+// Month-tagged highlights and what travel guides say. This does not affect the
+// climate score or colors; it adds context and a guides-vs-data check. Expandable.
+const HLKIND = { wildlife: '🦁', festival: '🎉', nature: '🍁', lights: '🌌', bloom: '🌸', dive: '🐠' };
+const HL = {
+  404: [{ k: 'wildlife', mo: [6,7,8,9], t: 'Great Migration in the Masai Mara' }],
+  834: [{ k: 'wildlife', mo: [0,1], t: 'Wildebeest calving on the Serengeti' }, { k: 'wildlife', mo: [5,6,7,8,9], t: 'Prime dry-season safari' }],
+  392: [{ k: 'bloom', mo: [2,3], t: 'Cherry blossom season' }, { k: 'nature', mo: [10], t: 'Autumn leaves (koyo)' }],
+  356: [{ k: 'festival', mo: [2], t: 'Holi, festival of colours' }, { k: 'festival', mo: [9,10], t: 'Diwali, festival of lights' }],
+  352: [{ k: 'lights', mo: [8,9,10,11,0,1,2], t: 'Northern lights season' }, { k: 'nature', mo: [5,6], t: 'Midnight sun' }],
+  578: [{ k: 'lights', mo: [9,10,11,0,1,2], t: 'Northern lights season' }],
+  604: [{ k: 'festival', mo: [5], t: 'Inti Raymi sun festival, Cusco' }],
+  76: [{ k: 'festival', mo: [1], t: 'Carnival in Rio' }],
+  276: [{ k: 'festival', mo: [8,9], t: 'Oktoberfest in Munich' }],
+  764: [{ k: 'festival', mo: [3], t: 'Songkran water festival' }, { k: 'festival', mo: [10], t: 'Loy Krathong lantern festival' }],
+  528: [{ k: 'bloom', mo: [3], t: 'Tulip season at Keukenhof' }],
+  710: [{ k: 'wildlife', mo: [7,8,9], t: 'Whale watching at Hermanus' }, { k: 'bloom', mo: [7,8], t: 'West Coast wildflowers' }],
+  72: [{ k: 'wildlife', mo: [5,6,7], t: 'Okavango Delta flood peak' }, { k: 'wildlife', mo: [0,1], t: 'Green-season calving and birding' }],
+  188: [{ k: 'wildlife', mo: [6,7,8,9], t: 'Sea turtle nesting at Tortuguero' }],
+  484: [{ k: 'wildlife', mo: [10,11,0,1,2], t: 'Monarch butterfly migration' }, { k: 'festival', mo: [10], t: 'Day of the Dead' }],
+  360: [{ k: 'festival', mo: [2], t: 'Nyepi, Bali day of silence' }],
+  524: [{ k: 'nature', mo: [9,10,2,3], t: 'Clear Himalaya views for trekking' }],
+  646: [{ k: 'wildlife', mo: [5,6,7,11,0,1], t: 'Gorilla trekking in the drier months' }],
+  800: [{ k: 'wildlife', mo: [5,6,7,11,0,1], t: 'Gorilla and chimp trekking' }],
+  124: [{ k: 'nature', mo: [8,9], t: 'Fall foliage' }, { k: 'lights', mo: [10,11,0,1,2], t: 'Northern lights in the north' }],
+  840: [{ k: 'nature', mo: [9], t: 'New England fall foliage' }],
+  36: [{ k: 'wildlife', mo: [4,5,6,7,8,9,10], t: 'Humpback whale migration' }],
+  554: [{ k: 'nature', mo: [2,3], t: 'Autumn colours in the south' }],
+  152: [{ k: 'nature', mo: [11,0,1,2], t: 'Patagonia and Atacama in season' }],
+  608: [{ k: 'dive', mo: [2,3,4], t: 'Whale shark and diving season' }],
+};
+// What guides say are the best months, for the guides-vs-data check.
+const GUIDE = {
+  84: { best: [1,2,3] }, 404: { best: [0,1,6,7,8,9] }, 144: { best: [11,0,1,2,3] }, 360: { best: [3,4,5,8,9] },
+  834: { best: [5,6,7,8,9] }, 710: { best: [2,3,4,8,9,10] }, 604: { best: [4,5,6,7,8,9] }, 352: { best: [5,6,7] },
+  504: { best: [2,3,4,8,9,10] }, 462: { best: [10,11,0,1,2,3] }, 480: { best: [4,5,6,7,8,9,10,11] },
+  72: { best: [4,5,6,7,8,9] }, 392: { best: [3,9,10] },
+};
 
 /* ============================ ENGINE (pure) ============================ */
 const CFG = {
@@ -938,6 +1001,27 @@ function renderDetail(iso) {
   const highR = rangeText(seasonMonths('high'));
   const lowR = rangeText(seasonMonths('low'));
 
+  // Editorial layer: guides-vs-data check and month-tagged highlights.
+  const g = GUIDE[iso];
+  let guideHtml = '';
+  if (g && g.best && g.best.length) {
+    const hiMonths = seasonMonths('high');
+    const overlap = g.best.filter(x => hiMonths.indexOf(x) !== -1).length;
+    const agree = overlap >= Math.ceil(g.best.length * 0.5);
+    guideHtml = '<div class="guideline">Travel guides say best <b style="color:var(--ink)">' + rangeText(g.best) + '</b> '
+      + (agree ? '<span class="ok">matches our data</span>' : '<span class="diff">differs from our data</span>') + '</div>';
+  }
+  const hls = HL[iso] || [];
+  let hlHtml = '';
+  if (hls.length) {
+    const sorted = hls.slice().sort((a, b) => (b.mo.indexOf(m) !== -1 ? 1 : 0) - (a.mo.indexOf(m) !== -1 ? 1 : 0));
+    hlHtml = '<div class="onnow"><div class="hd">What is on</div>'
+      + sorted.map(h => '<div class="h' + (h.mo.indexOf(m) !== -1 ? ' active' : '') + '">'
+        + '<span class="em">' + (HLKIND[h.k] || '&bull;') + '</span>'
+        + '<span class="t">' + h.t + '<span class="mo">' + rangeText(h.mo) + '</span></span></div>').join('')
+      + '</div>';
+  }
+
   detailEl.innerHTML =
     '<div class="handle"></div>'
     + '<div class="top"><div><h2>' + rec.name + '</h2>'
@@ -956,7 +1040,8 @@ function renderDetail(iso) {
     + '<div class="r"><span class="k"><span class="dot" style="background:' + SEASONSTYLE.high[0] + '"></span>High season</span><span class="v">' + (highR || 'none') + '</span></div>'
     + '<div class="r"><span class="k"><span class="dot" style="background:' + SEASONSTYLE.low[0] + '"></span>Low season</span><span class="v">' + (lowR || 'none') + '</span></div>'
     + watchRows
-    + '</div>';
+    + '</div>'
+    + guideHtml + hlHtml;
 
   detailEl.classList.add('show');
   document.getElementById('closeDetail').addEventListener('click', () => {
