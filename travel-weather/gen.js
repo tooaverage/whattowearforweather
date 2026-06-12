@@ -109,9 +109,9 @@ function breadcrumbJsonLd(c) {
   return JSON.stringify({
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'When To Go', item: 'https://whentogo.world/' },
-      { '@type': 'ListItem', position: 2, name: 'Countries', item: 'https://whentogo.world/country/' },
-      { '@type': 'ListItem', position: 3, name: c.name, item: 'https://whentogo.world/country/' + c.slug },
+      { '@type': 'ListItem', position: 1, name: 'When To Go', item: 'https://gowhereandwhen.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Countries', item: 'https://gowhereandwhen.com/country/' },
+      { '@type': 'ListItem', position: 3, name: c.name, item: 'https://gowhereandwhen.com/country/' + c.slug },
     ],
   });
 }
@@ -125,7 +125,7 @@ function exploreChips(slug) {
 function page(c) {
   const rec = byIso.get(c.iso);
   const D = compute(rec);
-  const url = 'https://whentogo.world/country/' + c.slug;
+  const url = 'https://gowhereandwhen.com/country/' + c.slug;
   const card = (b) => '<div class="card"><div class="row" style="gap:10px">' + (b.icon ? '<i data-lucide="' + b.icon + '" class="ic" style="color:var(--brand)"></i>' : '')
     + '<h3 class="mb-0">' + b.h + '</h3></div><p style="margin:12px 0 0; color:var(--ink-2)">' + b.p + '</p></div>';
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
@@ -148,7 +148,7 @@ function page(c) {
 <meta property="og:title" content="${esc(c.title)}">
 <meta property="og:description" content="${esc(c.desc)}">
 <meta property="og:url" content="${url}">
-<meta property="og:image" content="https://whentogo.world/og.svg">
+<meta property="og:image" content="https://gowhereandwhen.com/og.svg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/site.webmanifest">
@@ -313,12 +313,12 @@ function indexPage() {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Best Time to Visit Every Country: a Month by Month Guide</title>
 <meta name="description" content="Browse the best time to visit countries around the world, month by month. Pick a destination for its weather rating, seasons, hazards and the months to go.">
-<link rel="canonical" href="https://whentogo.world/country/">
+<link rel="canonical" href="https://gowhereandwhen.com/country/">
 <meta name="robots" content="index,follow">
 <meta property="og:title" content="Best time to visit every country">
 <meta property="og:description" content="Pick a destination for its weather rating, seasons and the best months to go.">
-<meta property="og:url" content="https://whentogo.world/country/">
-<meta property="og:image" content="https://whentogo.world/og.svg">
+<meta property="og:url" content="https://gowhereandwhen.com/country/">
+<meta property="og:image" content="https://gowhereandwhen.com/og.svg">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#3a51e6">
@@ -358,7 +358,7 @@ function indexPage() {
 fs.writeFileSync(path.join('country', 'index.html'), indexPage());
 
 // Sitemap
-const urls = ['https://whentogo.world/', 'https://whentogo.world/country/'].concat(CONTENT.map(c => 'https://whentogo.world/country/' + c.slug));
+const urls = ['https://gowhereandwhen.com/', 'https://gowhereandwhen.com/country/'].concat(CONTENT.map(c => 'https://gowhereandwhen.com/country/' + c.slug));
 const sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
   + urls.map((u, i) => '  <url>\n    <loc>' + u + '</loc>\n    <changefreq>' + (i ? 'monthly' : 'weekly') + '</changefreq>\n    <priority>' + (i ? '0.8' : '1.0') + '</priority>\n  </url>').join('\n')
   + '\n</urlset>\n';

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://whentogo.world/sitemap.xml
+Sitemap: https://gowhereandwhen.com/sitemap.xml

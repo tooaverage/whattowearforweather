@@ -8,8 +8,8 @@
 
 ## Pages
 
-- [World map](https://whentogo.world/): pick a month, see where the weather is good across 199 countries.
-- [Best time to visit Japan](https://whentogo.world/country/japan): month by month weather and seasons for Japan.
+- [World map](https://gowhereandwhen.com/): pick a month, see where the weather is good across 199 countries.
+- [Best time to visit Japan](https://gowhereandwhen.com/country/japan): month by month weather and seasons for Japan.
 
 ## Notes
 
