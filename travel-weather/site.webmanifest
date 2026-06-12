@@ -1,0 +1,10 @@
+{
+  "name": "When To Go",
+  "short_name": "When To Go",
+  "description": "The best time to visit anywhere, by month.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f2f4f8",
+  "theme_color": "#3a51e6",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

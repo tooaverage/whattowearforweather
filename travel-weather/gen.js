@@ -148,7 +148,11 @@ function page(c) {
 <meta property="og:title" content="${esc(c.title)}">
 <meta property="og:description" content="${esc(c.desc)}">
 <meta property="og:url" content="${url}">
+<meta property="og:image" content="https://whentogo.world/og.svg">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#3a51e6">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -299,8 +303,62 @@ for (const c of CONTENT) {
   slugs.push(c.slug);
 }
 
+// Country directory hub page (good for SEO internal linking)
+function indexPage() {
+  const chips = CONTENT.map(c => '<a class="chip" href="' + c.slug + '/">' + c.name.replace(/^the /, '') + '</a>').join('\n        ');
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Best Time to Visit Every Country: a Month by Month Guide</title>
+<meta name="description" content="Browse the best time to visit countries around the world, month by month. Pick a destination for its weather rating, seasons, hazards and the months to go.">
+<link rel="canonical" href="https://whentogo.world/country/">
+<meta name="robots" content="index,follow">
+<meta property="og:title" content="Best time to visit every country">
+<meta property="og:description" content="Pick a destination for its weather rating, seasons and the best months to go.">
+<meta property="og:url" content="https://whentogo.world/country/">
+<meta property="og:image" content="https://whentogo.world/og.svg">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#3a51e6">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles/wtg.css">
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <a class="brand" href="../index.html"><span class="dot"><i data-lucide="compass" class="ic"></i></span>When To Go</a>
+  <span class="spacer"></span>
+  <a class="link" href="../index.html">World map</a>
+</div></header>
+<main>
+  <section class="section section--tight"><div class="wrap">
+    <p class="eyebrow"><i data-lucide="globe" class="ic"></i> Destinations</p>
+    <h1>Best time to visit, by country</h1>
+    <p class="lead" style="margin:14px 0 26px">Pick a destination for a month by month weather rating, its high and low seasons, any hazards, and the best months to go. Or explore them all on the <a href="../index.html">interactive world map</a>.</p>
+    <div class="row">
+        ${chips}
+    </div>
+  </div></section>
+</main>
+<footer class="foot"><div class="wrap"><div class="cols">
+  <div><a class="brand" href="../index.html" style="color:#fff"><span class="dot"><i data-lucide="compass" class="ic"></i></span>When To Go</a>
+  <p class="muted" style="margin-top:12px; max-width:42ch">Pick a month, see where the weather is good. A planning guide built from climate normals, not a forecast.</p></div>
+  <div><h3 style="font-size:18px; margin-bottom:10px">Explore</h3><p class="mb-0"><a href="../index.html">World map</a></p></div>
+  <div><h3 style="font-size:18px; margin-bottom:10px">Good to know</h3><p class="muted mb-0">Figures are long run averages for a hub city per country. A planning guide, not a forecast.</p></div>
+</div></div></footer>
+<script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.js"></script>
+<script>window.lucide && lucide.createIcons();</script>
+</body>
+</html>
+`;
+}
+fs.writeFileSync(path.join('country', 'index.html'), indexPage());
+
 // Sitemap
-const urls = ['https://whentogo.world/'].concat(CONTENT.map(c => 'https://whentogo.world/country/' + c.slug));
+const urls = ['https://whentogo.world/', 'https://whentogo.world/country/'].concat(CONTENT.map(c => 'https://whentogo.world/country/' + c.slug));
 const sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
   + urls.map((u, i) => '  <url>\n    <loc>' + u + '</loc>\n    <changefreq>' + (i ? 'monthly' : 'weekly') + '</changefreq>\n    <priority>' + (i ? '0.8' : '1.0') + '</priority>\n  </url>').join('\n')
   + '\n</urlset>\n';
