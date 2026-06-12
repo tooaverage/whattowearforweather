@@ -555,7 +555,7 @@ const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov
 const MONTHS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const byIso = new Map(DATA.map(d => [d.iso, d]));
 // Countries with a full written guide page. Add slugs here as pages ship.
-const GUIDES = { 392: 'japan', 840: 'usa', 124: 'canada', 826: 'uk', 276: 'germany', 250: 'france', 380: 'italy', 724: 'spain', 300: 'greece', 620: 'portugal', 484: 'mexico', 352: 'iceland', 764: 'thailand', 604: 'peru' };
+const GUIDES = { 392: 'japan', 840: 'usa', 124: 'canada', 826: 'uk', 276: 'germany', 250: 'france', 380: 'italy', 724: 'spain', 300: 'greece', 620: 'portugal', 484: 'mexico', 352: 'iceland', 764: 'thailand', 604: 'peru', 36: 'australia', 554: 'new-zealand', 360: 'indonesia', 704: 'vietnam', 356: 'india', 410: 'south-korea', 792: 'turkey', 191: 'croatia', 756: 'switzerland', 528: 'netherlands', 372: 'ireland', 578: 'norway', 76: 'brazil', 32: 'argentina', 170: 'colombia', 188: 'costa-rica', 710: 'south-africa', 818: 'egypt', 784: 'uae', 702: 'singapore' };
 let state = { month: new Date().getMonth(), view: 'map', selIso: null };
 
 /* ============================ MONTH + VIEW CONTROLS ============================ */
@@ -739,7 +739,7 @@ function buildMap(topo) {
     if (iso == null || !byIso.has(iso)) return; // no-data: already filled, skip
     pathByIso.set(iso, p);
     {
-      p.addEventListener('click', () => select(iso, false));
+      p.addEventListener('click', () => select(iso, true));
       if (canHover) {
         p.addEventListener('mousemove', e => showTip(e, iso));
         p.addEventListener('mouseleave', hideTip);
@@ -1026,7 +1026,7 @@ function select(iso, scrollTo) {
   renderDetail(iso);
   // On small screens the detail is a fixed bottom sheet: nothing to scroll to.
   const isSheet = window.matchMedia('(max-width: 700px)').matches;
-  if (scrollTo && !isSheet) document.getElementById('detail').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  if (scrollTo && !isSheet) document.getElementById('detail').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 const detailEl = document.getElementById('detail');

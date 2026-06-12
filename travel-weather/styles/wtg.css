@@ -160,6 +160,9 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 .strip .tile .mk.snow { background: #d8eaff; border-color: #a9cdff; color: #2f7ae6; }
 .strip .tile .mk.sun { background: #fff1c2; border-color: #ffe08a; color: #e0a200; }
 .strip .tile .mk.fest { background: #e9e2ff; border-color: #cdbfff; color: #6d4aff; }
+.strip .tile .mk.grape { background: #ecdcff; border-color: #d4b6ff; color: #8a3ffc; }
+.strip .tile .mk.fish { background: #d6f0ef; border-color: #a8ddda; color: #0f9d96; }
+.strip .tile .mk.sparkles { background: #fff0c9; border-color: #ffe08a; color: #d98c00; }
 .strip .lab { margin-top: 12px; font-weight: 800; font-size: 13px; color: var(--ink-2); }
 @media (max-width: 760px) { .strip { grid-template-columns: repeat(6, 1fr); row-gap: 20px; } }
 

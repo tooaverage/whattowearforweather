@@ -63,7 +63,7 @@ function compute(rec) {
 
 const cssVar = { ideal: 'var(--s-ideal)', great: 'var(--s-great)', good: 'var(--s-good)', fair: 'var(--s-fair)', avoid: 'var(--s-avoid)' };
 const darkText = k => (k === 'ideal' || k === 'avoid');
-const MK_ICON = { bloom: 'flower-2', leaf: 'leaf', snow: 'snowflake', sun: 'sun', fest: 'party-popper' };
+const MK_ICON = { bloom: 'flower-2', leaf: 'leaf', snow: 'snowflake', sun: 'sun', fest: 'party-popper', grape: 'grape', fish: 'fish', sparkles: 'sparkles' };
 
 function strip(D, markers) {
   const mk = {};
