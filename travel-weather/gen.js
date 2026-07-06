@@ -111,7 +111,7 @@ function breadcrumbJsonLd(c) {
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'When To Go', item: 'https://gowhereandwhen.com/' },
       { '@type': 'ListItem', position: 2, name: 'Countries', item: 'https://gowhereandwhen.com/country/' },
-      { '@type': 'ListItem', position: 3, name: c.name, item: 'https://gowhereandwhen.com/country/' + c.slug },
+      { '@type': 'ListItem', position: 3, name: c.name, item: 'https://gowhereandwhen.com/country/' + c.slug + '/' },
     ],
   });
 }
@@ -122,17 +122,43 @@ function exploreChips(slug) {
     + others.map(x => '<a class="chip" href="../' + x.slug + '/">' + x.name + '</a>').join('');
 }
 
+// Polychrome a heading: wrap each word so the stylesheet cycles poster inks.
+const poly = s => '<span class="poly">' + String(s).split(' ').map(w => '<span class="w">' + w + '</span>').join(' ') + '</span>';
+
+// Sunburst rating seal, the price-burst of the old ads: best month + score.
+function starPoints(n, R, r) {
+  const p = [];
+  for (let i = 0; i < n * 2; i++) {
+    const ang = Math.PI * i / n - Math.PI / 2;
+    const rad = i % 2 ? r : R;
+    p.push((Math.cos(ang) * rad).toFixed(1) + ',' + (Math.sin(ang) * rad).toFixed(1));
+  }
+  return p.join(' ');
+}
+function seal(D) {
+  const peak = D.months.find(x => x.m === D.best).s;
+  const mon = MON[D.best].toUpperCase();
+  return '<svg class="seal" viewBox="-104 -104 208 208" role="img" aria-label="Best month ' + mon + ', rated ' + peak + ' out of 100">'
+    + '<polygon points="' + starPoints(22, 98, 82) + '" fill="#ecab27" stroke="#2a2016" stroke-width="4"/>'
+    + '<circle r="67" fill="#fdf6e3" stroke="#2a2016" stroke-width="4"/>'
+    + '<text x="0" y="-28" text-anchor="middle" font-family="Work Sans, sans-serif" font-weight="800" font-size="15" letter-spacing="1.5" fill="#2a2016">GO IN</text>'
+    + '<text x="0" y="16" text-anchor="middle" font-family="Anton, Impact, sans-serif" font-size="48" fill="#e0492b">' + mon + '</text>'
+    + '<text x="0" y="46" text-anchor="middle" font-family="Work Sans, sans-serif" font-weight="800" font-size="16" fill="#16786f">' + peak + '/100</text>'
+    + '</svg>';
+}
+
 function page(c) {
   const rec = byIso.get(c.iso);
   const D = compute(rec);
-  const url = 'https://gowhereandwhen.com/country/' + c.slug;
-  const card = (b) => '<div class="card"><div class="row" style="gap:10px">' + (b.icon ? '<i data-lucide="' + b.icon + '" class="ic" style="color:var(--brand)"></i>' : '')
+  const url = 'https://gowhereandwhen.com/country/' + c.slug + '/';
+  const card = (b) => '<div class="card"><div class="row" style="gap:10px">' + (b.icon ? '<i data-lucide="' + b.icon + '" class="ic"></i>' : '')
     + '<h3 class="mb-0">' + b.h + '</h3></div><p style="margin:12px 0 0; color:var(--ink-2)">' + b.p + '</p></div>';
   const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-  const lowReason = D.haz.length ? cap(D.haz[0][1].toLowerCase()) + '.' : 'The weakest weather of the year.';
-  const sa = (label, key, months, sub) => '<div class="card"><span class="badge badge--' + key + '">' + label + '</span>'
-    + '<h3 style="margin:12px 0 6px">' + (rangeText(months) || 'no clear window') + '</h3>'
-    + '<p class="mb-0" style="color:var(--ink-2)">' + sub + '</p></div>';
+  const lowReason = D.haz.length ? cap(D.haz[0][1].toLowerCase()) + '.' : 'The quietest, cheapest stretch of the year.';
+  const stub = (label, key, months, sub) => '<div class="stub"><div class="stub__band k-' + key + '">' + label + '</div>'
+    + '<span class="stub__v">' + (rangeText(months) || 'No clear window') + '</span><p>' + sub + '</p></div>';
+  const panel = (b, i) => '<div class="panel"><span class="panel__no">' + String(i + 1).padStart(2, '0') + '</span>'
+    + '<h3>' + b.h + '</h3><p>' + b.p + '</p></div>';
 
   return `<!doctype html>
 <html lang="en">
@@ -148,14 +174,18 @@ function page(c) {
 <meta property="og:title" content="${esc(c.title)}">
 <meta property="og:description" content="${esc(c.desc)}">
 <meta property="og:url" content="${url}">
-<meta property="og:image" content="https://gowhereandwhen.com/og.svg">
+<meta property="og:image" content="https://gowhereandwhen.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="When To Go: the best time to visit, anywhere.">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://gowhereandwhen.com/og.png">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#f4e9cf">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Kaushan+Script&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Anton&family=Kaushan+Script&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../styles/wtg.css">
 <script type="application/ld+json">${breadcrumbJsonLd(c)}</script>
 <script type="application/ld+json">${faqJsonLd(c.faq)}</script>
@@ -170,105 +200,121 @@ function page(c) {
 </div></header>
 <main>
   <section class="section section--tight"><div class="wrap">
-    <p class="eyebrow"><i data-lucide="map-pin" class="ic"></i> ${c.name}, weather and seasons</p>
-    <h1>When to go to ${c.name}</h1>
-    <p class="lead" style="margin-top:14px">${c.heroLead}</p>
-    <div class="card card--ink" style="margin-top:26px; padding:clamp(18px,4vw,30px)">
+    <div class="cover">
+      <div class="coverhead">
+        <div class="txt">
+          <p class="eyebrow"><i data-lucide="map-pin" class="ic"></i> ${c.name}</p>
+          <p class="kicker">The best time to visit</p>
+          <h1>${poly('When to go to ' + c.name)}</h1>
+          <p class="lead" style="margin-top:14px">${c.heroLead}</p>
+        </div>
+        ${seal(D)}
+      </div>
+      <div class="row" style="margin-top:26px">
+        <a class="btn btn--lg" href="#months"><i data-lucide="calendar-days" class="ic"></i> Month by month</a>
+        <a class="btn btn--teal btn--lg" href="../../index.html"><i data-lucide="map" class="ic"></i> ${c.name} on the map</a>
+      </div>
+    </div>
+    <div class="card card--ink" style="margin-top:22px; padding:clamp(18px,4vw,30px)">
       <div class="row" style="justify-content:space-between; margin-bottom:14px">
-        <h3 class="mb-0">Every month, rated for weather</h3>
+        <h3 class="mb-0">Every month, rated</h3>
         ${legend()}
       </div>
       ${strip(D, c.markers)}
-      <p class="disc" style="margin:16px 0 0">Score is a 0 to 100 comfort rating from daytime heat, overnight chill, rainfall and storm risk, for ${rec.city}. Higher is better.</p>
+      <p class="disc" style="margin:16px 0 0">A 0 to 100 comfort rating from daytime heat, overnight chill, rainfall and storm risk, for ${rec.city}. Higher is better. Some links on this page are affiliate links, at no cost to you.</p>
     </div>
-    <div class="row" style="margin-top:24px">
-      <a class="btn btn--lg" href="../../index.html"><i data-lucide="map" class="ic"></i> See ${c.name} on the map</a>
-      <a class="btn btn--ghost btn--lg" href="#months"><i data-lucide="calendar-days" class="ic"></i> Jump to month by month</a>
-    </div>
-    <p class="disc" style="margin-top:16px">Some links on this page are affiliate links. If you book through them we may earn a commission, at no cost to you.</p>
   </div></section>
 
-  <section class="section--tight"><div class="wrap"><div class="grid grid--3">
-    ${sa('Best months', 'ideal', D.high, 'The most reliable, comfortable weather of the year.')}
-    ${sa('Shoulder', 'good', D.shoulder, 'Decent weather with fewer crowds and lower prices.')}
-    ${sa('Low season', 'fair', D.low, lowReason)}
+  <section class="section--tight"><div class="wrap"><div class="stubs">
+    ${stub('Best months', 'ideal', D.high, 'The steadiest weather, peaking around ' + MON[D.best] + '.')}
+    ${stub('Shoulder', 'good', D.shoulder, 'Either side of peak, with thinner crowds and better rates.')}
+    ${stub('Low season', 'fair', D.low, lowReason)}
   </div></div></section>
 
   <section class="section band"><div class="wrap prose">
-    <h2>${c.name}'s weather in a nutshell</h2>
+    <p class="eyebrow eyebrow--coral"><i data-lucide="cloud-sun" class="ic"></i> In short</p>
+    <h2 style="margin-top:14px">${poly(c.name + ' in a nutshell')}</h2>
     ${c.intro.map(p => '<p>' + p + '</p>').join('\n    ')}
     <div class="grid grid--4" style="margin-top:24px">
-      <div class="card stat"><div class="n">${MON[D.best]}</div><div class="k">Best rated month</div></div>
+      <div class="card stat"><div class="n">${MON[D.best]}</div><div class="k">Best month</div></div>
       <div class="card stat"><div class="n">${rec.hi[D.warm]}&deg;C</div><div class="k">Warmest, ${MON[D.warm]}</div></div>
       <div class="card stat"><div class="n">${rec.pr[D.wet]}mm</div><div class="k">Wettest, ${MON[D.wet]}</div></div>
-      <div class="card stat"><div class="n">${rec.lo[D.cold]}&deg;C</div><div class="k">Coldest nights, ${MON[D.cold]}</div></div>
+      <div class="card stat"><div class="n">${rec.lo[D.cold]}&deg;C</div><div class="k">Coldest, ${MON[D.cold]}</div></div>
     </div>
   </div></section>
 
   <section class="section" id="months"><div class="wrap">
-    <h2>${c.name} month by month</h2>
-    <p class="lead" style="margin:10px 0 26px">Average highs and lows, monthly rainfall and the weather rating for ${rec.city}. Conditions vary by region, so read the notes below too.</p>
+    <p class="eyebrow"><i data-lucide="calendar-days" class="ic"></i> Month by month</p>
+    <h2 style="margin-top:14px">${poly(c.name + ' month by month')}</h2>
+    <p class="lead" style="margin:12px 0 26px">Average highs and lows, monthly rainfall and the weather rating for ${rec.city}.</p>
     <div class="table-wrap"><table class="table">
       <thead><tr><th>Month</th><th>High</th><th>Low</th><th>Rain</th><th>Rating</th><th>What it is like</th></tr></thead>
       <tbody>${tableRows(rec, D, c)}</tbody>
     </table></div>
   </div></section>
 
+  <div class="wrap"><div class="orn"><i data-lucide="compass" class="ic"></i></div></div>
+
   <section class="section--tight"><div class="wrap">
-    <h2>Where you go changes when you go</h2>
-    <div class="grid grid--3" style="margin-top:20px">${c.regions.map(card).join('')}</div>
+    <p class="eyebrow eyebrow--sun"><i data-lucide="map" class="ic"></i> By region</p>
+    <h2 style="margin-top:14px">${poly('Where you go changes when you go')}</h2>
+    <div class="panels" style="margin-top:22px">${c.regions.map(panel).join('')}</div>
   </div></section>
 
   <section class="section band"><div class="wrap prose">
-    <h2>Best time to visit ${c.name} for...</h2>
-    ${c.bestFor.map(b => '<h3>' + b.h + '</h3>\n    <p>' + b.p + '</p>').join('\n    ')}
+    <p class="eyebrow eyebrow--coral"><i data-lucide="star" class="ic"></i> Go for</p>
+    <h2 style="margin-top:14px">${poly('Best time to visit ' + c.name + ' for')}</h2>
+    <div style="margin-top:10px">${c.bestFor.map(b => '<h3>' + b.h + '</h3>\n    <p>' + b.p + '</p>').join('\n    ')}</div>
   </div></section>
 
   <section class="section--tight"><div class="wrap">
-    <h2>What is on, and when</h2>
-    <div class="grid grid--2" style="margin-top:20px">${c.whatsOn.map(card).join('')}</div>
-    <p style="margin:18px 0 0; color:var(--ink-2)">Guided trips and day tours book out fast in peak season. Compare options for the best price and pickup:</p>
-    <div class="toursrow">
+    <p class="eyebrow eyebrow--sun"><i data-lucide="party-popper" class="ic"></i> On the calendar</p>
+    <h2 style="margin-top:14px">${poly('What is on, and when')}</h2>
+    <div class="grid grid--2" style="margin-top:22px">${c.whatsOn.map(card).join('')}</div>
+    <div class="toursrow" style="margin-top:20px">
       <a class="chip" data-tours data-q="${esc(c.hub.city)} tours" href="#"><i data-lucide="ticket" class="ic"></i> Top tours in ${c.hub.city}</a>
       <a class="chip" data-tours data-q="${esc(c.name)} day trips" href="#"><i data-lucide="ticket" class="ic"></i> Day trips in ${c.name}</a>
     </div>
   </div></section>
 
   ${D.haz.length ? `<section class="section--tight"><div class="wrap"><div class="card">
-    <span class="eyebrow" style="color:var(--s-avoid)"><i data-lucide="triangle-alert" class="ic"></i> Watch out</span>
-    <div class="grid grid--3" style="margin-top:14px">
+    <span class="eyebrow eyebrow--warn"><i data-lucide="triangle-alert" class="ic"></i> Watch out</span>
+    <div class="grid grid--3" style="margin-top:16px">
       ${D.haz.slice(0, 3).map(h => '<div><h3 style="margin:0 0 6px">' + h[1] + '</h3><p class="mb-0" style="color:var(--ink-2)">' + h[2] + '.</p></div>').join('')}
     </div>
   </div></div></section>` : ''}
 
   <section class="section" id="stay"><div class="wrap">
-    <h2>Where to stay in ${c.name}</h2>
-    <p class="lead" style="margin:10px 0 22px">Compare hotels and rentals around ${c.hub.city} on the live map, then lock in your trip for the right month.</p>
+    <p class="eyebrow"><i data-lucide="bed-double" class="ic"></i> Where to stay</p>
+    <h2 style="margin-top:14px">${poly('Where to stay in ' + c.name)}</h2>
+    <p class="lead" style="margin:12px 0 22px">Compare hotels and rentals around ${c.hub.city}, then book the month you want.</p>
     <div class="staygrid">
       <div class="embed embed--stay" data-stay22 data-lat="${c.hub.lat}" data-lng="${c.hub.lng}" data-zoom="${c.hub.zoom || 11}"></div>
       <div class="card" style="display:flex; flex-direction:column; justify-content:center; gap:16px">
         <h3 class="mb-0">Ready to book?</h3>
-        <p class="mb-0" style="color:var(--ink-2)">Prices climb in peak season, so booking the best-weather months early pays off. The shoulder and low months are the value windows.</p>
+        <p class="mb-0" style="color:var(--ink-2)">Rates climb in peak season, so the best-weather months pay to book early. Shoulder and low months are the value windows.</p>
         <div class="row">
           <a class="btn" data-hotel data-city="${esc(c.hub.city)}" href="#"><i data-lucide="bed-double" class="ic"></i> Find ${c.hub.city} hotels</a>
           <a class="btn btn--sun" data-tours data-q="${esc(c.hub.city)}" href="#"><i data-lucide="ticket" class="ic"></i> Things to do</a>
         </div>
         <p class="disc mb-0">Prefer to sort flights first? <a class="aff" data-flights data-iata="${esc(c.hub.iata)}" href="#">Compare flights <i data-lucide="arrow-right" class="ic"></i></a></p>
-        <p class="disc mb-0" style="margin-top:-6px">Some links are affiliate links. If you book through them we may earn a commission, at no cost to you. It keeps When To Go free.</p>
       </div>
     </div>
   </div></section>
 
   <section class="section--tight"><div class="wrap">
-    <h2>${c.name} travel FAQ</h2>
-    <div class="faq" style="margin-top:20px">
+    <p class="eyebrow eyebrow--coral"><i data-lucide="message-circle-question" class="ic"></i> Questions</p>
+    <h2 style="margin-top:14px">${poly(c.name + ' travel FAQ')}</h2>
+    <div class="faq" style="margin-top:22px">
       ${c.faq.map((q, i) => '<details' + (i === 0 ? ' open' : '') + '><summary>' + q.q + ' <i data-lucide="plus" class="ic"></i></summary><div class="a">' + q.a + '</div></details>').join('\n      ')}
     </div>
   </div></section>
 
+  <div class="wrap"><div class="orn"><i data-lucide="compass" class="ic"></i></div></div>
+
   <section class="section"><div class="wrap center">
-    <h2>Where else, and when</h2>
-    <p class="lead" style="margin:10px auto 24px">Compare more than 190 countries on the interactive map, or jump to another favourite.</p>
+    <h2>${poly('Where else, and when')}</h2>
+    <p class="lead" style="margin:12px auto 24px">Compare more than 190 countries on the interactive map, or jump to another favourite.</p>
     <div class="row" style="justify-content:center">${exploreChips(c.slug)}</div>
   </div></section>
 </main>
@@ -318,13 +364,18 @@ function indexPage() {
 <meta property="og:title" content="Best time to visit every country">
 <meta property="og:description" content="Pick a destination for its weather rating, seasons and the best months to go.">
 <meta property="og:url" content="https://gowhereandwhen.com/country/">
-<meta property="og:image" content="https://gowhereandwhen.com/og.svg">
+<meta property="og:image" content="https://gowhereandwhen.com/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="When To Go: the best time to visit, anywhere.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://gowhereandwhen.com/og.png">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#f4e9cf">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Kaushan+Script&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Anton&family=Kaushan+Script&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../styles/wtg.css">
 </head>
 <body>
@@ -336,7 +387,8 @@ function indexPage() {
 <main>
   <section class="section section--tight"><div class="wrap">
     <p class="eyebrow"><i data-lucide="globe" class="ic"></i> Destinations</p>
-    <h1>Best time to visit, by country</h1>
+    <p class="kicker" style="margin-top:12px">Where to go, and when</p>
+    <h1>${poly('Best time to visit, by country')}</h1>
     <p class="lead" style="margin:14px 0 26px">Pick a destination for a month by month weather rating, its high and low seasons, any hazards, and the best months to go. Or explore them all on the <a href="../index.html">interactive world map</a>.</p>
     <div class="row">
         ${chips}
@@ -358,7 +410,7 @@ function indexPage() {
 fs.writeFileSync(path.join('country', 'index.html'), indexPage());
 
 // Sitemap
-const urls = ['https://gowhereandwhen.com/', 'https://gowhereandwhen.com/country/'].concat(CONTENT.map(c => 'https://gowhereandwhen.com/country/' + c.slug));
+const urls = ['https://gowhereandwhen.com/', 'https://gowhereandwhen.com/country/'].concat(CONTENT.map(c => 'https://gowhereandwhen.com/country/' + c.slug + '/'));
 const sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
   + urls.map((u, i) => '  <url>\n    <loc>' + u + '</loc>\n    <changefreq>' + (i ? 'monthly' : 'weekly') + '</changefreq>\n    <priority>' + (i ? '0.8' : '1.0') + '</priority>\n  </url>').join('\n')
   + '\n</urlset>\n';

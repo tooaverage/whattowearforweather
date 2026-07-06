@@ -8,7 +8,7 @@ const CONTENT = [
 
   { slug: 'japan', iso: 392, name: 'Japan',
     hub: { city: 'Tokyo', lat: 35.6812, lng: 139.7671, zoom: 11, iata: 'TYO' },
-    title: 'Best Time to Visit Japan: Month by Month Weather (2026)',
+    title: 'Best Time to Visit Japan: Month by Month Weather',
     desc: 'The best time to visit Japan is spring, late March to May for cherry blossom, and November for autumn colour. Skip the hot, wet, typhoon-prone August to October. A month by month weather guide with notes for Hokkaido, Tokyo, Kyoto and Okinawa.',
     heroLead: 'Go in <strong>spring, late March to May</strong>, for cherry blossom and mild days, or in <strong>November</strong> for crisp air and red maple leaves. Avoid <strong>August to October</strong>, which is hot, wet and typhoon-prone.',
     intro: [
@@ -42,9 +42,9 @@ const CONTENT = [
     hub: { city: 'New York', lat: 40.7128, lng: -74.006, zoom: 11, iata: 'NYC' },
     title: 'Best Time to Visit the USA: Weather and Seasons by Region',
     desc: 'May and September are the best all-round months to visit the USA, with mild weather across most regions. A month by month guide covering the Northeast, California, the national parks, the South and the hurricane and wildfire seasons.',
-    heroLead: 'For most of the country, <strong>May, June, September and October</strong> are the sweet spot. Summer is peak in the north and the parks, winter suits Florida and the desert, and <strong>late summer</strong> brings heat and storms.',
+    heroLead: 'For most of the country, <strong>May, June, September and October</strong> are the window you want. Summer is peak in the north and the parks, winter suits Florida and the desert, and <strong>late summer</strong> brings heat and storms.',
     intro: [
-      'The USA is too big for a single season. The ratings here use New York as a stand-in for the temperate Northeast, where spring and autumn are the gentlest times and the leaves in October are famous, but the right month depends entirely on where you are headed.',
+      'The USA is too big for a single season. New York stands in for the temperate Northeast in the ratings here, where spring and autumn are the gentlest times and the leaves in October are famous, but the right month depends entirely on where you are headed.',
       'As a rule, May and September travel well almost everywhere: warm enough for the north, past the worst desert heat, and clear of the summer crowds. The two dates to plan around are the Atlantic hurricane season, which runs June to November and peaks from August to October, and the western wildfire season in late summer.',
     ],
     regions: [
@@ -76,19 +76,19 @@ const CONTENT = [
     desc: 'The best time to visit Canada is summer, June to August, for warm days and long light, with September and October a quieter, golden alternative. A month by month weather guide covering the cities, the Rockies and the long, cold winters.',
     heroLead: 'Go in <strong>summer, June to August</strong>, for the warmest weather and longest days, or in <strong>September and October</strong> for autumn colour and fewer crowds. <strong>November to March</strong> is long and cold, but it is ski and northern-lights season.',
     intro: [
-      'Canada is a summer country for most visitors. The ratings here use Toronto, where June to August brings warm, lively days and September stays pleasant before the cold sets in. The far north and the prairies are harsher, the Pacific coast around Vancouver is milder and wetter.',
+      'Canada is a summer country for most visitors. The month ratings track Toronto, where June to August brings warm, lively days and September stays pleasant before the cold sets in. The far north and the prairies are harsher, the Pacific coast around Vancouver is milder and wetter.',
       'Winter is long and serious across most of the country, from November well into March, which is exactly the draw if you have come for skiing, snow and the aurora. Spring and autumn are the value seasons, with mild weather and lighter crowds.',
     ],
     regions: [
       { icon: 'building-2', h: 'Toronto, Montreal and the east', p: 'Warm, festival-filled summers and a brilliant autumn in late September and October. Winters are cold and snowy.' },
-      { icon: 'mountain-snow', h: 'The Rockies and the west', p: 'July and August for hiking around Banff and Lake Louise, December to March for world-class skiing at Whistler.' },
+      { icon: 'mountain-snow', h: 'The Rockies and the west', p: 'July and August for hiking around Banff and Lake Louise, December to March for some of the continent\'s best skiing at Whistler.' },
       { icon: 'cloud-rain', h: 'Vancouver and the coast', p: 'Mild but wet most of the year. Summer is the dry, glorious exception, which is why it is so popular.' },
     ],
     bestFor: [
       { h: 'Cities and road trips', p: 'June to early September, when the weather is warm, the patios are open and the days are long.' },
       { h: 'Autumn colour', p: 'Late September and October, especially in Quebec and Ontario, with crisp air and golden maples.' },
       { h: 'Skiing and the aurora', p: 'December to March for the Rockies and the best chance of northern lights in the north.' },
-      { h: 'Value and quiet', p: 'May and September offer mild weather and better prices than the July to August peak.' },
+      { h: 'Best value', p: 'May and September offer mild weather and better prices than the July to August peak.' },
     ],
     whatsOn: [
       { icon: 'leaf', h: 'Autumn colour, October', p: 'Maple country turns red and orange, at its best in Quebec and Ontario.' },
@@ -108,11 +108,11 @@ const CONTENT = [
     desc: 'The best time to visit the UK is late spring to early autumn, roughly April to June and September, with mild days and long light. A month by month London weather guide, including the rainy reality and the warmest summer months.',
     heroLead: 'Aim for <strong>April to June and September</strong>, when days are mild, long and at their driest. <strong>July and August</strong> are warmest but busiest, and <strong>winter</strong> is grey and short on daylight, though rarely freezing.',
     intro: [
-      'Britain has no dry season, only wetter and drier stretches, so the trick is to chase the light and the warmth rather than to dodge the rain. The ratings here use London, where late spring and early autumn bring the most reliable conditions and the gardens are at their best.',
+      'Britain has no dry season, only wetter and drier stretches, so the trick is to chase the light and the warmth rather than to dodge the rain. We rate on London, where late spring and early autumn bring the most reliable conditions and the gardens are at their best.',
       'Summer is the peak, with the warmest weather and the fullest events calendar, but also the biggest crowds and prices. Winter is mild for the latitude but dark, with the sun setting by mid afternoon in December. An umbrella is sensible in any month.',
     ],
     regions: [
-      { icon: 'building-2', h: 'London and the southeast', p: 'The warmest and driest corner of the country, and the focus of this guide. Spring and early autumn are the sweet spot.' },
+      { icon: 'building-2', h: 'London and the southeast', p: 'The warmest and driest corner of the country, and the focus of this guide. Spring and early autumn are the pick of the year.' },
       { icon: 'castle', h: 'Scotland and the north', p: 'Cooler and wetter, gorgeous in summer when the days stretch past 10pm. Midges arrive in the Highlands from June.' },
       { icon: 'waves', h: 'Cornwall and the coast', p: 'July and August for the beaches, when the southwest is at its warmest, though that is also when it is most crowded.' },
     ],
@@ -120,7 +120,7 @@ const CONTENT = [
       { h: 'Gardens and countryside', p: 'May and June, when the gardens bloom, the hedgerows are green and the days are long.' },
       { h: 'City sightseeing', p: 'April to June and September, with comfortable temperatures and lighter crowds than high summer.' },
       { h: 'Festivals and warmth', p: 'July and August for the warmest weather and the busy festival calendar, from Edinburgh to the seaside.' },
-      { h: 'Lower prices', p: 'January to March, outside the holidays, when the weather is cool and damp but hotels are cheap.' },
+      { h: 'Off-season', p: 'January to March, outside the holidays, when the weather is cool and damp but hotels are cheap.' },
     ],
     whatsOn: [
       { icon: 'flower-2', h: 'Spring gardens, May', p: 'The countryside turns green and the great gardens, from Kew to the Cotswolds, hit their stride.' },
@@ -140,7 +140,7 @@ const CONTENT = [
     desc: 'The best time to visit Germany is May to September for mild weather and full event calendars, with Oktoberfest in late September and Christmas markets from late November. A month by month Berlin weather guide.',
     heroLead: 'Go from <strong>May to September</strong> for the mildest weather and long days. <strong>Late September</strong> is Oktoberfest, and <strong>late November to December</strong> is Christmas-market season. <strong>Winter</strong> is cold and grey beyond the markets.',
     intro: [
-      'Germany is a classic four-season destination, and the ratings here use Berlin. From May to September the weather is mild and the festival calendar is full, with daylight stretching toward 10pm at midsummer. The shoulder months of May, June and September are the most comfortable.',
+      'Germany is a classic four-season destination, and Berlin sets the ratings below. From May to September the weather is mild and the festival calendar is full, with daylight stretching toward 10pm at midsummer. The shoulder months of May, June and September are the most comfortable.',
       'Two seasonal events drive a lot of trips: Oktoberfest, which despite the name runs from mid September into early October in Munich, and the Christmas markets, which open across the country in late November and run through December. Winter is otherwise cold and short on light.',
     ],
     regions: [
@@ -172,13 +172,13 @@ const CONTENT = [
     desc: 'The best time to visit France is spring, April to June, and early autumn, September to October, with mild weather and lighter crowds. A month by month Paris weather guide, with notes for the Riviera, the Alps and the wine country.',
     heroLead: 'Go in <strong>spring, April to June</strong>, or <strong>September to early October</strong>, for mild days, blooming parks and thinner crowds. <strong>Summer</strong> is warm and busy, and <strong>winter</strong> is cool and quiet beyond the festive season.',
     intro: [
-      'France rewards the shoulder seasons. The ratings here use Paris, where spring and early autumn bring the gentlest weather, sunny days and far shorter queues than the July to August peak. The capital famously empties of locals in August, when many businesses close.',
+      'France rewards the shoulder seasons. These ratings follow Paris, where spring and early autumn bring the gentlest weather, sunny days and far shorter queues than the July to August peak. The capital famously empties of locals in August, when many businesses close.',
       'The country covers several climates, from the cool, changeable north to the hot, dry Mediterranean south. The Riviera and Provence run warmer and later into autumn, the Alps swing to a winter ski season, and the wine regions peak around the September harvest.',
     ],
     regions: [
       { icon: 'building-2', h: 'Paris and the north', p: 'Mild and temperate, at its best in spring and early autumn. Summers are warm and crowded, winters cool and grey.' },
       { icon: 'sun', h: 'Provence and the Riviera', p: 'Hot, dry summers and a long, warm shoulder into October. Spring brings lavender fields and gentler heat.' },
-      { icon: 'mountain-snow', h: 'The French Alps', p: 'Hiking and lakes in summer, world-class skiing from December to April around Chamonix and the Trois Vallees.' },
+      { icon: 'mountain-snow', h: 'The French Alps', p: 'Hiking and lakes in summer, the big-name skiing of Chamonix and the Trois Vallees, December to April.' },
     ],
     bestFor: [
       { h: 'Paris and the cities', p: 'April to June and September, with comfortable temperatures, blooming gardens and manageable lines.' },
@@ -204,7 +204,7 @@ const CONTENT = [
     desc: 'The best time to visit Italy is spring, April to June, and September to October, with warm, dry days and lighter crowds. A month by month Rome weather guide, with notes for the Alps, Tuscany and the south.',
     heroLead: 'Go in <strong>spring, April to June</strong>, or <strong>September to October</strong>, for warm, dry days and thinner crowds. <strong>July and August</strong> are hot and packed, and <strong>winter</strong> is cool and quiet, ideal for art cities without the queues.',
     intro: [
-      'Italy is at its best in the shoulder seasons. The ratings here use Rome, where spring and early autumn bring warm, dry, comfortable weather and the great sights without the August crush. Locals take their own holidays in August, so cities can feel both crowded with tourists and shut for the season.',
+      'Italy is at its best in the shoulder seasons. The ratings key off Rome, where spring and early autumn bring warm, dry, comfortable weather and the great sights without the August crush. Locals take their own holidays in August, so cities can feel both crowded with tourists and shut for the season.',
       'The country stretches from Alpine peaks to the hot Mediterranean south, so conditions vary. The north is cooler and greener, Tuscany glows in late spring and at harvest, and Sicily and the south stay warm well into autumn.',
     ],
     regions: [
@@ -236,11 +236,11 @@ const CONTENT = [
     desc: 'The best time to visit Spain is spring, April to June, and autumn, September to October, with warm days and moderate crowds. A month by month Madrid weather guide, with notes for Barcelona, the south and the islands.',
     heroLead: 'Go in <strong>April to June</strong> or <strong>September to October</strong> for warm, comfortable weather and lighter crowds. <strong>July and August</strong> are hot, especially inland, and <strong>winter</strong> is mild on the coast but cool in the centre.',
     intro: [
-      'Spain saves its best for spring and autumn. The ratings here use Madrid, high on the central plateau, where July and August can be fierce and dry while April to June and September to October are warm and easygoing. The festival calendar, from Holy Week to the spring fairs, peaks in spring.',
+      'Spain saves its best for spring and autumn. Madrid, high on the central plateau, anchors the ratings, and there July and August can be fierce and dry while April to June and September to October are warm and easygoing. The festival calendar, from Holy Week to the spring fairs, peaks in spring.',
       'Climates vary widely: the Mediterranean coast and Barcelona are milder, the south around Seville is the hottest, and the green north stays cooler and wetter. Winter is gentle along the coast and in the south, which is why the Costa del Sol and the Canary Islands draw sun-seekers year round.',
     ],
     regions: [
-      { icon: 'building-2', h: 'Madrid and the centre', p: 'Hot, dry summers and cold, clear winters on the high plateau. Spring and autumn are the sweet spot.' },
+      { icon: 'building-2', h: 'Madrid and the centre', p: 'Hot, dry summers and cold, clear winters on the high plateau. Spring and autumn are the best of the year.' },
       { icon: 'waves', h: 'Barcelona and the coast', p: 'Milder and made for the shoulder seasons of April to June and September to October, mixing city and beach.' },
       { icon: 'sun', h: 'Seville and the south', p: 'The hottest corner of the country, glorious in spring and autumn and best avoided at the height of summer.' },
     ],
@@ -268,7 +268,7 @@ const CONTENT = [
     desc: 'The best time to visit Greece is May to June and September to October, with warm, dry weather, swimmable seas and fewer crowds than the July to August peak. A month by month Athens weather guide with island notes.',
     heroLead: 'Go in <strong>May and June</strong> or <strong>September and October</strong> for warm, dry days, swimmable seas and lighter crowds. <strong>July and August</strong> are hot and packed, and <strong>winter</strong> is mild but many islands wind down.',
     intro: [
-      'Greece runs on a long, dry Mediterranean summer. The ratings here use Athens, where late spring and early autumn bring warm, rainless days, blooming or golden landscapes, and a sea that stays swimmable from late May into October. The peak of July and August is hot and very busy.',
+      'Greece runs on a long, dry Mediterranean summer. The month ratings track Athens, where late spring and early autumn bring warm, rainless days, blooming or golden landscapes, and a sea that stays swimmable from late May into October. The peak of July and August is hot and very busy.',
       'The islands largely follow the same rhythm but with a catch: outside the May to October season, ferries thin out and many hotels and tavernas close, especially on the smaller islands. The mainland and Athens stay open and pleasant for sightseeing year round.',
     ],
     regions: [
@@ -280,7 +280,7 @@ const CONTENT = [
       { h: 'Islands and beaches', p: 'Late May to mid June and September, with warm seas, sunshine and fewer crowds than the August rush.' },
       { h: 'Ancient sites', p: 'April, May, June, September and October, when Athens and Delphi are pleasant rather than scorching.' },
       { h: 'Nightlife', p: 'July and August, when Mykonos and the party islands are at full tilt.' },
-      { h: 'Quiet and value', p: 'May and October bring the best mix of good weather, open tavernas and lower prices.' },
+      { h: 'Quiet and value', p: 'May and October bring the best mix of good weather, open tavernas and cheaper rates.' },
     ],
     whatsOn: [
       { icon: 'sun', h: 'Island season, May to Oct', p: 'Ferries run, tavernas open and the Aegean warms up for swimming.' },
@@ -300,7 +300,7 @@ const CONTENT = [
     desc: 'The best time to visit Portugal is spring, March to May, and autumn, September to October, with warm, sunny days and lighter crowds. A month by month Lisbon weather guide, with notes for the Algarve, Porto and the islands.',
     heroLead: 'Go in <strong>March to May</strong> or <strong>September to October</strong> for warm, sunny days and fewer crowds. <strong>July and August</strong> are hot and busy on the coast, and <strong>winter</strong> is mild but changeable.',
     intro: [
-      'Portugal has one of the gentlest climates in Europe, and the ratings here use Lisbon. Spring and autumn bring warm, sunny days, golden light and far smaller crowds than the summer peak, when the Algarve beaches fill up. Rain mostly falls in winter, and even then the south stays mild.',
+      'Portugal has one of the gentlest climates in Europe, and we rate on Lisbon. Spring and autumn bring warm, sunny days, golden light and far smaller crowds than the summer peak, when the Algarve beaches fill up. Rain mostly falls in winter, and even then the south stays mild.',
       'The country is compact but varied: the Algarve in the south is the warmest and driest, Lisbon and the centre are temperate, and Porto and the green north are cooler and wetter. The Atlantic islands of Madeira and the Azores are mild year round.',
     ],
     regions: [
@@ -315,12 +315,12 @@ const CONTENT = [
       { h: 'Wine country', p: 'September in the Douro Valley, around the grape harvest, with golden terraces above the river.' },
     ],
     whatsOn: [
-      { icon: 'party-popper', h: 'Lisbon festivals, June', p: 'The city s saint s-day festivals peak around St Anthony on 13 June, with street parties across the old quarters.' },
+      { icon: 'party-popper', h: 'Lisbon festivals, June', p: 'The city\'s saint\'s-day festivals peak around St Anthony on 13 June, with street parties across the old quarters.' },
       { icon: 'grape', h: 'Douro harvest, September', p: 'The port-wine vineyards come alive for the vintage along the river valleys.' },
     ],
     faq: [
       { q: 'What is the best time to visit Portugal?', a: 'Spring, March to May, and autumn, September to October, with warm, sunny weather, cheaper rates and fewer crowds than summer.' },
-      { q: 'When is the best time for the Algarve?', a: 'June and September give you warm sea and sunshine without the packed beaches and high prices of July and August.' },
+      { q: 'When is the best time for the Algarve?', a: 'June and September bring warm water and sun to the Algarve, before and after the August rush drives up prices.' },
       { q: 'Is Portugal warm in winter?', a: 'It is mild for Europe, especially in the south and on Madeira, but winters are changeable, with sunny spells broken by spells of grey and rain.' },
     ],
     markers: [{ mon: 'Jun', kind: 'fest' }, { mon: 'Sep', kind: 'sun' }],
@@ -332,8 +332,8 @@ const CONTENT = [
     desc: 'The best time to visit Mexico is the dry season, November to April, with sunny, comfortable weather. A month by month Mexico City weather guide, with the rainy season and the Caribbean hurricane season explained.',
     heroLead: 'Go in the <strong>dry season, November to April</strong>, for sunny, comfortable days. The <strong>rainy season runs May to October</strong>, with afternoon storms, and the Caribbean coast watches the <strong>hurricane season, June to November</strong>.',
     intro: [
-      'Mexico splits cleanly into a dry season and a rainy one. The ratings here use Mexico City, high in the central highlands, where the dry months from November to April bring sunny, spring-like days and the rains arrive as afternoon downpours from May. Coastal resorts run hotter and more humid.',
-      'The dry season is peak for good reason, but it brings higher prices and busy beaches over the December and Easter holidays. The one date to plan around on the Caribbean side is the Atlantic hurricane season, which runs June to November and is most active from August to October.',
+      'Mexico splits cleanly into a dry season and a rainy one. These ratings follow Mexico City, high in the central highlands, where the dry months from November to April bring sunny, spring-like days and the rains arrive as afternoon downpours from May. Coastal resorts run hotter and more humid.',
+      'The dry season is peak season and priced to match, with busy beaches over the December and Easter holidays. The one date to plan around on the Caribbean side is the Atlantic hurricane season, which runs June to November and is most active from August to October.',
     ],
     regions: [
       { icon: 'building-2', h: 'Mexico City and the highlands', p: 'Mild and spring-like year round thanks to the altitude, sunniest and driest from November to April.' },
@@ -344,7 +344,7 @@ const CONTENT = [
       { h: 'Beaches and resorts', p: 'December to April on both coasts, with warm, dry, sunny weather, though prices peak over the winter holidays.' },
       { h: 'Ruins and culture', p: 'November to April for Mexico City, Oaxaca and the Yucatan, with comfortable temperatures for exploring.' },
       { h: 'Day of the Dead', p: 'Late October into early November, one of the country\'s most striking and atmospheric celebrations.' },
-      { h: 'Value and quiet', p: 'June offers a window of lower prices before the worst of the storm season, with greener landscapes.' },
+      { h: 'Off-peak', p: 'June offers a window of cheaper travel before the worst of the storm season, with greener landscapes.' },
     ],
     whatsOn: [
       { icon: 'party-popper', h: 'Day of the Dead, early November', p: 'Marigolds, altars and processions fill towns from Oaxaca to Mexico City around 1 and 2 November.' },
@@ -353,7 +353,7 @@ const CONTENT = [
     faq: [
       { q: 'What is the best time to visit Mexico?', a: 'The dry season, November to April, with sunny, comfortable weather. December to February are the coolest and most pleasant, though prices peak over the holidays.' },
       { q: 'When is hurricane season in Mexico?', a: 'The Atlantic hurricane season runs June to November and is most active from August to October, mainly affecting the Caribbean coast around Cancun.' },
-      { q: 'Is the rainy season a bad time to visit?', a: 'Not necessarily. From May to October the rain usually comes as short afternoon storms, prices are lower and the landscapes are green, though the coast carries storm risk.' },
+      { q: 'Is the rainy season a bad time to visit?', a: 'From May to October the rain tends to arrive as heavy afternoon storms that pass quickly, prices are lower and the landscapes green, though the coast carries storm risk.' },
     ],
     markers: [{ mon: 'Nov', kind: 'fest' }, { mon: 'Mar', kind: 'sun' }],
   },
@@ -364,7 +364,7 @@ const CONTENT = [
     desc: 'The best time to visit Iceland is summer, June to August, for mild weather, open roads and the midnight sun, while September to March is northern-lights season. A month by month Reykjavik weather guide.',
     heroLead: 'Go in <strong>summer, June to August</strong>, for the mildest weather, open highland roads and the midnight sun. For the <strong>northern lights, come September to March</strong>, when the nights are long and dark but the weather is harsh.',
     intro: [
-      'Iceland is a land of two very different seasons. The ratings here use Reykjavik, where summer brings mild, long days, accessible roads and near round-the-clock daylight, which is why June to August is the peak. The weather is never hot and can change in an instant in any month.',
+      'Iceland is a land of two very different seasons. The ratings key off Reykjavik, where summer brings mild, long days, accessible roads and near round-the-clock daylight, which is why June to August is the peak. The weather is never hot and can change in an instant in any month.',
       'Winter is the trade-off you make for the aurora. From September to March the long, dark nights give the best chance of northern lights, but storms, ice and short daylight close much of the interior. Spring and autumn are quieter shoulders with a mix of both.',
     ],
     regions: [
@@ -396,7 +396,7 @@ const CONTENT = [
     desc: 'The best time to visit Thailand is the cool, dry season from November to February, with warm, sunny days. A month by month Bangkok weather guide, with the hot season and the monsoon explained, plus island timing.',
     heroLead: 'Go in the <strong>cool, dry season, November to February</strong>, for the most comfortable weather. <strong>March to May</strong> is fiercely hot, and the <strong>monsoon runs roughly June to October</strong>, though the islands differ coast to coast.',
     intro: [
-      'Thailand has three seasons, and the ratings here use Bangkok. The cool, dry months from November to February are the clear best time, with warm, sunny days and lower humidity, which is also why they are the busiest and priciest. March to May is the hot season, when temperatures and humidity climb hard.',
+      'Thailand has three seasons, and Bangkok sets the ratings below. The cool, dry months from November to February are the season to aim for, with warm, sunny days and lower humidity, which is also why they are the busiest and priciest. March to May is the hot season, when temperatures and humidity climb hard.',
       'The southwest monsoon brings the rains from around June to October to most of the country. The islands are the exception worth knowing: the Andaman coast, including Phuket and Krabi, is wettest from May to October, while the Gulf coast, including Koh Samui, gets its heaviest rain later, around October to December.',
     ],
     regions: [
@@ -408,7 +408,7 @@ const CONTENT = [
       { h: 'Islands and beaches', p: 'November to April on the Andaman coast for Phuket and Krabi, with calm, clear seas and sunshine.' },
       { h: 'Cities and temples', p: 'November to February for Bangkok and Chiang Mai, with the year\'s most comfortable weather.' },
       { h: 'Festivals', p: 'Songkran, the water-fight new year, in April, and Loy Krathong, the festival of lights, in November.' },
-      { h: 'Value and green season', p: 'June to October brings lower prices and lush landscapes, with rain that often falls in short bursts.' },
+      { h: 'Value and green season', p: 'June to October brings cheaper travel and green landscapes, with rain that often falls in short bursts.' },
     ],
     whatsOn: [
       { icon: 'party-popper', h: 'Songkran, April', p: 'The Thai new year turns the whole country into a giant, joyful water fight.' },
@@ -428,7 +428,7 @@ const CONTENT = [
     desc: 'The best time to visit Peru and Machu Picchu is the dry season, May to September, with clear skies in the Andes. A month by month Cusco weather guide, with the wet season and the different coast and jungle timing explained.',
     heroLead: 'For the Andes and Machu Picchu, go in the <strong>dry season, May to September</strong>, when skies are clear and trails are open. The <strong>wet season, November to March</strong>, brings rain and cloud, and the Inca Trail closes each February.',
     intro: [
-      'Peru is really three countries in one, and the ratings here use Cusco, the gateway to Machu Picchu in the Andes. The highland dry season, from May to September, brings clear blue skies and crisp days, ideal for trekking, though nights are cold and the sun is intense at altitude.',
+      'Peru is really three countries in one, and Cusco, the gateway to Machu Picchu in the Andes, anchors the ratings. The highland dry season, from May to September, brings clear blue skies and crisp days, ideal for trekking, though nights are cold and the sun is intense at altitude.',
       'The wet season runs November to March, with afternoon rain, cloud over the peaks and a greener landscape, and the classic Inca Trail closes every February for maintenance. The coast around Lima and the Amazon jungle follow their own patterns, so the best month depends on where you go.',
     ],
     regions: [
@@ -460,7 +460,7 @@ const CONTENT = [
     desc: 'The best time to visit Australia is spring, September to November, and autumn, March to May, for mild weather in Sydney and the south. The tropical north has a dry season from May to October. Seasons are flipped, with summer in December to February.',
     heroLead: 'For Sydney and the south, go in <strong>spring, September to November</strong>, or <strong>autumn, March to May</strong>. The tropical north is best in its <strong>dry season, May to October</strong>. Remember the seasons are reversed: summer is December to February.',
     intro: [
-      'Australia is a continent, so the answer changes with where you go, and the seasons are flipped from the northern hemisphere. The ratings here use Sydney, where the gentlest weather comes in spring and autumn, summer is warm and humid, and winter stays mild.',
+      'Australia is a continent, so the answer changes with where you go. The month ratings track Sydney, where the gentlest weather comes in spring and autumn, summer is warm and humid, and winter stays mild.',
       'The far north works the other way around. Cairns, Darwin and the tropics have a dry season from May to October that is the time to go, and a hot, stormy wet season from November to April that brings cyclone risk to the coast.',
     ],
     regions: [
@@ -480,7 +480,7 @@ const CONTENT = [
     ],
     faq: [
       { q: 'What is the best time to visit Australia?', a: 'Spring, September to November, and autumn, March to May, for Sydney and the south. The tropical north is best in its dry season, May to October.' },
-      { q: 'Are the seasons reversed in Australia?', a: 'Yes. Summer is December to February, autumn is March to May, winter is June to August and spring is September to November.' },
+      { q: 'Are the seasons reversed in Australia?', a: 'Yes, they run opposite the northern hemisphere, so December to February is high summer and June to August is winter.' },
       { q: 'When is the best time for the Great Barrier Reef?', a: 'June to October, the northern dry season, with the clearest, calmest water and the lowest humidity.' },
     ],
     markers: [{ mon: 'Nov', kind: 'sun' }, { mon: 'Mar', kind: 'leaf' }],
@@ -492,8 +492,8 @@ const CONTENT = [
     desc: 'The best time to visit New Zealand is summer, December to March, for warm, long days, with autumn a quieter, golden alternative. Winter, June to August, is ski season in the south. Seasons are reversed from the northern hemisphere.',
     heroLead: 'Go in <strong>summer, December to March</strong>, for the warmest weather and longest days, or in <strong>autumn, March to May</strong>, for golden colour and fewer crowds. <strong>Winter, June to August</strong>, is ski season in the Southern Alps.',
     intro: [
-      'New Zealand packs many climates into two narrow islands, and the seasons are flipped from the northern hemisphere. The ratings here use Auckland, where summer is warm and lively and the weather is mildest, though it can change quickly anywhere in the country.',
-      'Summer is the clear peak for the beaches, hiking and the Great Walks, with daylight stretching late into the evening. Winter swaps to a southern ski season around Queenstown and Wanaka, while spring and autumn are the quiet, value shoulders.',
+      'New Zealand packs many climates into two narrow islands, and its seasons sit opposite the northern hemisphere. We rate on Auckland, where summer is warm and lively and the weather is mildest, though it can change quickly anywhere in the country.',
+      'Summer is the one to book for the beaches, hiking and the Great Walks, with daylight stretching late into the evening. Winter swaps to a southern ski season around Queenstown and Wanaka, while spring and autumn are the quiet, value shoulders.',
     ],
     regions: [
       { icon: 'waves', h: 'Auckland and the north', p: 'Warm and subtropical, best from late spring to autumn. The Bay of Islands and northern beaches shine in summer.' },
@@ -522,9 +522,9 @@ const CONTENT = [
     hub: { city: 'Bali', lat: -8.4095, lng: 115.1889, zoom: 10, iata: 'DPS' },
     title: 'Best Time to Visit Bali and Indonesia: Weather by Month',
     desc: 'The best time to visit Bali and much of Indonesia is the dry season, April to October, with sunny days and calm seas. The wet season runs November to March. A month by month guide for Bali, Java and the islands.',
-    heroLead: 'Go in the <strong>dry season, April to October</strong>, for sunny days, calm seas and the best diving. The <strong>wet season, November to March</strong>, brings warm afternoon downpours, lower prices and lush, green landscapes.',
+    heroLead: 'Go in the <strong>dry season, April to October</strong>, for sunny days, calm seas and the best diving. The <strong>wet season, November to March</strong>, brings warm afternoon downpours, cheaper stays and green landscapes.',
     intro: [
-      'Indonesia straddles the equator, so it is warm all year and splits into a dry season and a wet one rather than four seasons. The ratings here use Bali, where the dry months from April to October bring the sunniest, calmest weather and the peak crowds.',
+      'Indonesia straddles the equator, so it is warm all year and splits into a dry season and a wet one rather than four seasons. These ratings follow Bali, where the dry months from April to October bring the sunniest, calmest weather and the peak crowds.',
       'The wet season from November to March is hot and humid with heavy afternoon rain, but the storms often pass quickly, prices fall and the rice terraces are at their greenest. Diving and surfing both favour the dry months.',
     ],
     regions: [
@@ -536,7 +536,7 @@ const CONTENT = [
       { h: 'Diving and snorkelling', p: 'April to October for the clearest water and calmest seas around Bali, Komodo and Raja Ampat.' },
       { h: 'Surfing', p: 'May to September for the classic dry-season swells on the Bukit Peninsula and beyond.' },
       { h: 'Volcanoes and trekking', p: 'The dry season for clear sunrises over Bromo and Ijen and firmer trails.' },
-      { h: 'Value and green season', p: 'November to March brings lower prices, fewer crowds and emerald rice terraces, in exchange for daily rain.' },
+      { h: 'Value and green season', p: 'November to March brings better rates, fewer crowds and emerald rice terraces, in exchange for daily rain.' },
     ],
     whatsOn: [
       { icon: 'sparkles', h: 'Nyepi, March', p: 'Bali falls silent for its day of silence, a striking and uniquely Balinese new year.' },
@@ -544,7 +544,7 @@ const CONTENT = [
     ],
     faq: [
       { q: 'What is the best time to visit Bali?', a: 'The dry season, April to October, with sunny days, calm seas and the best diving. July and August are the busiest and priciest.' },
-      { q: 'Is the wet season a bad time for Bali?', a: 'Not really. From November to March the rain usually comes in short afternoon bursts, prices drop and the landscapes are lush and green.' },
+      { q: 'Is the wet season a bad time for Bali?', a: 'From November to March the downpours are heavy but brief, prices drop and the landscapes are green.' },
       { q: 'When is the best time to dive in Indonesia?', a: 'The dry season, broadly April to October, gives the clearest water and calmest seas across most of the archipelago.' },
     ],
     markers: [{ mon: 'Jul', kind: 'sun' }, { mon: 'Mar', kind: 'fest' }],
@@ -556,7 +556,7 @@ const CONTENT = [
     desc: 'The best time to visit Vietnam overall is spring and autumn, March to April and October to November, when the whole country is reasonable. The long, thin shape means north, centre and south each have their own season.',
     heroLead: 'For the whole country at once, go in <strong>spring, March to April</strong>, or <strong>autumn, October to November</strong>. The north suits October to April, the centre February to August, and the south is warm and dry from December to April.',
     intro: [
-      'Vietnam is long and narrow, so its weather splits into three. The ratings here use Hanoi in the north, where spring and autumn are the loveliest, summer is hot and wet and winter is cool and grey.',
+      'Vietnam is long and narrow, so its weather splits into three. The ratings key off Hanoi in the north, where spring and autumn are the loveliest, summer is hot and wet and winter is cool and grey.',
       'Because the regions are out of step, the safest bets for seeing the whole country are the shoulder months of spring and autumn. Pick a single region and the window widens: central Hue and Hoi An are driest from February to August, while the southern Mekong and Ho Chi Minh City have their dry season from December to April.',
     ],
     regions: [
@@ -588,7 +588,7 @@ const CONTENT = [
     desc: 'The best time to visit India is the cool, dry season from October to March, with comfortable weather across most of the north and centre. Avoid the fierce pre-monsoon heat of April to June and the monsoon rains of July to September.',
     heroLead: 'Go in the <strong>cool, dry season, October to March</strong>, for the most comfortable weather. <strong>April to June</strong> brings fierce heat, and the <strong>monsoon, July to September</strong>, brings the rains. The Himalaya and the far south follow their own rhythm.',
     intro: [
-      'India is vast and its weather dramatic. The ratings here use Delhi in the north, where the cool, dry winter from October to March is the clear time to travel, the pre-monsoon months are intensely hot, and the monsoon brings heavy rain.',
+      'India is vast and its weather dramatic. Delhi in the north anchors the ratings, where the cool, dry winter from October to March is the obvious window to travel, the pre-monsoon months are intensely hot, and the monsoon brings heavy rain.',
       'The exceptions are worth knowing. The Himalayan north, including Ladakh and the hill stations, is best in summer when the plains bake. The far south and Kerala have their own monsoon timing and stay warm year round, with the southwest rains arriving in June.',
     ],
     regions: [
@@ -620,7 +620,7 @@ const CONTENT = [
     desc: 'The best time to visit South Korea is spring, April to June, for cherry blossom, and autumn, September to November, for clear skies and fiery foliage. Summer is hot, humid and wet, and winter is cold but bright, with skiing.',
     heroLead: 'Go in <strong>spring, April to June</strong>, for cherry blossom, or <strong>autumn, September to November</strong>, for crisp air and golden foliage. <strong>Summer</strong> is hot, humid and wet, and <strong>winter</strong> is cold and dry, with skiing.',
     intro: [
-      'South Korea has four sharp seasons, and the ratings here use Seoul. Spring and autumn are the two highlights, when the weather is mild and dry and the country is at its most colourful, with blossom in April and foliage in late October.',
+      'South Korea has four sharp seasons, and Seoul sets the ratings below. Spring and autumn are the two highlights, when the weather is mild and dry and the country is at its most colourful, with blossom in April and foliage in late October.',
       'Summer is hot and humid with a rainy season, the jangma, in July, while winter is cold and dry, cold enough for ski resorts in the mountains. The shoulder seasons are short but spectacular, so they draw the crowds and the highest prices.',
     ],
     regions: [
@@ -635,7 +635,7 @@ const CONTENT = [
       { h: 'Hiking', p: 'May to June and September to October, the mild, dry shoulders, for the national parks.' },
     ],
     whatsOn: [
-      { icon: 'flower-2', h: 'Cherry blossom, April', p: 'Festivals bloom across the country, from Jinhae in the south to Seoul s palaces.' },
+      { icon: 'flower-2', h: 'Cherry blossom, April', p: 'Festivals bloom across the country, from Jinhae in the south to Seoul\'s palaces.' },
       { icon: 'leaf', h: 'Autumn colour, late October', p: 'Maples and ginkgoes set the mountains and temple grounds alight.' },
     ],
     faq: [
@@ -652,7 +652,7 @@ const CONTENT = [
     desc: 'The best time to visit Turkey is spring, April to May, and autumn, September to October, with warm, comfortable weather and fewer crowds. Summer is hot, especially on the coast, and winter is cool and quiet beyond the ski resorts.',
     heroLead: 'Go in <strong>spring, April to May</strong>, or <strong>autumn, September to October</strong>, for warm, comfortable days and lighter crowds. <strong>Summer</strong> is hot and busy on the coast, and <strong>winter</strong> is cool, with skiing inland.',
     intro: [
-      'Turkey bridges Europe and Asia and its climate varies just as much. The ratings here use Istanbul, where spring and autumn bring the most pleasant weather, summer is hot and humid and winter is cool and wet, with the odd snowfall.',
+      'Turkey bridges Europe and Asia and its climate varies just as much. The month ratings track Istanbul, where spring and autumn bring the most pleasant weather, summer is hot and humid and winter is cool and wet, with the odd snowfall.',
       'The Mediterranean and Aegean coasts run hotter and stay warm later into autumn, while the high interior, including Cappadocia, has cold winters and warm summers. The shoulder seasons suit almost everywhere at once.',
     ],
     regions: [
@@ -664,10 +664,10 @@ const CONTENT = [
       { h: 'Istanbul and culture', p: 'April to May and September to October for comfortable sightseeing and the Bosphorus at its best.' },
       { h: 'Cappadocia and balloons', p: 'Spring and autumn for the calmest, clearest mornings for hot-air ballooning over the valleys.' },
       { h: 'Beaches and ruins', p: 'June to September on the Turquoise Coast, or the warm shoulder months to dodge the peak heat.' },
-      { h: 'Lower prices', p: 'November and the early spring bring cooler weather, quiet sites and better value.' },
+      { h: 'Fewer crowds', p: 'November and the early spring bring cooler weather, quiet sites and better value.' },
     ],
     whatsOn: [
-      { icon: 'flower-2', h: 'Tulip season, April', p: 'Istanbul s parks fill with millions of tulips, the flower\'s historic home.' },
+      { icon: 'flower-2', h: 'Tulip season, April', p: 'Istanbul\'s parks fill with millions of tulips, the flower\'s historic home.' },
       { icon: 'sun', h: 'Coast season, June to Sep', p: 'The Aegean and Mediterranean shores are warm, sunny and made for swimming.' },
     ],
     faq: [
@@ -684,7 +684,7 @@ const CONTENT = [
     desc: 'The best time to visit Croatia is late spring and early autumn, May to June and September to October, with warm seas, sunshine and fewer crowds than the July to August peak. A month by month guide for the Dalmatian coast and islands.',
     heroLead: 'Go in <strong>May to June</strong> or <strong>September to October</strong> for warm seas, sunshine and far fewer crowds than the <strong>July to August</strong> peak. <strong>Winter</strong> is mild on the coast but quiet, with many islands winding down.',
     intro: [
-      'Croatia is a Mediterranean country built for the shoulder seasons. The ratings here use Split on the Dalmatian coast, where late spring and early autumn bring warm, swimmable seas and sunshine without the August crush.',
+      'Croatia is a Mediterranean country built for the shoulder seasons. We rate on Split on the Dalmatian coast, where late spring and early autumn bring warm, swimmable seas and sunshine without the August crush.',
       'High summer is hot, gorgeous and very busy along the coast and islands, with peak prices to match. Winter is mild but sleepy, especially on the islands, while the inland capital of Zagreb and the Plitvice lakes stay rewarding into the colder months.',
     ],
     regions: [
@@ -713,10 +713,10 @@ const CONTENT = [
   { slug: 'switzerland', iso: 756, name: 'Switzerland',
     hub: { city: 'Zurich', lat: 47.3769, lng: 8.5417, zoom: 11, iata: 'ZRH' },
     title: 'Best Time to Visit Switzerland: Alps Weather by Month',
-    desc: 'The best time to visit Switzerland is summer, June to September, for hiking, lakes and open mountain passes, or winter, December to March, for world-class skiing. A month by month guide to the Alps and the cities.',
+    desc: 'The best time to visit Switzerland is summer, June to September, for hiking, lakes and open mountain passes, or winter, December to March, for deep, reliable snow. A month by month guide to the Alps and the cities.',
     heroLead: 'Go in <strong>summer, June to September</strong>, for hiking, lakes and open mountain passes, or in <strong>winter, December to March</strong>, for skiing. The quiet shoulder seasons are cheaper but some lifts and trails close.',
     intro: [
-      'Switzerland really has two peak seasons, and which is best depends on what you want. The ratings here use Zurich, but the experience is all about the mountains: summer for green meadows and high trails, winter for snow.',
+      'Switzerland really has two peak seasons, and which is best depends on what you want. These ratings follow Zurich, but the experience is all about the mountains: summer for green meadows and high trails, winter for snow.',
       'Summer, from June to September, opens the high passes, the cable cars and the hiking, with warm valleys and cool peaks. Winter, from December to March, blankets the resorts in snow. Spring and autumn are beautiful and quiet, but the high country can be caught between seasons, with lifts and trails closed.',
     ],
     regions: [
@@ -728,7 +728,7 @@ const CONTENT = [
       { h: 'Hiking and the high passes', p: 'July and August, when the trails are clear of snow, the cable cars run and the meadows are in full flower.' },
       { h: 'Skiing', p: 'December to March across the Alpine resorts, with the deepest, most reliable snow at altitude.' },
       { h: 'Lakes and cities', p: 'June to September for warm days, lake swimming and the long light of an Alpine summer.' },
-      { h: 'Quiet and value', p: 'Late spring and autumn for fewer crowds and lower prices, accepting that some high lifts and trails may be shut.' },
+      { h: 'Quiet and value', p: 'Late spring and autumn for fewer crowds and better rates, accepting that some high lifts and trails may be shut.' },
     ],
     whatsOn: [
       { icon: 'sun', h: 'Alpine summer, July to Aug', p: 'Wildflower meadows, open trails and warm lakes across the mountains.' },
@@ -748,7 +748,7 @@ const CONTENT = [
     desc: 'The best time to visit the Netherlands is spring, April to May, for tulips, and summer, June to August, for long, mild days. A month by month Amsterdam weather guide, with the bloom season and the rainy reality.',
     heroLead: 'Go in <strong>spring, April to May</strong>, for the tulips, or <strong>summer, June to August</strong>, for the longest, mildest days. The weather is changeable year round, so pack a layer and an umbrella whenever you come.',
     intro: [
-      'The Netherlands has a mild, damp maritime climate, so the question is more about light and warmth than dodging the rain. The ratings here use Amsterdam, where late spring and summer bring the best weather and the famous flowers.',
+      'The Netherlands has a mild, damp maritime climate, so the question is more about light and warmth than dodging the rain. The ratings key off Amsterdam, where late spring and summer bring the best weather and the famous flowers.',
       'Spring is the signature season, with the tulip fields and Keukenhof gardens blooming from late March to mid May. Summer is warm, long and busy, autumn is mild and golden, and winter is grey and short on daylight, though the canals and museums are atmospheric.',
     ],
     regions: [
@@ -764,7 +764,7 @@ const CONTENT = [
     ],
     whatsOn: [
       { icon: 'flower-2', h: 'Tulip season, April to May', p: 'The bulb fields and Keukenhof gardens burst into colour for a few short weeks.' },
-      { icon: 'party-popper', h: 'King\'s Day, late April', p: 'The whole country turns orange for one of Europe s biggest street parties.' },
+      { icon: 'party-popper', h: 'King\'s Day, late April', p: 'The whole country turns orange for one of Europe\'s biggest street parties.' },
     ],
     faq: [
       { q: 'What is the best time to visit the Netherlands?', a: 'Spring, April to May, for the tulips, and summer, June to August, for the longest, warmest days. Both are popular and lively.' },
@@ -780,13 +780,13 @@ const CONTENT = [
     desc: 'The best time to visit Ireland is late spring to early autumn, May to September, with the mildest weather, longest days and greenest landscapes. A month by month Dublin weather guide, including the rainy reality.',
     heroLead: 'Go from <strong>May to September</strong> for the mildest weather, the longest days and the greenest scenery. There is no dry season, so showers are likely any month, but spring and summer give the best odds of bright spells.',
     intro: [
-      'Ireland is famously green for a reason: it is mild and wet all year, kept gentle by the Atlantic. The ratings here use Dublin, where the best stretch runs from late spring to early autumn, when the days are long and the weather at its kindest.',
+      'Ireland is famously green for a reason: it is mild and wet all year, kept gentle by the Atlantic. Dublin anchors the ratings, where the best stretch runs from late spring to early autumn, when the days are long and the weather at its kindest.',
       'Summer is the peak, with warm, light evenings and a full calendar, though even then a dry day is never guaranteed. Winter is dark and damp rather than cold, with cosy pubs and quiet sights making up for the short daylight.',
     ],
     regions: [
       { icon: 'building-2', h: 'Dublin and the east', p: 'The driest corner of a wet country, best from May to September for the city and the nearby coast and mountains.' },
       { icon: 'waves', h: 'The Wild Atlantic Way', p: 'The western coast and cliffs are dramatic year round but kindest in summer, when the long days suit the scenic drives.' },
-      { icon: 'castle', h: 'The countryside and castles', p: 'The green heart of the island is at its most vivid from late spring, when the hedgerows and fields are lush.' },
+      { icon: 'castle', h: 'The countryside and castles', p: 'The green heart of the island is at its most vivid from late spring, when the hedgerows and fields are thick and green.' },
     ],
     bestFor: [
       { h: 'Road trips and coast', p: 'June to August for the Wild Atlantic Way, with the longest days and the best chance of clear skies.' },
@@ -810,9 +810,9 @@ const CONTENT = [
     hub: { city: 'Oslo', lat: 59.9139, lng: 10.7522, zoom: 11, iata: 'OSL' },
     title: 'Best Time to Visit Norway: Fjords and Northern Lights',
     desc: 'The best time to visit Norway is summer, June to August, for the fjords, hiking and the midnight sun, while winter, late September to March, is northern-lights season in the north. A month by month Oslo weather guide.',
-    heroLead: 'Go in <strong>summer, June to August</strong>, for the fjords, hiking and the midnight sun. For the <strong>northern lights, come late September to March</strong>, when the northern nights are long and dark. Winter is cold but magical.',
+    heroLead: 'Go in <strong>summer, June to August</strong>, for the fjords, hiking and the midnight sun. For the <strong>northern lights, come late September to March</strong>, when the northern nights are long and dark. Winter is cold, but the aurora makes up for it.',
     intro: [
-      'Norway is a country of two great seasons. The ratings here use Oslo, but the draw is the coast and the mountains: summer for the fjords under near-endless daylight, winter for snow and the aurora in the Arctic north.',
+      'Norway is a country of two great seasons. The month ratings track Oslo, but the draw is the coast and the mountains: summer for the fjords under near-endless daylight, winter for snow and the aurora in the Arctic north.',
       'Summer, from June to August, is mild, green and busy, with the midnight sun above the Arctic Circle and every road and ferry running. Winter, from late September to March, brings the northern lights, dog-sledding and skiing, with the far north in polar darkness around midwinter.',
     ],
     regions: [
@@ -844,7 +844,7 @@ const CONTENT = [
     desc: 'The best time to visit Rio and southern Brazil is the cooler, drier shoulder seasons of April to June and September to October. Summer, December to March, is hot, humid and the season of Carnival. The Amazon and northeast differ.',
     heroLead: 'For Rio and the south, the <strong>cooler, drier months of April to June and September to October</strong> are the most comfortable. <strong>Summer, December to March</strong>, is hot and humid, and the season of Carnival and the beaches.',
     intro: [
-      'Brazil is enormous and tropical, with seasons flipped from the northern hemisphere. The ratings here use Rio de Janeiro, where summer is hot, humid and lively, and the autumn and spring shoulders bring warm, drier days that are easier for sightseeing.',
+      'Brazil is enormous and tropical, with its seasons the reverse of the northern hemisphere. We rate on Rio de Janeiro, where summer is hot, humid and lively, and the autumn and spring shoulders bring warm, drier days that are easier for sightseeing.',
       'The country splits into very different climates. The northeast coast is warm and sunny much of the year, the Amazon is hot and humid with a wetter and a drier season, and the southern cities have a true four-season feel. Carnival, in February or early March, is the headline event.',
     ],
     regions: [
@@ -860,7 +860,7 @@ const CONTENT = [
     ],
     whatsOn: [
       { icon: 'party-popper', h: 'Carnival, February', p: 'Rio and Salvador erupt into days of parades, samba and street parties.' },
-      { icon: 'sun', h: 'Summer beach season, Dec to Mar', p: 'Rio s beaches are at their hottest and liveliest under the high summer sun.' },
+      { icon: 'sun', h: 'Summer beach season, Dec to Mar', p: 'Rio\'s beaches are at their hottest and liveliest under the high summer sun.' },
     ],
     faq: [
       { q: 'What is the best time to visit Brazil?', a: 'For Rio and the south, the milder shoulder months of April to June and September to October. Summer, December to March, is hot, humid and the season of Carnival.' },
@@ -874,9 +874,9 @@ const CONTENT = [
     hub: { city: 'Buenos Aires', lat: -34.6037, lng: -58.3816, zoom: 11, iata: 'BUE' },
     title: 'Best Time to Visit Argentina: Weather by Region',
     desc: 'The best time to visit Argentina is spring, September to November, and autumn, March to May, when Buenos Aires and the wine country are at their best. Patagonia is a summer destination, December to March. Seasons are reversed.',
-    heroLead: 'For Buenos Aires and the centre, go in <strong>spring, September to November</strong>, or <strong>autumn, March to May</strong>. <strong>Patagonia</strong> is a summer trip, December to March. The seasons are flipped from the northern hemisphere.',
+    heroLead: 'For Buenos Aires and the centre, go in <strong>spring, September to November</strong>, or <strong>autumn, March to May</strong>. <strong>Patagonia</strong> is a summer trip, December to March. The seasons run opposite the northern hemisphere.',
     intro: [
-      'Argentina runs from the subtropics to the edge of Antarctica, so the season depends on the region, and it is all reversed from the northern hemisphere. The ratings here use Buenos Aires, where spring and autumn bring the most pleasant weather and summer is hot and humid.',
+      'Argentina runs from the subtropics to the edge of Antarctica, so the season depends on the region. These ratings follow Buenos Aires, where spring and autumn bring the most pleasant weather and summer is hot and humid.',
       'Patagonia in the far south is a short summer destination, best from December to March when the winds ease and the trails open. The wine country around Mendoza peaks at the autumn harvest, and the northern deserts and falls stay warm much of the year.',
     ],
     regions: [
@@ -897,7 +897,7 @@ const CONTENT = [
     faq: [
       { q: 'What is the best time to visit Argentina?', a: 'Spring, September to November, and autumn, March to May, for Buenos Aires and the wine country. Patagonia is best in the southern summer, December to March.' },
       { q: 'When is the best time for Patagonia?', a: 'December to March, the southern summer, when the trails are open, the days are long and the notorious winds are calmest.' },
-      { q: 'Are the seasons reversed in Argentina?', a: 'Yes. Summer runs December to February, autumn March to May, winter June to August and spring September to November.' },
+      { q: 'Are the seasons reversed in Argentina?', a: 'Yes. With the southern hemisphere calendar, summer falls over December to February and winter over June to August.' },
     ],
     markers: [{ mon: 'Mar', kind: 'grape' }, { mon: 'Nov', kind: 'bloom' }],
   },
@@ -908,7 +908,7 @@ const CONTENT = [
     desc: 'The best time to visit Colombia is the drier months from December to March, with sunny weather on the Caribbean coast and in the cities. Sitting on the equator, Colombia is warm year round, with regions set by altitude rather than season.',
     heroLead: 'Go in the <strong>drier months, December to March</strong>, for the sunniest weather on the Caribbean coast and in the cities. On the equator there is no true summer or winter, just wetter and drier spells, with altitude setting the temperature.',
     intro: [
-      'Colombia sits on the equator, so it has no real seasons in the northern sense, just drier and wetter stretches, and the temperature is set by altitude rather than the calendar. The ratings here use Cartagena on the hot Caribbean coast, where the driest, sunniest months run from December to March.',
+      'Colombia sits on the equator, so it has no real seasons in the northern sense, just drier and wetter stretches, and the temperature is set by altitude rather than the calendar. The ratings key off Cartagena on the hot Caribbean coast, where the driest, sunniest months run from December to March.',
       'Up in the mountains, Bogota and Medellin stay spring-like all year, cool and pleasant, while the Amazon and Pacific are hot and wet. There are roughly two drier windows, December to March and again around July and August, that travellers tend to aim for.',
     ],
     regions: [
@@ -937,11 +937,11 @@ const CONTENT = [
   { slug: 'costa-rica', iso: 188, name: 'Costa Rica',
     hub: { city: 'San Jose', lat: 9.9281, lng: -84.0907, zoom: 11, iata: 'SJO' },
     title: 'Best Time to Visit Costa Rica: Dry Season by Month',
-    desc: 'The best time to visit Costa Rica is the dry season, December to April, with sunny weather and easy travel. The green season, May to November, brings afternoon rains, lower prices and lush forests. The two coasts differ slightly.',
-    heroLead: 'Go in the <strong>dry season, December to April</strong>, for the sunniest weather and easiest travel. The <strong>green season, May to November</strong>, brings warm afternoon rains, lower prices and lush, vivid forests. The Caribbean coast runs to its own rhythm.',
+    desc: 'The best time to visit Costa Rica is the dry season, December to April, with sunny weather and easy travel. The green season, May to November, brings afternoon rains, lower prices and green forests. The two coasts differ slightly.',
+    heroLead: 'Go in the <strong>dry season, December to April</strong>, for the sunniest weather and easiest travel. The <strong>green season, May to November</strong>, brings warm afternoon rains, cheaper stays and dripping, vivid forests. The Caribbean coast runs to its own rhythm.',
     intro: [
-      'Costa Rica keeps it simple with a dry season and a green one. The ratings here use San Jose in the central highlands, where the dry months from December to April bring sunshine and the easiest conditions, and the rains return as afternoon storms from May.',
-      'The green season is not a washout: mornings are often clear, the rain comes later in the day, prices drop and the rainforest is at its most alive. The one local twist is the Caribbean coast around Tortuguero, which is wetter in the middle of the year and drier around September and October.',
+      'Costa Rica keeps it simple with a dry season and a green one. San Jose, in the central highlands, anchors the ratings, where the dry months from December to April bring sunshine and the easiest conditions, and the rains return as afternoon storms from May.',
+      'The green season is not a washout: mornings are often clear, the rain comes later in the day, prices drop and the rainforest hums with wildlife. The one local twist is the Caribbean coast around Tortuguero, which is wetter in the middle of the year and drier around September and October.',
     ],
     regions: [
       { icon: 'sun', h: 'The Pacific coast and Guanacaste', p: 'The driest, sunniest region, best from December to April for the beaches and the dry tropical forest.' },
@@ -950,17 +950,17 @@ const CONTENT = [
     ],
     bestFor: [
       { h: 'Beaches and surfing', p: 'December to April on the Pacific for sunny, dry days, with the green season bringing bigger surf and fewer crowds.' },
-      { h: 'Wildlife and rainforest', p: 'The green season, when the forests are lush and active, or the dry season for easier access and clearer trails.' },
+      { h: 'Wildlife and rainforest', p: 'The green season, when the forests are dense and alive with wildlife, or the dry season for easier access and clearer trails.' },
       { h: 'Turtle nesting', p: 'July to October at Tortuguero on the Caribbean coast, when green turtles come ashore.' },
-      { h: 'Value and quiet', p: 'May, June and the green season for lower prices, fewer crowds and vivid, green landscapes.' },
+      { h: 'Low season', p: 'May, June and the green season for better rates, fewer crowds and vivid, green landscapes.' },
     ],
     whatsOn: [
       { icon: 'fish', h: 'Turtle nesting, July to Oct', p: 'Green turtles nest on the Caribbean beaches of Tortuguero through the late summer.' },
       { icon: 'sun', h: 'Dry-season beaches, Dec to Apr', p: 'The Pacific coast is at its sunniest and driest, prime time for the beaches.' },
     ],
     faq: [
-      { q: 'What is the best time to visit Costa Rica?', a: 'The dry season, December to April, with sunny weather and the easiest travel. The green season, May to November, is cheaper, quieter and lush, with afternoon rains.' },
-      { q: 'Is the green season a bad time to visit?', a: 'No. Mornings are often clear, the rain tends to come in the afternoon, prices fall and the rainforest is at its most vibrant.' },
+      { q: 'What is the best time to visit Costa Rica?', a: 'The dry season, December to April, with sunny weather and the easiest travel. The green season, May to November, is cheaper, quieter and green, with afternoon rains.' },
+      { q: 'Is the green season a bad time to visit?', a: 'Mornings are often clear, storms roll in mid-afternoon and pass, prices fall and the rainforest is at its liveliest.' },
       { q: 'When is the best time for the Caribbean coast?', a: 'September and October, which are drier and calmer there even as the rest of the country sees its wettest months.' },
     ],
     markers: [{ mon: 'Feb', kind: 'sun' }, { mon: 'Aug', kind: 'fish' }],
@@ -972,7 +972,7 @@ const CONTENT = [
     desc: 'The best time to visit South Africa depends on the trip: Cape Town and the coast shine in the summer, November to March, while safari in Kruger is best in the dry winter, May to September. A month by month guide, with seasons reversed.',
     heroLead: 'For <strong>Cape Town and the coast</strong>, go in summer, <strong>November to March</strong>. For <strong>safari in Kruger</strong>, the dry winter, <strong>May to September</strong>, is best for spotting wildlife. The seasons are reversed from the northern hemisphere.',
     intro: [
-      'South Africa is a tale of two trips, with the seasons flipped from the northern hemisphere. The ratings here use Cape Town, which has a Mediterranean climate: warm, dry summers from November to March are the time for the city, the beaches and the Winelands.',
+      'South Africa is a tale of two trips. The month ratings track Cape Town, which has a Mediterranean climate: warm, dry summers from November to March are the time for the city, the beaches and the Winelands.',
       'Safari follows the opposite calendar. The dry winter from May to September thins the bush and draws animals to the waterholes, making it the best time for wildlife in Kruger and the north. Winter in the Cape is mild but wet, and brings the whales to the southern coast.',
     ],
     regions: [
@@ -993,7 +993,7 @@ const CONTENT = [
     faq: [
       { q: 'What is the best time to visit South Africa?', a: 'It depends on the trip. Cape Town and the coast are best in the summer, November to March, while safari in Kruger is best in the dry winter, May to September.' },
       { q: 'When is the best time for safari?', a: 'The dry winter, May to September, when sparse vegetation and animals gathering at waterholes make wildlife easiest to spot.' },
-      { q: 'Are the seasons reversed in South Africa?', a: 'Yes. Summer runs November to March, autumn April to May, winter June to August and spring September to October.' },
+      { q: 'Are the seasons reversed in South Africa?', a: 'Yes, they are flipped, so summer runs roughly November to March and winter June to August.' },
     ],
     markers: [{ mon: 'Feb', kind: 'sun' }, { mon: 'Sep', kind: 'bloom' }],
   },
@@ -1004,7 +1004,7 @@ const CONTENT = [
     desc: 'The best time to visit Egypt is the cooler months from October to April, with comfortable weather for the pyramids, the Nile and the temples. Summer is intensely hot, especially in the south. The Red Sea is warm year round.',
     heroLead: 'Go in the <strong>cooler months, October to April</strong>, for comfortable days at the pyramids, on the Nile and around the temples. <strong>Summer, May to September</strong>, is intensely hot, especially in the south at Luxor and Aswan.',
     intro: [
-      'Egypt is hot and dry, so the trick is to dodge the worst of the heat. The ratings here use Cairo, where the cooler months from October to April bring pleasant, sunny weather that is ideal for sightseeing, while summer turns fierce, especially up the Nile in the south.',
+      'Egypt is hot and dry, so the trick is to dodge the worst of the heat. We rate on Cairo, where the cooler months from October to April bring pleasant, sunny weather that is ideal for sightseeing, while summer turns fierce, especially up the Nile in the south.',
       'The classic trip combines Cairo, a Nile cruise between Luxor and Aswan, and perhaps the Red Sea, and all of it is most comfortable in winter and the shoulder months. The Red Sea resorts stay warm and sunny year round for diving and the beach.',
     ],
     regions: [
@@ -1036,7 +1036,7 @@ const CONTENT = [
     desc: 'The best time to visit Dubai and the UAE is the cooler months from November to March, with warm, sunny days ideal for the beach and the desert. Summer, June to September, brings extreme heat and humidity. A month by month guide.',
     heroLead: 'Go in the <strong>cooler months, November to March</strong>, for warm, sunny days perfect for the beach, the desert and the outdoor sights. <strong>Summer, June to September</strong>, brings brutal heat and humidity, best spent indoors.',
     intro: [
-      'The UAE is a desert on the Gulf, so the season is all about the heat. The ratings here use Dubai, where the winter months from November to March bring warm, comfortable, sunny weather that is the clear time to visit, and summer becomes punishingly hot and humid.',
+      'The UAE is a desert on the Gulf, so the season is all about the heat. These ratings follow Dubai, where the winter months from November to March bring warm, comfortable, sunny weather, the pick of the year, and summer becomes punishingly hot and humid.',
       'In the cool season the city, the beaches and the desert are all at their best, which is why it is the peak for tourism and big events. Summer pushes life indoors, into the malls, museums and air-conditioned attractions, though hotel prices fall sharply to compensate.',
     ],
     regions: [
@@ -1048,7 +1048,7 @@ const CONTENT = [
       { h: 'Beaches and the city', p: 'November to March for warm, sunny days on the beach and out exploring Dubai and Abu Dhabi.' },
       { h: 'Desert safaris', p: 'The cool season, when dune drives and overnight desert camps are comfortable rather than scorching.' },
       { h: 'Events and shopping', p: 'Winter, when the calendar fills with festivals, sport and the big shopping events.' },
-      { h: 'Value and quiet', p: 'The summer months, hot but heavily discounted, for cheap luxury hotels and empty attractions.' },
+      { h: 'Cheaper months', p: 'The summer months, hot but heavily discounted, for cheap luxury hotels and empty attractions.' },
     ],
     whatsOn: [
       { icon: 'sun', h: 'Cool season, Nov to Mar', p: 'The comfortable window for the beach, the desert and the outdoor city.' },
@@ -1068,11 +1068,11 @@ const CONTENT = [
     desc: 'Singapore is warm and humid year round, with no real seasons, so any month works. The slightly drier, brighter window falls around February to April, while the wettest months come with the monsoon from November to January.',
     heroLead: 'Singapore is hot and humid <strong>all year</strong>, so any time works. The <strong>slightly drier, brighter window is February to April</strong>, while the <strong>wettest months</strong> arrive with the monsoon from November to January.',
     intro: [
-      'Sitting almost on the equator, Singapore has no real seasons, just steady heat and humidity with rain possible any day. The ratings here use the city itself, where the difference between months is small and any time of year is workable.',
+      'Sitting almost on the equator, Singapore has no real seasons, just steady heat and humidity with rain possible any day. Singapore is city, country and rating all in one, and the gap between months is small, so any time of year is workable.',
       'The closest thing to a best window is February to April, which tends to be a little drier and brighter, while the northeast monsoon from November to January brings the heaviest, most frequent downpours. Even then the rain usually comes in short, intense bursts, and the city is built to shrug it off.',
     ],
     regions: [
-      { icon: 'building-2', h: 'The city and Marina Bay', p: 'Hot and humid year round, with world-class indoor attractions that make rainy spells easy to absorb.' },
+      { icon: 'building-2', h: 'The city and Marina Bay', p: 'Hot and humid year round, with malls, museums and aquariums that shrug off the rain.' },
       { icon: 'trees', h: 'Gardens and Sentosa', p: 'The gardens and the island beaches are best on the brighter, drier days, most common from February to April.' },
       { icon: 'waves', h: 'A regional hub', p: 'A natural launch point for nearby Malaysia, Indonesia and the wider region, each with its own season to consider.' },
     ],
@@ -1100,7 +1100,7 @@ const CONTENT = [
     desc: "The best time to visit China is spring, April to May, and autumn, September to October, with mild, dry weather across most of the country. Summer is hot and wet, winter is cold, and the national holidays bring big crowds.",
     heroLead: "Go in <strong>spring, April to May</strong>, or <strong>autumn, September to October</strong>, for the mildest, driest weather. <strong>Summer</strong> is hot and humid, and <strong>winter</strong> is cold, especially in the north. Avoid the national holiday crowds in early May and October.",
     intro: [
-      "China spans everything from frozen Harbin to tropical Hainan, but the classic route through Beijing, Xi'an and Shanghai follows a clear four-season rhythm. The ratings here use Beijing, where spring and autumn bring the most comfortable, rain-free days.",
+      "China spans everything from frozen Harbin to tropical Hainan, but the classic route through Beijing, Xi'an and Shanghai follows a clear four-season rhythm. The ratings key off Beijing, where spring and autumn bring the most comfortable, rain-free days.",
       "Summer is hot and humid with the heaviest rain, and winter is cold and dry in the north. The dates to dodge are the Golden Week holidays around 1 May and 1 to 7 October, when domestic travel peaks and the great sights are packed.",
     ],
     regions: [
@@ -1132,7 +1132,7 @@ const CONTENT = [
     desc: "The best time to visit Morocco is spring, March to May, and autumn, September to November, with warm, comfortable days for the cities, the desert and the mountains. Summer is fiercely hot inland, and winter is cool with snow in the High Atlas.",
     heroLead: "Go in <strong>spring, March to May</strong>, or <strong>autumn, September to November</strong>, for warm, comfortable days across the cities, the desert and the mountains. <strong>Summer</strong> is fiercely hot inland, and <strong>winter</strong> is cool, with snow on the High Atlas.",
     intro: [
-      "Morocco packs deserts, mountains and two coastlines into one country, and the ratings here use Marrakech. Spring and autumn bring the sweet spot: warm, dry days that suit the medinas, the Sahara and the Atlas trails alike.",
+      "Morocco packs deserts, mountains and two coastlines into one country, and Marrakech sets the ratings below. Spring and autumn are the season to come, with warm, dry days that suit the medinas, the Sahara and the Atlas trails alike.",
       "High summer is brutal in Marrakech and the desert, often well above 40C, while the Atlantic coast around Essaouira stays breezy and mild. Winter is pleasant by day in the south but genuinely cold at altitude, with snow in the mountains.",
     ],
     regions: [
@@ -1164,11 +1164,11 @@ const CONTENT = [
     desc: "Malaysia is warm and humid year round, with the best weather set by which coast you visit. The west coast and islands are driest from December to March, the east coast from March to October. A month by month guide.",
     heroLead: "Malaysia is warm and humid <strong>all year</strong>. The <strong>west coast and islands</strong> (Langkawi, Penang) are driest from December to March, while the <strong>east coast</strong> (the Perhentians, Tioman) is best from March to October and closes for the monsoon in winter.",
     intro: [
-      "Malaysia sits on the equator, so it is hot and humid year round with rain possible any day, and the trick is matching the coast to the season. The ratings here use Kuala Lumpur, which is steamy throughout but workable any month.",
+      "Malaysia sits on the equator, so it is hot and humid year round with rain possible any day, and the trick is matching the coast to the season. The month ratings track Kuala Lumpur, which is steamy throughout but workable any month.",
       "The two coasts run on opposite calendars. The west, including Langkawi and Penang, is driest from December to March. The east, including the Perhentian Islands and Tioman, is best from March to October and largely shuts down during the northeast monsoon from November to February.",
     ],
     regions: [
-      { icon: "building-2", h: "Kuala Lumpur and the centre", p: "Hot and humid year round, with short, intense downpours and world-class indoor attractions for the rain." },
+      { icon: "building-2", h: "Kuala Lumpur and the centre", p: "Hot and humid year round, with short, intense downpours and malls and covered attractions for when it pours." },
       { icon: "waves", h: "Langkawi, Penang and the west coast", p: "Driest and best from December to March, the prime window for the western islands and beaches." },
       { icon: "fish", h: "The Perhentians and the east coast", p: "Best from March to October for diving and beaches. The monsoon closes many island resorts from November to February." },
     ],
@@ -1196,7 +1196,7 @@ const CONTENT = [
     desc: "The best time to visit the Philippines is the dry season, December to May, with sunny weather and calm seas for the islands and beaches. The wet season runs June to November and overlaps the typhoon season.",
     heroLead: "Go in the <strong>dry season, December to May</strong>, for sunny days and calm seas across the islands. The <strong>wet season, June to November</strong>, brings the rains and overlaps the typhoon season, which peaks from July to October.",
     intro: [
-      "The Philippines is over seven thousand islands, hot and tropical, with a clear dry and wet season. The ratings here use Manila, where the dry months from December to May are the time for the beaches, diving and island hopping.",
+      "The Philippines is over seven thousand islands, hot and tropical, with a clear dry and wet season. We rate on Manila, where the dry months from December to May are the time for the beaches, diving and island hopping.",
       "The wet season from June to November brings heavy rain and the bulk of the typhoon risk, which is highest from July to October. Some regions, like parts of Mindanao and the eastern seaboard, run on a different rainfall pattern, but for most travellers the dry-season rule holds.",
     ],
     regions: [
@@ -1208,11 +1208,11 @@ const CONTENT = [
       { h: "Beaches and islands", p: "January to April for Boracay, Palawan and the Visayas, the driest, sunniest, calmest stretch." },
       { h: "Diving", p: "The dry season for clear water, with Tubbataha Reef open only from March to June." },
       { h: "Whale sharks", p: "Roughly November to May off Donsol and the southern islands, in the calmer dry months." },
-      { h: "Value and quiet", p: "June, before the worst of the storms, for lower prices and greener landscapes." },
+      { h: "Fewer crowds", p: "June, before the worst of the storms, for cheaper travel and greener landscapes." },
     ],
     whatsOn: [
       { icon: "sun", h: "Dry-season beaches, Dec to May", p: "The islands enjoy their sunniest, calmest weather, peaking around Easter." },
-      { icon: "fish", h: "Whale shark season, Nov to May", p: "Gentle giants gather off Donsol and the southern coasts." },
+      { icon: "fish", h: "Whale shark season, Nov to May", p: "Whale sharks gather off Donsol and the southern coasts." },
     ],
     faq: [
       { q: "What is the best time to visit the Philippines?", a: "The dry season, December to May, with sunny weather and calm seas. January to April are the driest and most reliable for the islands." },
@@ -1228,7 +1228,7 @@ const CONTENT = [
     desc: "The best time to visit Sri Lanka depends on the coast: the west and south, including Colombo and Galle, are best from December to March, while the east coast is best from May to September. Two monsoons split the small island in two.",
     heroLead: "Go in <strong>December to March</strong> for the west and south coasts, including the beaches around Galle and the cultural sites. The <strong>east coast</strong>, including Trincomalee and Arugam Bay, is best from <strong>May to September</strong>. Two monsoons split the island.",
     intro: [
-      "Sri Lanka is small but has two monsoons, so somewhere on the island is usually in season. The ratings here use Colombo on the west coast, where the prime, driest window runs from December to March, taking in the southern beaches and the cultural triangle.",
+      "Sri Lanka is small but has two monsoons, so somewhere on the island is usually in season. These ratings follow Colombo on the west coast, where the prime, driest window runs from December to March, taking in the southern beaches and the cultural triangle.",
       "When the southwest monsoon brings rain to the west and south from May, the east coast flips into its dry, sunny season, perfect for Trincomalee and the surf at Arugam Bay. The hill country around Kandy and Ella is cool and pleasant much of the year.",
     ],
     regions: [
@@ -1258,9 +1258,9 @@ const CONTENT = [
     hub: { city: "Siem Reap", lat: 13.3633, lng: 103.8564, zoom: 12, iata: "REP" },
     title: "Best Time to Visit Cambodia: Angkor Wat Weather by Month",
     desc: "The best time to visit Cambodia is the cool, dry season from November to February, ideal for Angkor Wat and comfortable sightseeing. March to May is intensely hot, and the wet season runs June to October.",
-    heroLead: "Go in the <strong>cool, dry season, November to February</strong>, for the most comfortable weather at Angkor Wat and beyond. <strong>March to May</strong> is intensely hot, and the <strong>wet season, June to October</strong>, brings afternoon downpours and a lush, green landscape.",
+    heroLead: "Go in the <strong>cool, dry season, November to February</strong>, for the most comfortable weather at Angkor Wat and beyond. <strong>March to May</strong> is intensely hot, and the <strong>wet season, June to October</strong>, brings afternoon downpours and a green landscape.",
     intro: [
-      "Cambodia is hot and tropical with three seasons, and the ratings here use Siem Reap, the gateway to Angkor. The cool, dry months from November to February are the clear best time, with comfortable days for exploring the temples and the lowest humidity.",
+      "Cambodia is hot and tropical with three seasons, and Siem Reap, the gateway to Angkor, anchors the ratings. The cool, dry months from November to February are the time to come, with comfortable days for exploring the temples and the lowest humidity.",
       "March to May is the hot season, when temperatures soar, and the wet season from June to October brings short, heavy afternoon rains that green the countryside and fill the moats at Angkor. The southern coast around Sihanoukville follows a similar pattern.",
     ],
     regions: [
@@ -1292,7 +1292,7 @@ const CONTENT = [
     desc: "The best time to visit Nepal is autumn, October to November, for clear Himalaya views and prime trekking, and spring, March to April, for the rhododendron bloom. The monsoon runs June to September, and winter is cold but clear.",
     heroLead: "Go in <strong>autumn, October to November</strong>, for the clearest mountain views and the best trekking, or <strong>spring, March to April</strong>, for warm days and the rhododendron bloom. The <strong>monsoon</strong> brings rain and cloud from June to September.",
     intro: [
-      "Nepal is all about the mountains, and the ratings here use Kathmandu. Autumn, after the monsoon has washed the air clean, brings the clearest Himalayan views and the firmest trails, which is why October and November are the prime trekking season.",
+      "Nepal is all about the mountains, and Kathmandu sets the ratings below. Autumn, after the monsoon has washed the air clean, brings the clearest Himalayan views and the firmest trails, which is why October and November are the prime trekking season.",
       "Spring is the second great window, warmer and lit by rhododendron blooms on the hillsides, though the views are a touch hazier. The summer monsoon from June to September brings rain, leeches and cloud-covered peaks, while winter is cold and clear at altitude but tough on the high passes.",
     ],
     regions: [
@@ -1324,7 +1324,7 @@ const CONTENT = [
     desc: "The best time to visit Jordan is spring, March to May, and autumn, September to November, with warm, comfortable weather for Petra, Wadi Rum and the cities. Summer is intensely hot, and winter is cool with cold desert nights.",
     heroLead: "Go in <strong>spring, March to May</strong>, or <strong>autumn, September to November</strong>, for warm, comfortable days at Petra, Wadi Rum and Amman. <strong>Summer</strong> is intensely hot in the desert, and <strong>winter</strong> is cool, with cold nights and the odd snowfall in Amman.",
     intro: [
-      "Jordan is mostly desert, so the trick is dodging the extremes. The ratings here use Amman, where spring and autumn bring warm, sunny days that are ideal for the long walks through Petra and the dunes of Wadi Rum.",
+      "Jordan is mostly desert, so the trick is dodging the extremes. The ratings key off Amman, where spring and autumn bring warm, sunny days that are ideal for the long walks through Petra and the dunes of Wadi Rum.",
       "Summer is searing in the desert and at the Dead Sea, the lowest point on Earth, while winter is cool by day and genuinely cold at night, with frost and occasional snow in Amman. The Red Sea at Aqaba stays warm and swimmable for much of the year.",
     ],
     regions: [
@@ -1356,7 +1356,7 @@ const CONTENT = [
     desc: "The best time to visit Israel is spring, March to May, and autumn, September to November, with warm, comfortable weather for Jerusalem, Tel Aviv and the desert. Summer is hot and humid on the coast, and winter is mild but wet.",
     heroLead: "Go in <strong>spring, March to May</strong>, or <strong>autumn, September to November</strong>, for warm, comfortable days across Jerusalem, Tel Aviv and the desert. <strong>Summer</strong> is hot and humid on the coast, and <strong>winter</strong> is mild but rainy.",
     intro: [
-      "Israel is small but climatically varied, and the ratings here use Tel Aviv on the Mediterranean coast. Spring and autumn bring the gentlest weather, ideal for the beaches, the old cities and the long days of sightseeing.",
+      "Israel is small but climatically varied, and Tel Aviv, on the Mediterranean coast, anchors the ratings. Spring and autumn bring the gentlest weather, ideal for the beaches, the old cities and the long days of sightseeing.",
       "Summer is hot and sticky on the coast and very hot down at the Dead Sea and Eilat, while winter is mild but the wettest time, with cool, rainy days in the north and Jerusalem. The desert south and the Red Sea stay warm and dry far later into the year.",
     ],
     regions: [
@@ -1388,12 +1388,12 @@ const CONTENT = [
     desc: "The best time to visit Austria is summer, June to September, for hiking, lakes and the cities, or winter, December to March, for skiing and Christmas markets. A month by month Vienna weather guide with notes for the Alps.",
     heroLead: "Go in <strong>summer, June to September</strong>, for hiking, the lakes and the cities, or in <strong>winter, December to March</strong>, for skiing and Christmas markets. The quiet shoulder seasons are mild and cheaper.",
     intro: [
-      "Austria has two clear peaks, and the ratings here use Vienna. Summer brings warm, long days for the imperial cities, the lakes of the Salzkammergut and hiking in the Alps, while winter turns the mountains into one of Europe's great ski regions.",
+      "Austria has two clear peaks, and the month ratings track Vienna. Summer brings warm, long days for the imperial cities, the lakes of the Salzkammergut and hiking in the Alps, while winter turns the mountains into one of Europe's great ski regions.",
       "Spring and autumn are quieter and milder, good for the cities and the wine country without the crowds, though the high mountains can be caught between seasons. Vienna and Salzburg sparkle in December for the Christmas markets.",
     ],
     regions: [
-      { icon: "building-2", h: "Vienna and Salzburg", p: "Lovely in late spring and summer, magical in December for the Christmas markets. Winters are cold." },
-      { icon: "mountain-snow", h: "Tyrol and the Alps", p: "Summer for hiking and the lakes, December to March for world-class skiing around Innsbruck and St Anton." },
+      { icon: "building-2", h: "Vienna and Salzburg", p: "Lovely in late spring and summer, at their best in December for the Christmas markets. Winters are cold." },
+      { icon: "mountain-snow", h: "Tyrol and the Alps", p: "Summer for hiking and the lakes, December to March for the big ski resorts of Innsbruck and St Anton." },
       { icon: "grape", h: "The Wachau and wine country", p: "Beautiful in late spring and at the autumn harvest, with terraced vineyards above the Danube." },
     ],
     bestFor: [
@@ -1417,10 +1417,10 @@ const CONTENT = [
   { slug: "czechia", iso: 203, name: "Czechia",
     hub: { city: "Prague", lat: 50.0755, lng: 14.4378, zoom: 12, iata: "PRG" },
     title: "Best Time to Visit Prague and Czechia: Weather by Month",
-    desc: "The best time to visit Czechia is late spring and early autumn, April to June and September to October, with mild weather and lighter crowds in Prague. Summer is warm and busy, and winter is cold with magical Christmas markets.",
-    heroLead: "Go in <strong>April to June</strong> or <strong>September to October</strong> for mild weather and thinner crowds in Prague. <strong>Summer</strong> is warm and busy, and <strong>winter</strong> is cold but magical, with Christmas markets and snow on the spires.",
+    desc: "The best time to visit Czechia is late spring and early autumn, April to June and September to October, with mild weather and lighter crowds in Prague. Summer is warm and busy, and winter is cold, with Christmas markets and snow on the spires.",
+    heroLead: "Go in <strong>April to June</strong> or <strong>September to October</strong> for mild weather and thinner crowds in Prague. <strong>Summer</strong> is warm and busy, and <strong>winter</strong> is cold, but the Christmas markets and snow on the spires earn it.",
     intro: [
-      "Czechia is a classic central European destination with four distinct seasons, and the ratings here use Prague. Late spring and early autumn bring the sweet spot: mild, pleasant days and far smaller crowds than the summer peak on the Charles Bridge.",
+      "Czechia is a classic central European destination with four distinct seasons, and we rate on Prague. Late spring and early autumn are the pick of the year, with mild, pleasant days and far smaller crowds than the summer peak on the Charles Bridge.",
       "Summer is warm, long and very busy, while winter is cold and grey but genuinely atmospheric, with the old town under snow and the famous Christmas markets in December. The countryside and spa towns like Cesky Krumlov follow the same rhythm.",
     ],
     regions: [
@@ -1432,7 +1432,7 @@ const CONTENT = [
       { h: "Prague sightseeing", p: "April to June and September to October for mild days and lighter crowds on the bridge and in the castle." },
       { h: "Christmas markets", p: "December, when Old Town Square fills with stalls, carols and mulled wine under the snow." },
       { h: "Beer and festivals", p: "Summer, when the beer gardens are open and the festival calendar is full." },
-      { h: "Value and quiet", p: "Late autumn and winter, outside the markets, for cheap, atmospheric, crowd-free city breaks." },
+      { h: "Quiet season", p: "Late autumn and winter, outside the markets, for cheap, atmospheric, crowd-free city breaks." },
     ],
     whatsOn: [
       { icon: "flower-2", h: "Spring in the gardens, May", p: "Prague's parks and palace gardens come into bloom under mild skies." },
@@ -1452,7 +1452,7 @@ const CONTENT = [
     desc: "The best time to visit Hungary is late spring and early autumn, April to June and September to October, with mild weather and lighter crowds in Budapest. Summer is warm and festival-filled, and winter is cold but cosy with thermal baths.",
     heroLead: "Go in <strong>April to June</strong> or <strong>September to October</strong> for mild weather and thinner crowds in Budapest. <strong>Summer</strong> is warm and packed with festivals, and <strong>winter</strong> is cold but cosy, ideal for the city's famous thermal baths.",
     intro: [
-      "Hungary sits in the heart of central Europe with a continental climate, and the ratings here use Budapest. Late spring and early autumn bring the most comfortable weather, perfect for the riverside city, the ruin bars and the grand thermal baths.",
+      "Hungary sits in the heart of central Europe with a continental climate, and these ratings follow Budapest. Late spring and early autumn bring the most comfortable weather, perfect for the riverside city, the ruin bars and the grand thermal baths.",
       "Summer is warm and lively, home to the huge Sziget festival, while winter is cold and grey but has its own charm, with steam rising off the open-air baths and a festive feel in December. Lake Balaton draws crowds in the summer heat.",
     ],
     regions: [
@@ -1462,7 +1462,7 @@ const CONTENT = [
     ],
     bestFor: [
       { h: "Budapest sightseeing", p: "April to June and September to October for mild days and lighter crowds along the Danube." },
-      { h: "Thermal baths", p: "Year round, but especially magical in winter when steam rises off the warm outdoor pools." },
+      { h: "Thermal baths", p: "Year round, but best in winter, when steam rises off the warm outdoor pools." },
       { h: "Festivals", p: "Summer, peaking with the week-long Sziget festival on a Danube island in August." },
       { h: "Wine country", p: "September and October for the Tokaj and Eger harvests in the golden countryside." },
     ],
@@ -1484,7 +1484,7 @@ const CONTENT = [
     desc: "The best time to visit Poland is late spring to early autumn, May to September, with mild, long days for Krakow, Warsaw and the countryside. Winter is cold and snowy, with Christmas markets and skiing in the Tatra Mountains.",
     heroLead: "Go from <strong>May to September</strong> for the mildest weather and longest days across Krakow, Warsaw and the lakes. <strong>Winter</strong> is cold and snowy, with Christmas markets in the cities and skiing in the Tatra Mountains.",
     intro: [
-      "Poland has a continental climate with warm summers and cold winters, and the ratings here use Warsaw. The best stretch runs from late spring to early autumn, when the cities, the Baltic coast and the lake districts are at their most inviting.",
+      "Poland has a continental climate with warm summers and cold winters, and the ratings key off Warsaw. The best stretch runs from late spring to early autumn, when the cities, the Baltic coast and the lake districts are at their most inviting.",
       "Summer is warm and busy, especially in Krakow and on the coast, while autumn is crisp and golden. Winter is cold and snowy, but it brings Christmas markets to the old towns and skiing to Zakopane in the Tatra Mountains.",
     ],
     regions: [
@@ -1496,7 +1496,7 @@ const CONTENT = [
       { h: "Krakow and the cities", p: "May to September for warm, long days and a full calendar, or December for the Christmas markets." },
       { h: "The Baltic coast", p: "June to August for Gdansk and the beaches, the warmest, sunniest stretch on the coast." },
       { h: "Hiking the Tatras", p: "Summer for the mountain trails around Zakopane, with skiing in the same hills in winter." },
-      { h: "Value and quiet", p: "Spring and autumn, with mild weather, golden colour and lower prices than the summer peak." },
+      { h: "Best value", p: "Spring and autumn, with mild weather, golden colour and better rates than the summer peak." },
     ],
     whatsOn: [
       { icon: "sun", h: "Summer in the squares, July", p: "Krakow and Gdansk fill their old-town squares with cafes and street life." },
@@ -1516,8 +1516,8 @@ const CONTENT = [
     desc: "The best time to visit Sweden is summer, June to August, for warm, endless days, the archipelago and midsummer. Winter, December to March, brings northern lights, dog-sledding and snow in the far north. A month by month Stockholm guide.",
     heroLead: "Go in <strong>summer, June to August</strong>, for warm, near-endless days, the Stockholm archipelago and midsummer. <strong>Winter, December to March</strong>, brings the northern lights, dog-sledding and snow in Lapland, though the south stays dark and cold.",
     intro: [
-      "Sweden swings between a bright, sociable summer and a long, dark winter, and the ratings here use Stockholm. Summer is the clear peak, with warm days, white nights and the archipelago and lake country at their best, building to the midsummer celebrations.",
-      "Winter is cold and short on daylight in the south, but in the far north it becomes the season for the northern lights, the Ice Hotel and Sami culture. Spring and autumn are quiet, mild shoulders with fewer crowds and lower prices.",
+      "Sweden swings between a bright, sociable summer and a long, dark winter, and Stockholm sets the ratings below. Summer is the standout season, with warm days, white nights and the archipelago and lake country at their best, building to the midsummer celebrations.",
+      "Winter is cold and short on daylight in the south, but in the far north it becomes the season for the northern lights, the Ice Hotel and Sami culture. Spring and autumn are quiet, mild shoulders with fewer crowds and cheaper travel.",
     ],
     regions: [
       { icon: "building-2", h: "Stockholm and the south", p: "Mild, bright summers with long evenings and lake swimming. Winters are cold, dark and atmospheric." },
@@ -1548,7 +1548,7 @@ const CONTENT = [
     desc: "The best time to visit Denmark is summer, June to August, for the longest, mildest days, harbour swimming and outdoor life in Copenhagen. Spring and autumn are quieter, and winter is dark and cold but cosy and festive.",
     heroLead: "Go in <strong>summer, June to August</strong>, for the longest, mildest days, harbour swimming and Copenhagen at its most alive. <strong>Spring and autumn</strong> are quieter shoulders, and <strong>winter</strong> is dark and cold but full of hygge and Christmas lights.",
     intro: [
-      "Denmark has a mild but changeable maritime climate, and the ratings here use Copenhagen. Summer is the clear highlight, with long, light evenings, harbour baths, Tivoli Gardens and the city's famous outdoor life in full swing.",
+      "Denmark has a mild but changeable maritime climate, and Copenhagen anchors the ratings. Summer stands out, with long, light evenings, harbour baths, Tivoli Gardens and the city's famous outdoor life in full swing.",
       "Spring and autumn are cool and quieter, good for the museums and design without the crowds, while winter is dark and often grey but leans into cosy hygge, candlelit cafes and the Christmas season at Tivoli. The weather can turn at any time, so a layer is wise.",
     ],
     regions: [
@@ -1558,9 +1558,9 @@ const CONTENT = [
     ],
     bestFor: [
       { h: "Copenhagen city life", p: "June to August for warm, long days, harbour swimming and the buzzing outdoor scene." },
-      { h: "Tivoli Gardens", p: "Summer for the gardens in full bloom, or December for the magical Christmas season." },
+      { h: "Tivoli Gardens", p: "Summer for the gardens in full bloom, or December for the Christmas season." },
       { h: "Cycling and the coast", p: "Late spring to early autumn for the flat, easy cycling and the beaches." },
-      { h: "Hygge and quiet", p: "Autumn and winter, for cosy candlelit cafes, design museums and lower prices." },
+      { h: "Hygge and quiet", p: "Autumn and winter, for cosy candlelit cafes, design museums and better rates." },
     ],
     whatsOn: [
       { icon: "sun", h: "Long summer days, July", p: "Copenhagen lives outdoors, with harbour baths and late, light evenings." },
@@ -1580,7 +1580,7 @@ const CONTENT = [
     desc: "The best time to visit Finland is summer, June to August, for the midnight sun, lakes and forests, or winter, December to March, for northern lights, husky safaris and Santa in Lapland. A month by month Helsinki weather guide.",
     heroLead: "Go in <strong>summer, June to August</strong>, for the midnight sun, lakes and endless forests, or in <strong>winter, December to March</strong>, for the northern lights, husky safaris and Santa in Lapland. The south is dark and cold in deep winter.",
     intro: [
-      "Finland is a land of forests and lakes with two very different seasons, and the ratings here use Helsinki. Summer brings warm, bright days, the lake cabins, the archipelago and near round-the-clock light in the north, the time for hiking, swimming and the sauna.",
+      "Finland is a land of forests and lakes with two very different seasons, and the month ratings track Helsinki. Summer brings warm, bright days, the lake cabins, the archipelago and near round-the-clock light in the north, the time for hiking, swimming and the sauna.",
       "Winter is long, dark and snowy, but in Lapland it becomes a wonderland of northern lights, reindeer, husky sleds and Santa's official home. Spring and autumn are short, quiet shoulders, with autumn's ruska colour lighting up the northern forests.",
     ],
     regions: [
@@ -1612,7 +1612,7 @@ const CONTENT = [
     desc: "The best time to visit Cuba is the dry season, November to April, with warm, sunny weather for Havana and the beaches. The wet season runs May to October and overlaps the Caribbean hurricane season.",
     heroLead: "Go in the <strong>dry season, November to April</strong>, for warm, sunny days in Havana and on the beaches. The <strong>wet season, May to October</strong>, is hotter and more humid, and overlaps the Caribbean <strong>hurricane season</strong>, which peaks from August to October.",
     intro: [
-      "Cuba is warm and tropical with a dry and a wet season, and the ratings here use Havana. The dry months from November to April are the clear best time, with sunny, comfortable days for the old city, the classic cars and the white-sand beaches.",
+      "Cuba is warm and tropical with a dry and a wet season, and we rate on Havana. The dry months from November to April are the prime window, with sunny, comfortable days for the old city, the classic cars and the white-sand beaches.",
       "The wet season from May to October is hotter and more humid, with afternoon showers and the main hurricane risk, which is highest from August to October. Even then, mornings are often clear and prices are lower, but the storm season is worth planning around.",
     ],
     regions: [
@@ -1624,14 +1624,14 @@ const CONTENT = [
       { h: "Havana and the cities", p: "November to April for warm, dry, comfortable days exploring the old town and the classic-car streets." },
       { h: "Beaches", p: "December to April for Varadero, Cayo Coco and the keys at their sunniest and calmest." },
       { h: "Diving and snorkelling", p: "The dry season for the clearest water around the reefs and the Bay of Pigs." },
-      { h: "Value and quiet", p: "May and June, before the worst of the storms, for lower prices and greener landscapes." },
+      { h: "Off-peak", p: "May and June, before the worst of the storms, for cheaper travel and greener landscapes." },
     ],
     whatsOn: [
       { icon: "sun", h: "Dry-season beaches, Nov to Apr", p: "The coast and keys enjoy their sunniest, calmest weather." },
       { icon: "party-popper", h: "Havana Carnival, summer", p: "Music and parades fill the streets despite the summer heat." },
     ],
     faq: [
-      { q: "What is the best time to visit Cuba?", a: "The dry season, November to April, with warm, sunny weather for Havana and the beaches. It is the peak season for good reason." },
+      { q: "What is the best time to visit Cuba?", a: "The dry season, November to April, with warm, sunny weather for Havana and the beaches." },
       { q: "When is hurricane season in Cuba?", a: "June to November, with the highest risk from August to October. Storms can affect the whole island, so plan with some flexibility." },
       { q: "Is summer a bad time to visit Cuba?", a: "It is hotter, more humid and carries storm risk, but mornings are often clear and prices are lower outside the peak." },
     ],
@@ -1644,7 +1644,7 @@ const CONTENT = [
     desc: "The best time to visit the Dominican Republic is December to April, the drier, cooler season ideal for the beaches and resorts. The wetter, hotter months run May to November and overlap the Caribbean hurricane season.",
     heroLead: "Go from <strong>December to April</strong>, the drier, cooler season, for the best beach and resort weather in Punta Cana and beyond. The <strong>wetter months, May to November</strong>, are hotter and overlap the Caribbean <strong>hurricane season</strong>, which peaks from August to October.",
     intro: [
-      "The Dominican Republic is warm and tropical year round, and the ratings here use Santo Domingo. The drier, slightly cooler season from December to April is the prime time for the beaches and the famous resorts of Punta Cana, with sunshine and lower humidity.",
+      "The Dominican Republic is warm and tropical year round, and these ratings follow Santo Domingo. The drier, slightly cooler season from December to April is the prime time for the beaches and the famous resorts of Punta Cana, with sunshine and lower humidity.",
       "From May to November it is hotter and wetter, with the Caribbean hurricane risk highest from August to October, though the rain often comes as short afternoon showers. The north coast around Puerto Plata runs a little wetter than the south and east.",
     ],
     regions: [
@@ -1656,7 +1656,7 @@ const CONTENT = [
       { h: "Beaches and resorts", p: "December to April for Punta Cana and the east at their sunniest, driest and calmest." },
       { h: "Whale watching", p: "January to March in Samana Bay, when humpback whales come to breed offshore." },
       { h: "Surfing and kitesurfing", p: "The windier winter months around Cabarete on the north coast." },
-      { h: "Value and quiet", p: "Late spring and early summer, before the worst of the storm season, for lower prices." },
+      { h: "Quiet season", p: "Late spring and early summer, before the worst of the storm season, when prices drop." },
     ],
     whatsOn: [
       { icon: "fish", h: "Whale watching, Jan to Mar", p: "Humpback whales gather in Samana Bay to breed and calve." },
@@ -1676,12 +1676,12 @@ const CONTENT = [
     desc: "The best time to visit Chile is spring and autumn, September to November and March to May, for Santiago and the wine country, while Patagonia is a summer destination, December to March. The Atacama Desert is good year round. Seasons are reversed.",
     heroLead: "For Santiago and the wine country, go in <strong>spring, September to November</strong>, or <strong>autumn, March to May</strong>. <strong>Patagonia</strong> is a summer trip, December to March, and the <strong>Atacama Desert</strong> is good all year. The seasons are flipped from the northern hemisphere.",
     intro: [
-      "Chile is a ribbon of a country running from desert to glaciers, so the season depends entirely on the region, and it is all reversed from the northern hemisphere. The ratings here use Santiago, where spring and autumn bring the most pleasant weather for the city and the surrounding vineyards.",
-      "Patagonia in the far south is a short summer destination, best from December to March when the winds ease and the trails open, while the Atacama in the north, the driest desert on Earth, stays clear and travellable year round. Central summers are hot and dry, winters cool.",
+      "Chile is a ribbon of a country running from desert to glaciers, so the season depends entirely on the region. The ratings key off Santiago, where spring and autumn bring the most pleasant weather for the city and the surrounding vineyards.",
+      "Patagonia in the far south has a short season, roughly December to March, when the gales drop and the hiking routes are open, while the Atacama in the north, the driest desert on Earth, stays clear and travellable year round. Central summers are hot and dry, winters cool.",
     ],
     regions: [
       { icon: "grape", h: "Santiago and the wine valleys", p: "Mediterranean climate, best in spring and autumn, with hot, dry summers and a golden harvest in March." },
-      { icon: "mountain-snow", h: "Patagonia and Torres del Paine", p: "A summer destination, December to March, when the trails open and the fierce winds are calmest. Winter closes much of it." },
+      { icon: "mountain-snow", h: "Patagonia and Torres del Paine", p: "A summer destination, December to March, when the paths open and the punishing gales relent. Winter closes much of it." },
       { icon: "sun", h: "The Atacama Desert", p: "The clearest skies on Earth, travellable year round, with warm days and cold desert nights." },
     ],
     bestFor: [
@@ -1696,7 +1696,7 @@ const CONTENT = [
     ],
     faq: [
       { q: "What is the best time to visit Chile?", a: "Spring and autumn for Santiago and the wine country, summer (December to March) for Patagonia, and any time for the Atacama Desert." },
-      { q: "When is the best time for Patagonia?", a: "December to March, the southern summer, when the trails are open, the days are long and the notorious winds are at their calmest." },
+      { q: "When is the best time for Patagonia?", a: "December to March, the southern summer, with long daylight, open paths and the wind at its least brutal." },
       { q: "Is the Atacama Desert good year round?", a: "Yes, the driest desert on Earth is travellable in any season, with warm days, cold nights and famously clear skies." },
     ],
     markers: [{ mon: "Mar", kind: "grape" }, { mon: "Jan", kind: "sun" }],
@@ -1708,7 +1708,7 @@ const CONTENT = [
     desc: "The best time to visit Kenya is the dry seasons, June to October and January to February, for prime safari and the Great Migration in the Masai Mara. The long rains fall March to May, with shorter rains in November.",
     heroLead: "Go in the <strong>dry seasons, June to October and January to February</strong>, for the best safari game viewing, with the <strong>Great Migration</strong> reaching the Masai Mara from July to October. The long rains fall <strong>March to May</strong>, with shorter rains in November.",
     intro: [
-      "Kenya is a year-round safari country near the equator, with seasons set by rain rather than temperature, and the ratings here use Nairobi. The dry months, from June to October and again in January and February, concentrate wildlife around the water and make for the best game viewing.",
+      "Kenya is a year-round safari country near the equator, with seasons set by rain rather than temperature, and Nairobi sets the ratings below. The dry months, from June to October and again in January and February, concentrate wildlife around the water and make for the best game viewing.",
       "The headline event is the Great Migration, when vast wildebeest herds cross from the Serengeti into the Masai Mara from roughly July to October. The long rains in March to May green the land but soften the roads, and the coast around Mombasa and Diani runs warm and humid year round.",
     ],
     regions: [
@@ -1720,7 +1720,7 @@ const CONTENT = [
       { h: "The Great Migration", p: "July to October in the Masai Mara, when the wildebeest herds and dramatic river crossings arrive." },
       { h: "General safari", p: "The dry seasons, June to October and January to February, for the easiest game viewing across the parks." },
       { h: "Beaches", p: "December to March on the coast around Diani and Mombasa, the sunniest, driest stretch." },
-      { h: "Birding and green season", p: "The wet months, when migratory birds arrive and the landscapes are lush, in exchange for muddier roads." },
+      { h: "Birding and green season", p: "The wet months, when migratory birds arrive and the landscapes are green, in exchange for muddier roads." },
     ],
     whatsOn: [
       { icon: "sun", h: "Great Migration, Jul to Oct", p: "Wildebeest pour into the Masai Mara and brave the crocodile-filled river crossings." },
@@ -1740,7 +1740,7 @@ const CONTENT = [
     desc: "The best time to visit Tanzania is the dry season, June to October, for prime safari and Serengeti game viewing, with the wildebeest calving in January to February. Zanzibar is best June to October and December to February. The long rains fall March to May.",
     heroLead: "Go in the <strong>dry season, June to October</strong>, for the best safari and Serengeti game viewing. The wildebeest <strong>calving</strong> is January to February, and <strong>Zanzibar</strong> is best June to October and December to February. The long rains fall <strong>March to May</strong>.",
     intro: [
-      "Tanzania is one of Africa's great safari destinations, plus the spice island of Zanzibar, and the ratings here use Dar es Salaam on the coast. The dry season from June to October is the prime time, when wildlife gathers at the water and the Serengeti and Ngorongoro are at their best.",
+      "Tanzania is one of Africa's great safari destinations, plus the spice island of Zanzibar, and Dar es Salaam, on the coast, anchors the ratings. The dry season from June to October is the prime time, when wildlife gathers at the water and the Serengeti and Ngorongoro are at their best.",
       "The Great Migration moves through the Serengeti year round, with the dramatic calving season on the southern plains in January and February. The long rains fall March to May, the wettest, quietest stretch, while Zanzibar's beaches are best in the dry midyear and the short dry season around December to February.",
     ],
     regions: [
@@ -1770,9 +1770,9 @@ const CONTENT = [
     hub: { city: "Male", lat: 4.1755, lng: 73.5093, zoom: 11, iata: "MLE" },
     title: "Best Time to Visit the Maldives: Weather by Month",
     desc: "The best time to visit the Maldives is the dry season, December to April, with sunny skies, calm seas and excellent diving. The wet season runs May to November, bringing more rain and wind but lower prices and good surf.",
-    heroLead: "Go in the <strong>dry season, December to April</strong>, for sunny skies, calm seas and the best diving and snorkelling. The <strong>wet season, May to November</strong>, is hotter and windier with more rain, but it brings lower prices, fewer crowds and the best surf.",
+    heroLead: "Go in the <strong>dry season, December to April</strong>, for sunny skies, calm seas and the best diving and snorkelling. The <strong>wet season, May to November</strong>, is hotter and windier with more rain, but it brings cheaper stays, fewer crowds and the best surf.",
     intro: [
-      "The Maldives is a string of low coral atolls on the equator, warm all year, with two monsoon-driven seasons. The ratings here use Male, where the dry northeast monsoon from December to April brings the sunniest skies, calmest water and clearest diving, the peak resort season.",
+      "The Maldives is a string of low coral atolls on the equator, warm all year, with two monsoon-driven seasons. The month ratings track Male, where the dry northeast monsoon from December to April brings the sunniest skies, calmest water and clearest diving, the peak resort season.",
       "The wet southwest monsoon from May to November is hotter and windier with more frequent rain, though it often falls in short bursts and the resorts run at a fraction of the price. It also brings the swell that makes the Maldives a surfing destination.",
     ],
     regions: [
@@ -1784,11 +1784,11 @@ const CONTENT = [
       { h: "Beaches and honeymoons", p: "December to April for the sunniest skies, calmest lagoons and the classic postcard weather." },
       { h: "Diving and snorkelling", p: "The dry season for the clearest water, though manta and whale sharks can be found year round around the right atolls." },
       { h: "Surfing", p: "May to October, when the southwest monsoon sends the best swell to the Maldivian breaks." },
-      { h: "Value and quiet", p: "The wet season, May to November, for much lower resort prices and fewer crowds." },
+      { h: "Low season", p: "The wet season, May to November, for much lower resort prices and fewer crowds." },
     ],
     whatsOn: [
       { icon: "sun", h: "Dry season, Dec to Apr", p: "Calm lagoons and clear skies make this the prime time for the overwater villas." },
-      { icon: "fish", h: "Manta and whale sharks", p: "Gentle giants gather around the atolls, the hotspots shifting with the monsoon." },
+      { icon: "fish", h: "Manta and whale sharks", p: "Mantas and whale sharks gather around the atolls, the hotspots shifting with the monsoon." },
     ],
     faq: [
       { q: "What is the best time to visit the Maldives?", a: "The dry season, December to April, with sunny skies, calm seas and the clearest water for diving and snorkelling." },
@@ -1804,7 +1804,7 @@ const CONTENT = [
     desc: "The best time to visit Fiji is the dry season, May to October, with sunny, cooler weather and calm seas for the islands and diving. The wet season runs November to April and overlaps the cyclone season. Seasons are reversed.",
     heroLead: "Go in the <strong>dry season, May to October</strong>, for sunny, slightly cooler weather and calm seas across the islands. The <strong>wet season, November to April</strong>, is hotter and more humid and overlaps the South Pacific <strong>cyclone season</strong>.",
     intro: [
-      "Fiji is a tropical archipelago in the South Pacific, warm year round, with a dry and a wet season and the calendar reversed from the northern hemisphere. The ratings here use Nadi, the main gateway, where the dry season from May to October brings the sunniest, most comfortable weather.",
+      "Fiji is a tropical archipelago in the South Pacific, warm year round, with a dry and a wet season and a calendar that runs opposite the northern hemisphere. We rate on Nadi, the main gateway, where the dry season from May to October brings the sunniest, most comfortable weather.",
       "The wet season from November to April is hotter and more humid with heavier rain, and it carries the cyclone risk, highest from December to March. Even so, the rain often comes in short bursts and the water stays warm and inviting, so resorts run year round.",
     ],
     regions: [
@@ -1816,7 +1816,7 @@ const CONTENT = [
       { h: "Beaches and island resorts", p: "May to October for the sunniest, driest, calmest weather across the Mamanucas and Yasawas." },
       { h: "Diving and snorkelling", p: "The dry season for the clearest water and calmest seas on the famous soft-coral reefs." },
       { h: "Surfing", p: "Roughly April to October, when the southern swells bring the best waves to Fiji's breaks." },
-      { h: "Value and quiet", p: "The wet season, for lower prices and warm water, accepting the higher rain and cyclone risk." },
+      { h: "Best value", p: "The wet season, for better rates and warm water, accepting the higher rain and cyclone risk." },
     ],
     whatsOn: [
       { icon: "sun", h: "Dry season, May to Oct", p: "Sunny, calm weather makes this the prime time for the island resorts." },
@@ -1836,7 +1836,7 @@ const CONTENT = [
     desc: "The best time to visit Taiwan is autumn, October to November, and spring, March to April, with mild, dry weather and clear skies. Summer is hot, humid and typhoon-prone, and winter is mild but wet in the north.",
     heroLead: "Go in <strong>autumn, October to November</strong>, or <strong>spring, March to April</strong>, for mild, dry days and clear skies. <strong>Summer</strong> is hot, humid and typhoon-prone, and <strong>winter</strong> is mild but often wet and grey in the north.",
     intro: [
-      "Taiwan is a mountainous subtropical island, and the ratings here use Taipei in the north. Autumn brings the best of the year, with mild, dry, clear days that are ideal for the cities, the night markets and the mountain trails, and spring is a close second.",
+      "Taiwan is a mountainous subtropical island, and these ratings follow Taipei in the north. Autumn brings the best of the year, with mild, dry, clear days that are ideal for the cities, the night markets and the mountain trails, and spring is a close second.",
       "Summer is hot and humid and falls in the typhoon season, which runs roughly June to October and peaks in late summer. Winter is mild but the north around Taipei turns wet and grey, while the south around Kenting stays warmer and sunnier.",
     ],
     regions: [

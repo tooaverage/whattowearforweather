@@ -37,14 +37,16 @@
   --mint: #2bbf8a;
 
   /* Season scale (data only, vivid, matches the map app) */
-  --s-ideal: #16a35a;
+  --s-ideal: #12894a;
   --s-great: #74c043;
   --s-good:  #f3c218;
   --s-fair:  #ff8f2e;
   --s-avoid: #ee4338;
   --s-none:  #cfc6b2;
 
-  /* Type: condensed poster display, a script accent, a clean warm body. */
+  /* Type: a fat poster slab for covers, condensed caps for headers, a script
+     kicker, a clean warm body. Mixed faces are the brochure way. */
+  --fat: "Alfa Slab One", "Rockwell", Georgia, serif;
   --display: "Anton", "Oswald", Impact, sans-serif;
   --script: "Kaushan Script", "Brush Script MT", cursive;
   --sans: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -78,10 +80,19 @@ img { max-width: 100%; display: block; }
 a { color: var(--brand); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 
 h1, h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.02; text-transform: uppercase; letter-spacing: 0.01em; margin: 0; }
-h1 { font-size: clamp(46px, 9vw, 96px); }
+h1 { font-family: var(--fat); font-size: clamp(40px, 7.5vw, 82px); line-height: 0.96; letter-spacing: 0; }
 h2 { font-size: clamp(30px, 5vw, 50px); }
 h3 { font-size: clamp(21px, 2.6vw, 27px); letter-spacing: 0.02em; }
 p { margin: 0 0 1em; }
+
+/* Polychrome hand-lettering: each word takes the next poster ink, the way the
+   old brochure covers set VACATION and St. Petersburg. Skips mustard for text
+   (too low contrast on cream); mustard stays a fill colour only. */
+.poly .w { display: inline-block; }
+.poly .w:nth-child(4n+1) { color: var(--coral); }
+.poly .w:nth-child(4n+2) { color: var(--brand); }
+.poly .w:nth-child(4n+3) { color: var(--pink); }
+.poly .w:nth-child(4n+4) { color: var(--ink); }
 
 /* Lucide icons */
 .ic { width: 1.15em; height: 1.15em; stroke-width: 2.2; vertical-align: -0.18em; display: inline-block; }
@@ -92,8 +103,21 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 .section--tight { padding: clamp(28px, 5vw, 48px) 0; }
 .band { background: var(--paper-2); }
 .lead { font-size: clamp(19px, 2.4vw, 23px); color: var(--ink-2); max-width: 62ch; }
-.eyebrow { font-family: var(--script); font-weight: 400; letter-spacing: 0; font-size: clamp(21px, 2.6vw, 27px); line-height: 1; color: var(--coral); display: inline-flex; align-items: center; gap: 9px; }
-.eyebrow .ic { color: var(--brand); }
+/* Section label as a printed pennant, notched on the right like a paper flag. */
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-family: var(--display); text-transform: uppercase; letter-spacing: 0.06em; font-size: clamp(13px, 1.5vw, 15px); line-height: 1; color: var(--brand-ink); background: var(--brand); padding: 9px 24px 9px 15px; clip-path: polygon(0 0, 100% 0, calc(100% - 13px) 50%, 100% 100%, 0 100%); }
+.eyebrow .ic { color: var(--brand-ink); width: 1em; height: 1em; }
+.eyebrow--coral { background: var(--coral); }
+.eyebrow--warn { background: var(--s-avoid); }
+.eyebrow--sun { background: var(--sun); color: var(--ink); }
+.eyebrow--sun .ic { color: var(--ink); }
+
+/* Script kicker, the loopy handwritten line over a brochure cover title. */
+.kicker { font-family: var(--script); font-weight: 400; font-size: clamp(24px, 3.4vw, 38px); line-height: 1; color: var(--coral); margin: 0 0 6px; }
+
+/* Ornamental rule: two lines with a compass star between, a period divider. */
+.orn { display: flex; align-items: center; gap: 14px; color: var(--line-2); margin: clamp(28px, 6vw, 52px) 0; }
+.orn::before, .orn::after { content: ""; height: 2px; background: currentColor; flex: 1; }
+.orn .ic { width: 22px; height: 22px; color: var(--coral); flex: none; }
 .prose p { max-width: 68ch; }
 .prose h2 { margin-top: 1.4em; }
 .prose h3 { margin-top: 1.2em; margin-bottom: .3em; }
@@ -128,7 +152,39 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 /* ---- Cards: boxy panel with a double rule, like a printed ticket ---- */
 .card { position: relative; background: var(--card); border: 2px solid var(--ink); border-radius: var(--r-lg); padding: var(--pad); }
 .card::before { content: ""; position: absolute; inset: 5px; border: 1px solid var(--line-2); border-radius: calc(var(--r-lg) - 5px); pointer-events: none; }
-.card--ink { border: 2px solid var(--ink); }
+.card--ink { background: var(--paper-2); }
+/* Give the generic card a labelled-panel feel: heading in condensed caps,
+   a hairline rule under it, no floating pastel icon puck. */
+.card > .row h3, .card h3.mb-0 { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.02em; color: var(--ink); }
+.card .row .ic { color: var(--coral); }
+
+/* ---- Brochure cover hero: a thick double-ruled panel with a seal ---- */
+.cover { position: relative; background: var(--card); border: 5px double var(--ink); border-radius: var(--r-lg); padding: clamp(24px, 5vw, 52px); overflow: hidden; }
+.cover .lead { max-width: 54ch; }
+.coverhead { display: flex; gap: 24px; align-items: flex-start; justify-content: space-between; }
+.coverhead .txt { min-width: 0; }
+.seal { flex: none; width: clamp(120px, 20vw, 168px); height: clamp(120px, 20vw, 168px); }
+@media (max-width: 640px) { .coverhead { flex-direction: column-reverse; align-items: flex-start; } .seal { width: 128px; height: 128px; } }
+
+/* ---- Season ticket stubs (replaces the three identical season cards) ---- */
+.stubs { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); }
+@media (max-width: 760px) { .stubs { grid-template-columns: 1fr; } }
+.stub { position: relative; background: var(--card); border: 2px solid var(--ink); border-radius: var(--r); overflow: hidden; }
+.stub__band { padding: 8px 16px; font-family: var(--display); text-transform: uppercase; letter-spacing: 0.05em; font-size: 14px; color: #14130f; border-bottom: 2px solid var(--ink); }
+.stub__band.k-ideal { background: var(--s-ideal); color: #fff; }
+.stub__band.k-good { background: var(--s-good); }
+.stub__band.k-fair { background: var(--s-fair); }
+.stub__v { display: block; font-family: var(--display); text-transform: uppercase; font-size: clamp(22px, 3vw, 30px); line-height: 1; padding: 16px 16px 0; }
+.stub p { margin: 8px 16px 16px; color: var(--ink-2); font-size: 15px; }
+
+/* ---- Numbered region panels (replaces the identical icon-title cards) ---- */
+.panels { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); }
+@media (max-width: 760px) { .panels { grid-template-columns: 1fr; } }
+.panel { position: relative; background: var(--card); border: 2px solid var(--ink); border-radius: var(--r); padding: var(--pad); }
+.panel__no { font-family: var(--fat); font-size: 30px; line-height: 1; color: var(--coral); display: block; }
+.panel__no::after { content: ""; display: block; width: 34px; height: 3px; background: var(--ink); margin: 8px 0 12px; }
+.panel h3 { font-family: var(--display); text-transform: uppercase; letter-spacing: 0.02em; }
+.panel p { margin: 8px 0 0; color: var(--ink-2); font-size: 15px; }
 .grid { display: grid; gap: var(--gap); }
 .grid--2 { grid-template-columns: repeat(2, 1fr); }
 .grid--3 { grid-template-columns: repeat(3, 1fr); }
@@ -152,9 +208,9 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 .strip { display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px; }
 .strip .mo { text-align: center; }
 .strip .tile {
-  position: relative; border-radius: 16px; aspect-ratio: 1 / 1;
+  position: relative; border-radius: var(--r); aspect-ratio: 1 / 1;
   display: grid; place-items: center; color: #14130f; font-weight: 800;
-  border: 2px solid rgba(0,0,0,.14);
+  border: 2px solid var(--ink);
 }
 .strip .tile .sc { font-size: clamp(15px, 2vw, 21px); }
 .strip .tile.peak { border-color: var(--ink); }
@@ -189,8 +245,8 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 .table-wrap { overflow-x: auto; border: 1.5px solid var(--line); border-radius: var(--r); background: var(--card); }
 
 /* ---- Stat tiles ---- */
-.stat .n { font-family: var(--display); font-weight: 600; font-size: clamp(30px, 5vw, 46px); line-height: 1; color: var(--brand); }
-.stat .k { color: var(--ink-2); font-weight: 700; font-size: 14px; margin-top: 8px; }
+.stat .n { font-family: var(--fat); font-weight: 400; font-size: clamp(28px, 4.6vw, 42px); line-height: 1; color: var(--coral); }
+.stat .k { color: var(--ink-2); font-weight: 700; font-size: 14px; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.03em; }
 
 /* ---- FAQ (no JS) ---- */
 .faq details { border: 1.5px solid var(--line); border-radius: var(--r); background: var(--card); padding: 4px 18px; margin-bottom: 12px; }
@@ -207,7 +263,7 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 .toursrow { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
 
 /* ---- Affiliate / where to stay block ---- */
-.embed { aspect-ratio: 16 / 10; border-radius: var(--r); overflow: hidden; border: 1.5px solid var(--line-2); background: #e9eef0; }
+.embed { aspect-ratio: 16 / 10; border-radius: var(--r); overflow: hidden; border: 2px solid var(--ink); background: var(--paper-2); }
 .staygrid { display: grid; grid-template-columns: 1.55fr 1fr; gap: var(--gap); align-items: stretch; }
 .embed--stay { aspect-ratio: auto; min-height: 520px; }
 @media (max-width: 760px) { .staygrid { grid-template-columns: 1fr; } .embed--stay { min-height: 380px; } }

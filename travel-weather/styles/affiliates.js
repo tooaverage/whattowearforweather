@@ -48,7 +48,7 @@ window.AFFIL = {
     const d = el.dataset;
     const f = document.createElement('iframe');
     f.src = 'https://www.stay22.com/embed/gm?aid=' + enc(A.stay22Aid)
-      + '&lat=' + d.lat + '&lng=' + d.lng + '&zoom=' + (d.zoom || '13') + '&maincolor=3a51e6';
+      + '&lat=' + d.lat + '&lng=' + d.lng + '&zoom=' + (d.zoom || '13') + '&maincolor=16786f';
     f.loading = 'lazy'; f.title = 'Where to stay';
     f.style.cssText = 'width:100%;height:100%;border:0;display:block';
     f.referrerPolicy = 'no-referrer-when-downgrade';
