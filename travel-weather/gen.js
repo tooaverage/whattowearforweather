@@ -152,10 +152,10 @@ function page(c) {
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/site.webmanifest">
-<meta name="theme-color" content="#3a51e6">
+<meta name="theme-color" content="#f4e9cf">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Kaushan+Script&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../styles/wtg.css">
 <script type="application/ld+json">${breadcrumbJsonLd(c)}</script>
 <script type="application/ld+json">${faqJsonLd(c.faq)}</script>
@@ -321,10 +321,10 @@ function indexPage() {
 <meta property="og:image" content="https://gowhereandwhen.com/og.svg">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="/site.webmanifest">
-<meta name="theme-color" content="#3a51e6">
+<meta name="theme-color" content="#f4e9cf">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Kaushan+Script&family=Work+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../styles/wtg.css">
 </head>
 <body>
