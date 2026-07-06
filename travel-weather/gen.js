@@ -122,29 +122,19 @@ function exploreChips(slug) {
     + others.map(x => '<a class="chip" href="../' + x.slug + '/">' + x.name + '</a>').join('');
 }
 
-// Polychrome a heading: wrap each word so the stylesheet cycles poster inks.
-const poly = s => '<span class="poly">' + String(s).split(' ').map(w => '<span class="w">' + w + '</span>').join(' ') + '</span>';
+// Headings render as one ink now; poly() is kept inert so markup still works.
+const poly = s => String(s);
 
-// Sunburst rating seal, the price-burst of the old ads: best month + score.
-function starPoints(n, R, r) {
-  const p = [];
-  for (let i = 0; i < n * 2; i++) {
-    const ang = Math.PI * i / n - Math.PI / 2;
-    const rad = i % 2 ? r : R;
-    p.push((Math.cos(ang) * rad).toFixed(1) + ',' + (Math.sin(ang) * rad).toFixed(1));
+// Vintage hero illustration, if one has been generated for this country.
+// gen-images.js writes images/<slug>.jpg; drop it in when present, else skip.
+function heroImg(c) {
+  for (const e of ['jpg', 'webp', 'png']) {
+    if (fs.existsSync(path.join('images', c.slug + '.' + e))) {
+      return '<div class="hero-img"><img src="../../images/' + c.slug + '.' + e
+        + '" alt="Vintage travel illustration of ' + esc(c.name) + '" width="1200" height="514"></div>';
+    }
   }
-  return p.join(' ');
-}
-function seal(D) {
-  const peak = D.months.find(x => x.m === D.best).s;
-  const mon = MON[D.best].toUpperCase();
-  return '<svg class="seal" viewBox="-104 -104 208 208" role="img" aria-label="Best month ' + mon + ', rated ' + peak + ' out of 100">'
-    + '<polygon points="' + starPoints(22, 98, 82) + '" fill="#ecab27" stroke="#2a2016" stroke-width="4"/>'
-    + '<circle r="67" fill="#fdf6e3" stroke="#2a2016" stroke-width="4"/>'
-    + '<text x="0" y="-28" text-anchor="middle" font-family="Work Sans, sans-serif" font-weight="800" font-size="15" letter-spacing="1.5" fill="#2a2016">GO IN</text>'
-    + '<text x="0" y="16" text-anchor="middle" font-family="Anton, Impact, sans-serif" font-size="48" fill="#e0492b">' + mon + '</text>'
-    + '<text x="0" y="46" text-anchor="middle" font-family="Work Sans, sans-serif" font-weight="800" font-size="16" fill="#16786f">' + peak + '/100</text>'
-    + '</svg>';
+  return '';
 }
 
 function page(c) {
@@ -201,18 +191,14 @@ function page(c) {
 <main>
   <section class="section section--tight"><div class="wrap">
     <div class="cover">
-      <div class="coverhead">
-        <div class="txt">
-          <p class="eyebrow"><i data-lucide="map-pin" class="ic"></i> ${c.name}</p>
-          <p class="kicker">The best time to visit</p>
-          <h1>${poly('When to go to ' + c.name)}</h1>
-          <p class="lead" style="margin-top:14px">${c.heroLead}</p>
-        </div>
-        ${seal(D)}
-      </div>
-      <div class="row" style="margin-top:26px">
+      ${heroImg(c)}
+      <p class="eyebrow"><i data-lucide="map-pin" class="ic"></i> ${c.name}</p>
+      <p class="kicker">The best time to visit</p>
+      <h1 style="margin-top:2px">When to go to ${c.name}</h1>
+      <p class="lead" style="margin-top:14px">${c.heroLead}</p>
+      <div class="row" style="margin-top:24px">
         <a class="btn btn--lg" href="#months"><i data-lucide="calendar-days" class="ic"></i> Month by month</a>
-        <a class="btn btn--teal btn--lg" href="../../index.html"><i data-lucide="map" class="ic"></i> ${c.name} on the map</a>
+        <a class="btn btn--ghost btn--lg" href="../../index.html"><i data-lucide="map" class="ic"></i> ${c.name} on the map</a>
       </div>
     </div>
     <div class="card card--ink" style="margin-top:22px; padding:clamp(18px,4vw,30px)">

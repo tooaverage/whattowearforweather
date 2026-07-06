@@ -28,12 +28,13 @@
 
   /* Poster inks: red, teal, mustard, hot pink. Teal carries the chrome and
      links so it never collides with the red-to-green data scale on the map. */
-  --brand: #16786f;
-  --brand-press: #0f5852;
+  --brand: #15645c;      /* deep teal, the one signature colour */
+  --brand-press: #0f4a44;
   --brand-ink: #fdf6e3;
-  --coral: #e0492b;      /* poster red */
-  --pink: #de4d88;
-  --sun: #ecab27;        /* mustard */
+  --rust: #b5462c;       /* muted terracotta, used sparingly */
+  --coral: #b5462c;      /* alias kept so older rules still resolve */
+  --pink: #b5462c;       /* pink retired from the chrome */
+  --sun: #d99a26;        /* mustard, small accents only */
   --mint: #2bbf8a;
 
   /* Season scale (data only, vivid, matches the map app) */
@@ -80,19 +81,14 @@ img { max-width: 100%; display: block; }
 a { color: var(--brand); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 
 h1, h2, h3 { font-family: var(--display); font-weight: 400; line-height: 1.02; text-transform: uppercase; letter-spacing: 0.01em; margin: 0; }
-h1 { font-family: var(--fat); font-size: clamp(40px, 7.5vw, 82px); line-height: 0.96; letter-spacing: 0; }
-h2 { font-size: clamp(30px, 5vw, 50px); }
-h3 { font-size: clamp(21px, 2.6vw, 27px); letter-spacing: 0.02em; }
+h1 { font-size: clamp(38px, 6.5vw, 68px); line-height: 1.0; letter-spacing: 0.005em; color: var(--ink); }
+h2 { font-size: clamp(27px, 4vw, 42px); color: var(--ink); }
+h3 { font-size: clamp(20px, 2.4vw, 24px); letter-spacing: 0.02em; }
 p { margin: 0 0 1em; }
 
-/* Polychrome hand-lettering: each word takes the next poster ink, the way the
-   old brochure covers set VACATION and St. Petersburg. Skips mustard for text
-   (too low contrast on cream); mustard stays a fill colour only. */
-.poly .w { display: inline-block; }
-.poly .w:nth-child(4n+1) { color: var(--coral); }
-.poly .w:nth-child(4n+2) { color: var(--brand); }
-.poly .w:nth-child(4n+3) { color: var(--pink); }
-.poly .w:nth-child(4n+4) { color: var(--ink); }
+/* Headings are one ink. (The old rainbow word-cycling is retired; the .poly
+   spans are left inert so existing markup keeps working.) */
+.poly .w { color: inherit; }
 
 /* Lucide icons */
 .ic { width: 1.15em; height: 1.15em; stroke-width: 2.2; vertical-align: -0.18em; display: inline-block; }
@@ -103,21 +99,21 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 .section--tight { padding: clamp(28px, 5vw, 48px) 0; }
 .band { background: var(--paper-2); }
 .lead { font-size: clamp(19px, 2.4vw, 23px); color: var(--ink-2); max-width: 62ch; }
-/* Section label as a printed pennant, notched on the right like a paper flag. */
-.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-family: var(--display); text-transform: uppercase; letter-spacing: 0.06em; font-size: clamp(13px, 1.5vw, 15px); line-height: 1; color: var(--brand-ink); background: var(--brand); padding: 9px 24px 9px 15px; clip-path: polygon(0 0, 100% 0, calc(100% - 13px) 50%, 100% 100%, 0 100%); }
-.eyebrow .ic { color: var(--brand-ink); width: 1em; height: 1em; }
-.eyebrow--coral { background: var(--coral); }
-.eyebrow--warn { background: var(--s-avoid); }
-.eyebrow--sun { background: var(--sun); color: var(--ink); }
-.eyebrow--sun .ic { color: var(--ink); }
+/* Section label: a quiet small-caps line with a short rule, not a flag. */
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.16em; font-weight: 800; font-size: 12px; line-height: 1; color: var(--brand); }
+.eyebrow .ic { color: var(--brand); width: 1.1em; height: 1.1em; }
+.eyebrow--coral, .eyebrow--warn { color: var(--rust); }
+.eyebrow--coral .ic, .eyebrow--warn .ic { color: var(--rust); }
+.eyebrow--sun { color: var(--ink-2); }
+.eyebrow--sun .ic { color: var(--ink-2); }
 
-/* Script kicker, the loopy handwritten line over a brochure cover title. */
-.kicker { font-family: var(--script); font-weight: 400; font-size: clamp(24px, 3.4vw, 38px); line-height: 1; color: var(--coral); margin: 0 0 6px; }
+/* Script kicker: one small handwritten line over the hero title. */
+.kicker { font-family: var(--script); font-weight: 400; font-size: clamp(20px, 2.6vw, 26px); line-height: 1; color: var(--rust); margin: 0 0 4px; }
 
-/* Ornamental rule: two lines with a compass star between, a period divider. */
-.orn { display: flex; align-items: center; gap: 14px; color: var(--line-2); margin: clamp(28px, 6vw, 52px) 0; }
-.orn::before, .orn::after { content: ""; height: 2px; background: currentColor; flex: 1; }
-.orn .ic { width: 22px; height: 22px; color: var(--coral); flex: none; }
+/* Ornamental rule: a thin centred rule with a small mark, a quiet divider. */
+.orn { display: flex; align-items: center; gap: 14px; color: var(--line-2); margin: clamp(24px, 5vw, 44px) 0; }
+.orn::before, .orn::after { content: ""; height: 1.5px; background: currentColor; flex: 1; }
+.orn .ic { width: 18px; height: 18px; color: var(--brand); flex: none; }
 .prose p { max-width: 68ch; }
 .prose h2 { margin-top: 1.4em; }
 .prose h3 { margin-top: 1.2em; margin-bottom: .3em; }
@@ -138,14 +134,15 @@ svg.lucide { width: 1.15em; height: 1.15em; }
   font-family: var(--sans); font-weight: 800; font-size: 15px;
   text-transform: uppercase; letter-spacing: 0.05em;
   padding: 13px 24px; border-radius: var(--r-pill); border: 2px solid var(--ink);
-  background: var(--coral); color: var(--brand-ink); cursor: pointer; text-decoration: none;
+  background: var(--brand); color: var(--brand-ink); cursor: pointer; text-decoration: none;
   transition: transform .08s ease, background .12s ease;
 }
 .btn:hover { transform: translateY(-2px); }
 .btn:active { transform: translateY(0); }
 .btn--ghost { background: var(--card); color: var(--ink); }
 .btn--teal { background: var(--brand); color: var(--brand-ink); }
-.btn--pink { background: var(--pink); }
+.btn--rust { background: var(--rust); color: var(--brand-ink); }
+.btn--pink { background: var(--rust); }
 .btn--sun { background: var(--sun); color: var(--ink); }
 .btn--lg { padding: 16px 30px; font-size: 17px; }
 
@@ -159,12 +156,15 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 .card .row .ic { color: var(--coral); }
 
 /* ---- Brochure cover hero: a thick double-ruled panel with a seal ---- */
-.cover { position: relative; background: var(--card); border: 5px double var(--ink); border-radius: var(--r-lg); padding: clamp(24px, 5vw, 52px); overflow: hidden; }
-.cover .lead { max-width: 54ch; }
+.cover { position: relative; background: var(--card); border: 3px double var(--ink); border-radius: var(--r-lg); padding: clamp(22px, 4vw, 40px); overflow: hidden; }
+.cover .lead { max-width: 56ch; }
 .coverhead { display: flex; gap: 24px; align-items: flex-start; justify-content: space-between; }
 .coverhead .txt { min-width: 0; }
-.seal { flex: none; width: clamp(120px, 20vw, 168px); height: clamp(120px, 20vw, 168px); }
-@media (max-width: 640px) { .coverhead { flex-direction: column-reverse; align-items: flex-start; } .seal { width: 128px; height: 128px; } }
+
+/* Hero illustration band: a framed vintage image at the top of the cover. */
+.hero-img { position: relative; margin: 0 0 clamp(18px, 3vw, 26px); border: 2px solid var(--ink); border-radius: var(--r); overflow: hidden; aspect-ratio: 21 / 9; background: var(--paper-2); }
+.hero-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (max-width: 640px) { .hero-img { aspect-ratio: 16 / 10; } }
 
 /* ---- Season ticket stubs (replaces the three identical season cards) ---- */
 .stubs { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--gap); }
@@ -245,8 +245,8 @@ svg.lucide { width: 1.15em; height: 1.15em; }
 .table-wrap { overflow-x: auto; border: 1.5px solid var(--line); border-radius: var(--r); background: var(--card); }
 
 /* ---- Stat tiles ---- */
-.stat .n { font-family: var(--fat); font-weight: 400; font-size: clamp(28px, 4.6vw, 42px); line-height: 1; color: var(--coral); }
-.stat .k { color: var(--ink-2); font-weight: 700; font-size: 14px; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.03em; }
+.stat .n { font-family: var(--display); font-weight: 400; font-size: clamp(28px, 4.4vw, 40px); line-height: 1; color: var(--brand); }
+.stat .k { color: var(--ink-2); font-weight: 700; font-size: 13px; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
 
 /* ---- FAQ (no JS) ---- */
 .faq details { border: 1.5px solid var(--line); border-radius: var(--r); background: var(--card); padding: 4px 18px; margin-bottom: 12px; }
