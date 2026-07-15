@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0b1220" />
+<meta name="referrer" content="no-referrer" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src https://api.travelpayouts.com; img-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none';" />
+<title>Where can I go?</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100%; background: #020617; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  main { max-width: 28rem; margin: 0 auto; padding: 1rem 1rem 2.5rem; display: flex; flex-direction: column; gap: 1rem; }
+  .hero { border-radius: 1.5rem; padding: 1.25rem 1.5rem; color: #020617; background: linear-gradient(135deg, #7dd3fc, #6366f1); box-shadow: 0 10px 25px rgba(0,0,0,.25); }
+  .hero-head { font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; opacity: .8; font-weight: 600; }
+  .hero h1 { margin: .4rem 0 0; font-size: 1.8rem; line-height: 1.1; letter-spacing: -.02em; }
+  .hero p { margin: .45rem 0 0; font-size: .85rem; opacity: .85; }
+  .panel { border-radius: 1rem; padding: 1rem 1.1rem; background: rgba(15,23,42,.7); border: 1px solid rgba(255,255,255,.05); }
+  .panel h2 { margin: 0 0 .75rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; }
+  .ctl-dates { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+  .ctl-dates label { display: flex; flex-direction: column; gap: .3rem; font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; font-weight: 600; }
+  input[type="date"], input[type="text"], select {
+    background: #0f172a; border: 1px solid rgba(255,255,255,.1); color: #f1f5f9; border-radius: .6rem;
+    padding: .55rem .65rem; font-size: .9rem; font-family: inherit; width: 100%;
+  }
+  input:focus, select:focus { outline: 2px solid rgba(125,211,252,.5); outline-offset: 1px; }
+  .chips { display: flex; gap: .375rem; flex-wrap: wrap; margin-top: .85rem; }
+  .chip { background: #1e293b; color: #e2e8f0; border: 1px solid transparent; padding: .4rem .8rem; border-radius: 999px; font-size: .82rem; font-weight: 500; cursor: pointer; font-family: inherit; }
+  .chip[aria-pressed="true"] { background: rgba(125,211,252,.15); border-color: rgba(125,211,252,.5); color: #bae6fd; }
+  .ctl-row { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .85rem; }
+  .ctl-row label { display: flex; flex-direction: column; gap: .3rem; font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; font-weight: 600; }
+  .status { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; padding: 0 .25rem; font-size: .8rem; color: #94a3b8; }
+  .status .pill { background: #1e293b; color: #e2e8f0; padding: .2rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 500; }
+  .status .pill.demo { background: rgba(252,211,77,.15); color: #fde68a; }
+  .status .pill.live { background: rgba(110,231,183,.15); color: #6ee7b7; }
+  .dest-list { display: flex; flex-direction: column; gap: .6rem; }
+  .dest-card { border-radius: 1rem; padding: .85rem 1rem; background: rgba(15,23,42,.7); border: 1px solid rgba(255,255,255,.05); }
+  .dest-top { display: flex; justify-content: space-between; align-items: baseline; gap: .75rem; }
+  .dest-name { font-size: 1.05rem; font-weight: 600; color: #f8fafc; }
+  .dest-name .code { color: #64748b; font-size: .75rem; font-weight: 500; margin-left: .35rem; }
+  .dest-price { font-size: 1.15rem; font-weight: 700; color: #6ee7b7; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .dest-meta { margin-top: .3rem; font-size: .82rem; color: #cbd5e1; }
+  .dest-meta .dot { color: #475569; padding: 0 .25rem; }
+  .dest-actions { margin-top: .55rem; display: flex; gap: .9rem; align-items: center; font-size: .78rem; }
+  .dest-actions a { color: #7dd3fc; text-decoration: none; font-weight: 500; }
+  .dest-actions a:hover { text-decoration: underline; }
+  .more-btn { background: transparent; border: none; color: #94a3b8; font-size: .78rem; cursor: pointer; padding: 0; font-family: inherit; }
+  .more-btn:hover { color: #cbd5e1; }
+  .alt-rows { margin-top: .5rem; border-top: 1px solid rgba(255,255,255,.06); display: none; }
+  .dest-card.open .alt-rows { display: block; }
+  .alt-row { display: flex; justify-content: space-between; gap: .5rem; padding: .45rem 0; font-size: .82rem; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,.04); }
+  .alt-row:last-child { border-bottom: none; }
+  .alt-row .p { color: #e2e8f0; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .alt-row a { color: #7dd3fc; text-decoration: none; }
+  .empty { padding: 2.5rem 1rem; text-align: center; color: #94a3b8; font-size: .9rem; }
+  details summary { font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; padding: .25rem 0; align-items: center; }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::after { content: "›"; color: #64748b; font-size: 1.2rem; transition: transform .15s; display: inline-block; }
+  details[open] summary::after { transform: rotate(90deg); }
+  .token-body { padding-top: .6rem; display: flex; flex-direction: column; gap: .6rem; }
+  .token-body p { margin: 0; font-size: .82rem; color: #94a3b8; line-height: 1.45; }
+  .token-body a { color: #7dd3fc; }
+  .token-row { display: flex; gap: .5rem; }
+  .btn { background: rgba(125,211,252,.15); border: 1px solid rgba(125,211,252,.4); color: #bae6fd; padding: .55rem .9rem; border-radius: .6rem; font-size: .82rem; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
+  .btn:hover { background: rgba(125,211,252,.25); }
+  .err { background: rgba(244,63,94,.1); border-color: rgba(244,63,94,.3); color: #fecaca; }
+  .err strong { color: #fca5a5; display: block; margin-bottom: .25rem; }
+  .footer { text-align: center; font-size: .65rem; color: #64748b; padding-top: .5rem; }
+  .loading { padding: 3rem 0; text-align: center; color: #94a3b8; font-size: .9rem; }
+</style>
+</head>
+<body>
+<main id="root"><div class="loading">Loading...</div></main>
+<script>
+"use strict";
+
+const num = (v, fallback = 0) => {
+  const n = typeof v === "number" ? v : Number(v);
+  return Number.isFinite(n) ? n : fallback;
+};
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+const CFG = {
+  origin: { iata: "YVR", city: "Vancouver" },
+  currency: "cad",
+  defaultWindowDays: 60,
+  nightsPresets: [
+    { key: "weekend", label: "Weekend (2-3)", min: 2, max: 3 },
+    { key: "short", label: "Short (3-5)", min: 3, max: 5 },
+    { key: "week", label: "Week (6-9)", min: 6, max: 9 },
+    { key: "any", label: "Any", min: 1, max: 16 },
+  ],
+  priceCaps: [0, 200, 300, 400, 600, 800, 1200],
+  hourCaps: [0, 3, 5, 8, 12],
+  cruiseKmh: 780,
+  taxiPadH: 0.7,
+  maxOptionsPerDest: 6,
+  maxDestsShown: 40,
+  tp: { base: "https://api.travelpayouts.com/v2/prices/latest", limit: 1000, pages: 2, periodType: "year" },
+  demo: { minLeadDays: 2, maxLeadDays: 85, optionsPerDest: 6, priceJitterLo: 0.82, priceJitterSpan: 0.55 },
+  storageKey: "wcig.v1",
+};
+
+const CITIES = {
+  SEA: "Seattle", PDX: "Portland", SFO: "San Francisco", LAX: "Los Angeles", SAN: "San Diego",
+  LAS: "Las Vegas", PHX: "Phoenix", DEN: "Denver", SLC: "Salt Lake City", ORD: "Chicago", CHI: "Chicago",
+  MSP: "Minneapolis", DFW: "Dallas", IAH: "Houston", HOU: "Houston", ATL: "Atlanta", MIA: "Miami",
+  MCO: "Orlando", JFK: "New York", EWR: "New York", NYC: "New York", BOS: "Boston", WAS: "Washington",
+  IAD: "Washington", DCA: "Washington", PHL: "Philadelphia", AUS: "Austin", ANC: "Anchorage",
+  HNL: "Honolulu", OGG: "Maui", KOA: "Kona", LIH: "Kauai",
+  YLW: "Kelowna", YYJ: "Victoria", YYC: "Calgary", YEG: "Edmonton", YXE: "Saskatoon", YQR: "Regina",
+  YWG: "Winnipeg", YYZ: "Toronto", YTO: "Toronto", YUL: "Montreal", YMQ: "Montreal", YOW: "Ottawa", YHZ: "Halifax",
+  MEX: "Mexico City", CUN: "Cancun", PVR: "Puerto Vallarta", SJD: "Los Cabos", GDL: "Guadalajara",
+  SJO: "San Jose, CR", PTY: "Panama City", LIM: "Lima", BOG: "Bogota",
+  LHR: "London", LGW: "London", LON: "London", CDG: "Paris", PAR: "Paris", AMS: "Amsterdam",
+  FRA: "Frankfurt", MUC: "Munich", ZRH: "Zurich", DUB: "Dublin", MAD: "Madrid", BCN: "Barcelona",
+  LIS: "Lisbon", FCO: "Rome", ROM: "Rome", IST: "Istanbul", ATH: "Athens",
+  NRT: "Tokyo", HND: "Tokyo", TYO: "Tokyo", KIX: "Osaka", ICN: "Seoul", SEL: "Seoul", TPE: "Taipei",
+  HKG: "Hong Kong", PVG: "Shanghai", SHA: "Shanghai", PEK: "Beijing", BJS: "Beijing", CAN: "Guangzhou",
+  MNL: "Manila", BKK: "Bangkok", SGN: "Ho Chi Minh City", SIN: "Singapore", KUL: "Kuala Lumpur",
+  DPS: "Bali", DEL: "Delhi", BOM: "Mumbai", SYD: "Sydney", MEL: "Melbourne", BNE: "Brisbane",
+  AKL: "Auckland", NAN: "Fiji", PPT: "Tahiti", DXB: "Dubai", DOH: "Doha", TLV: "Tel Aviv",
+};
+
+// ---- Engine (pure: no DOM, no fetch, no clock) ----
+
+function nightsBetween(depISO, retISO) {
+  const a = Date.parse(depISO + "T12:00:00Z"), b = Date.parse(retISO + "T12:00:00Z");
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return NaN;
+  return Math.round((b - a) / 86400000);
+}
+
+function estHours(distanceKm) {
+  const km = num(distanceKm, 0);
+  if (km <= 0) return null;
+  return km / CFG.cruiseKmh + CFG.taxiPadH;
+}
+
+function tripFits(f, o) {
+  if (!f || !f.departDate || !f.returnDate) return false;
+  if (!(f.price > 0)) return false;
+  if (f.departDate < o.windowStart || f.departDate > o.windowEnd) return false;
+  if (f.returnDate > o.windowEnd) return false;
+  const n = nightsBetween(f.departDate, f.returnDate);
+  if (!Number.isFinite(n) || n < o.minNights || n > o.maxNights) return false;
+  if (o.maxPrice > 0 && f.price > o.maxPrice) return false;
+  if (o.maxHours > 0) {
+    const h = estHours(f.distanceKm);
+    if (h !== null && h > o.maxHours) return false;
+  }
+  return true;
+}
+
+function rankDestinations(fares, o) {
+  const byDest = new Map();
+  for (const f of fares) {
+    if (!tripFits(f, o)) continue;
+    if (!byDest.has(f.dest)) byDest.set(f.dest, []);
+    byDest.get(f.dest).push(f);
+  }
+  const out = [];
+  for (const [dest, list] of byDest) {
+    list.sort((a, b) => a.price - b.price || (a.departDate < b.departDate ? -1 : 1));
+    out.push({ dest, best: list[0], options: list.slice(0, CFG.maxOptionsPerDest) });
+  }
+  out.sort((a, b) => a.best.price - b.best.price);
+  return out.slice(0, CFG.maxDestsShown);
+}
+
+// ---- Demo data (sample fares so the page works with no token) ----
+
+const DEMO_DESTS = [
+  { c: "SEA", km: 200, base: 158 }, { c: "YLW", km: 270, base: 138 }, { c: "PDX", km: 450, base: 208 },
+  { c: "YYC", km: 685, base: 178 }, { c: "YEG", km: 820, base: 196 }, { c: "SFO", km: 1290, base: 258 },
+  { c: "LAX", km: 1740, base: 228 }, { c: "LAS", km: 1750, base: 198 }, { c: "DEN", km: 1770, base: 296 },
+  { c: "YWG", km: 1870, base: 258 }, { c: "SAN", km: 1950, base: 278 }, { c: "PHX", km: 2270, base: 312 },
+  { c: "ORD", km: 2850, base: 368 }, { c: "SJD", km: 2960, base: 458 }, { c: "YYZ", km: 3360, base: 348 },
+  { c: "PVR", km: 3480, base: 448 }, { c: "YUL", km: 3690, base: 392 }, { c: "JFK", km: 3910, base: 412 },
+  { c: "MEX", km: 3930, base: 486 }, { c: "OGG", km: 4350, base: 528 }, { c: "HNL", km: 4390, base: 478 },
+  { c: "CUN", km: 4870, base: 562 }, { c: "DUB", km: 7250, base: 758 }, { c: "NRT", km: 7560, base: 978 },
+  { c: "LHR", km: 7580, base: 842 }, { c: "AMS", km: 7830, base: 868 }, { c: "CDG", km: 7900, base: 896 },
+  { c: "ICN", km: 8070, base: 1024 }, { c: "TPE", km: 9550, base: 918 }, { c: "HKG", km: 10250, base: 942 },
+  { c: "BKK", km: 11800, base: 1088 }, { c: "AKL", km: 11350, base: 1180 }, { c: "SYD", km: 12500, base: 1240 },
+];
+
+function hashSeed(s) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const addDaysISO = (iso, n) => {
+  const d = new Date(iso + "T12:00:00Z");
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+};
+
+function buildDemoFares(todayISO) {
+  const NIGHTS_POOL = [2, 2, 3, 3, 4, 5, 7, 9];
+  const fares = [];
+  for (const d of DEMO_DESTS) {
+    const rng = mulberry32(hashSeed(d.c + todayISO.slice(0, 7)));
+    for (let i = 0; i < CFG.demo.optionsPerDest; i++) {
+      const lead = CFG.demo.minLeadDays + Math.floor(rng() * (CFG.demo.maxLeadDays - CFG.demo.minLeadDays));
+      const nights = NIGHTS_POOL[Math.floor(rng() * NIGHTS_POOL.length)];
+      const price = Math.round(d.base * (CFG.demo.priceJitterLo + rng() * CFG.demo.priceJitterSpan));
+      const changes = d.km < 2500 ? (rng() < 0.7 ? 0 : 1) : (rng() < 0.35 ? 0 : 1);
+      const dep = addDaysISO(todayISO, lead);
+      fares.push({ dest: d.c, departDate: dep, returnDate: addDaysISO(dep, nights), price, changes, distanceKm: d.km });
+    }
+  }
+  return fares;
+}
+
+// ---- Live data: Travelpayouts / Aviasales cached prices ----
+
+async function fetchLiveFares(token) {
+  const all = [];
+  for (let page = 1; page <= CFG.tp.pages; page++) {
+    const params = new URLSearchParams({
+      origin: CFG.origin.iata, currency: CFG.currency, period_type: CFG.tp.periodType,
+      one_way: "false", sorting: "price", limit: String(CFG.tp.limit), page: String(page), token,
+    });
+    const r = await fetch(CFG.tp.base + "?" + params, { cache: "no-store", referrerPolicy: "no-referrer" });
+    if (!r.ok) throw new Error(`Travelpayouts ${r.status}`);
+    const d = await r.json();
+    if (!d || d.success === false) throw new Error(d && d.error ? String(d.error) : "Bad response");
+    const rows = Array.isArray(d.data) ? d.data : [];
+    for (const t of rows) {
+      all.push({
+        dest: String(t.destination || ""),
+        departDate: String(t.depart_date || ""),
+        returnDate: String(t.return_date || ""),
+        price: num(t.value),
+        changes: num(t.number_of_changes, -1),
+        distanceKm: num(t.distance),
+      });
+    }
+    if (rows.length < CFG.tp.limit) break;
+  }
+  return all.filter(f => f.dest && f.dest !== CFG.origin.iata);
+}
+
+// ---- State ----
+
+const todayISO = () => new Date().toLocaleDateString("en-CA");
+
+function defaultState() {
+  const t = todayISO();
+  return {
+    windowStart: t,
+    windowEnd: addDaysISO(t, CFG.defaultWindowDays),
+    preset: "weekend",
+    maxPrice: 0,
+    maxHours: 0,
+    token: "",
+  };
+}
+
+function loadState() {
+  const s = defaultState();
+  try {
+    const raw = JSON.parse(localStorage.getItem(CFG.storageKey) || "{}");
+    for (const k of Object.keys(s)) if (raw[k] !== undefined) s[k] = raw[k];
+  } catch {}
+  if (s.windowEnd < todayISO()) { const d = defaultState(); s.windowStart = d.windowStart; s.windowEnd = d.windowEnd; }
+  if (s.windowStart < todayISO()) s.windowStart = todayISO();
+  if (s.windowEnd < s.windowStart) s.windowEnd = addDaysISO(s.windowStart, CFG.defaultWindowDays);
+  return s;
+}
+function saveState(s) {
+  try { localStorage.setItem(CFG.storageKey, JSON.stringify(s)); } catch {}
+}
+
+function presetOf(key) {
+  return CFG.nightsPresets.find(p => p.key === key) || CFG.nightsPresets[0];
+}
+
+// ---- Formatting ----
+
+const fmtPrice = p => "$" + Math.round(num(p)).toLocaleString("en-CA");
+function fmtRange(dep, ret) {
+  const d1 = new Date(dep + "T12:00:00"), d2 = new Date(ret + "T12:00:00");
+  if (isNaN(d1) || isNaN(d2)) return `${dep} to ${ret}`;
+  const m1 = d1.toLocaleDateString("en-US", { month: "short" });
+  const m2 = d2.toLocaleDateString("en-US", { month: "short" });
+  return m1 === m2 ? `${m1} ${d1.getDate()} to ${d2.getDate()}` : `${m1} ${d1.getDate()} to ${m2} ${d2.getDate()}`;
+}
+const fmtNights = n => n === 1 ? "1 night" : `${n} nights`;
+function fmtStops(c) {
+  if (!Number.isFinite(c) || c < 0) return "";
+  return c === 0 ? "nonstop" : c === 1 ? "1 stop" : `${c} stops`;
+}
+function fmtHours(h) {
+  if (h === null) return "";
+  return "~" + (Math.round(h * 2) / 2) + "h flight";
+}
+const cityName = code => CITIES[code] || code;
+const gfLink = (dest, dep, ret) =>
+  "https://www.google.com/travel/flights?q=" +
+  encodeURIComponent(`Flights from ${CFG.origin.iata} to ${dest} on ${dep} through ${ret}`);
+
+// ---- Render ----
+
+function renderControls(s) {
+  const chips = CFG.nightsPresets.map(p =>
+    `<button class="chip" type="button" data-preset="${esc(p.key)}" aria-pressed="${s.preset === p.key ? "true" : "false"}">${esc(p.label)}</button>`
+  ).join("");
+  const priceOpts = CFG.priceCaps.map(v =>
+    `<option value="${v}" ${v === s.maxPrice ? "selected" : ""}>${v === 0 ? "Any price" : "Under " + fmtPrice(v)}</option>`
+  ).join("");
+  const hourOpts = CFG.hourCaps.map(v =>
+    `<option value="${v}" ${v === s.maxHours ? "selected" : ""}>${v === 0 ? "Any length" : "Under ~" + v + "h"}</option>`
+  ).join("");
+  return `<section class="panel">
+    <h2>Trip</h2>
+    <div class="ctl-dates">
+      <label>Earliest leave<input type="date" id="win-start" value="${esc(s.windowStart)}" min="${esc(todayISO())}"></label>
+      <label>Back by<input type="date" id="win-end" value="${esc(s.windowEnd)}" min="${esc(s.windowStart)}"></label>
+    </div>
+    <div class="chips" id="preset-chips">${chips}</div>
+    <div class="ctl-row">
+      <label>Budget<select id="max-price">${priceOpts}</select></label>
+      <label>Flight time<select id="max-hours">${hourOpts}</select></label>
+    </div>
+  </section>`;
+}
+
+function renderStatus(sourceKind, count, error) {
+  const src = sourceKind === "live"
+    ? `<span class="pill live">Live cache</span>`
+    : `<span class="pill demo">Sample data</span>`;
+  const err = error ? ` <span>${esc(error)}</span>` : "";
+  return `<div class="status">${src}<span>${count === 0 ? "No trips fit" : count + (count === 1 ? " place" : " places")}</span><span>CAD, round trip</span>${err}</div>`;
+}
+
+function renderDest(d) {
+  const b = d.best;
+  const meta = [fmtRange(b.departDate, b.returnDate), fmtNights(nightsBetween(b.departDate, b.returnDate)), fmtStops(b.changes), fmtHours(estHours(b.distanceKm))]
+    .filter(Boolean).join(`<span class="dot">·</span>`);
+  const alts = d.options.slice(1).map(f => {
+    const bits = [fmtRange(f.departDate, f.returnDate), fmtNights(nightsBetween(f.departDate, f.returnDate)), fmtStops(f.changes)].filter(Boolean).join(" · ");
+    return `<div class="alt-row"><span>${esc(bits)}</span><span><a href="${esc(gfLink(d.dest, f.departDate, f.returnDate))}" target="_blank" rel="noopener">open</a> <span class="p">${esc(fmtPrice(f.price))}</span></span></div>`;
+  }).join("");
+  const moreBtn = alts ? `<button class="more-btn" type="button" data-more="${esc(d.dest)}">${d.options.length - 1} more date${d.options.length > 2 ? "s" : ""} ›</button>` : "";
+  return `<div class="dest-card" data-dest="${esc(d.dest)}">
+    <div class="dest-top">
+      <span class="dest-name">${esc(cityName(d.dest))}<span class="code">${esc(d.dest)}</span></span>
+      <span class="dest-price">${esc(fmtPrice(b.price))}</span>
+    </div>
+    <div class="dest-meta">${meta}</div>
+    <div class="dest-actions">
+      <a href="${esc(gfLink(d.dest, b.departDate, b.returnDate))}" target="_blank" rel="noopener">Check on Google Flights</a>
+      ${moreBtn}
+    </div>
+    ${alts ? `<div class="alt-rows">${alts}</div>` : ""}
+  </div>`;
+}
+
+function renderResults(ranked, sourceKind, error) {
+  const list = ranked.length
+    ? `<div class="dest-list">${ranked.map(renderDest).join("")}</div>`
+    : `<div class="panel empty">Nothing fits. Widen the dates, allow more nights, or raise the budget.</div>`;
+  return renderStatus(sourceKind, ranked.length, error) + list;
+}
+
+function renderTokenPanel(s) {
+  return `<section class="panel">
+    <details>
+      <summary>Live prices</summary>
+      <div class="token-body">
+        <p>Sample data is shown until you add a free Travelpayouts token. Sign up at <a href="https://www.travelpayouts.com" target="_blank" rel="noopener">travelpayouts.com</a>, copy the API token from your profile, paste it here.</p>
+        <div class="token-row">
+          <input type="text" id="token-input" placeholder="API token" value="${esc(s.token)}" autocomplete="off" spellcheck="false">
+          <button class="btn" type="button" id="token-save">Save</button>
+        </div>
+        <p>Prices come from the Aviasales search cache. Treat them as leads, not quotes.</p>
+      </div>
+    </details>
+  </section>`;
+}
+
+// ---- App ----
+
+const app = {
+  state: loadState(),
+  fares: [],
+  sourceKind: "demo",
+  error: "",
+};
+
+function currentOpts() {
+  const p = presetOf(app.state.preset);
+  return {
+    windowStart: app.state.windowStart, windowEnd: app.state.windowEnd,
+    minNights: p.min, maxNights: p.max,
+    maxPrice: num(app.state.maxPrice), maxHours: num(app.state.maxHours),
+  };
+}
+
+function refreshResults() {
+  const ranked = rankDestinations(app.fares, currentOpts());
+  document.getElementById("results").innerHTML = renderResults(ranked, app.sourceKind, app.error);
+}
+
+async function loadFares() {
+  app.error = "";
+  if (app.state.token) {
+    try {
+      app.fares = await fetchLiveFares(app.state.token);
+      app.sourceKind = "live";
+      return;
+    } catch (e) {
+      app.error = "Live fetch failed (" + (e && e.message || e) + "). Showing sample data.";
+    }
+  }
+  app.fares = buildDemoFares(todayISO());
+  app.sourceKind = "demo";
+}
+
+function render() {
+  const root = document.getElementById("root");
+  root.innerHTML = `
+    <section class="hero">
+      <div class="hero-head">From ${esc(CFG.origin.city)} (${esc(CFG.origin.iata)})</div>
+      <h1>Where can I go?</h1>
+      <p>Pick your window and how long you can be gone. Cheapest trips that fit, ranked.</p>
+    </section>
+    ${renderControls(app.state)}
+    <div id="results"><div class="loading">Finding trips...</div></div>
+    ${renderTokenPanel(app.state)}
+    <div class="footer">Round trips from ${esc(CFG.origin.iata)} . prototype</div>
+  `;
+
+  const onChange = () => { saveState(app.state); refreshResults(); };
+
+  root.querySelector("#win-start").addEventListener("change", e => {
+    app.state.windowStart = e.target.value || todayISO();
+    if (app.state.windowEnd < app.state.windowStart) app.state.windowEnd = app.state.windowStart;
+    root.querySelector("#win-end").min = app.state.windowStart;
+    root.querySelector("#win-end").value = app.state.windowEnd;
+    onChange();
+  });
+  root.querySelector("#win-end").addEventListener("change", e => {
+    app.state.windowEnd = e.target.value || app.state.windowStart;
+    onChange();
+  });
+  root.querySelector("#preset-chips").addEventListener("click", e => {
+    const btn = e.target.closest(".chip");
+    if (!btn) return;
+    app.state.preset = btn.dataset.preset;
+    for (const c of root.querySelectorAll(".chip")) c.setAttribute("aria-pressed", String(c === btn));
+    onChange();
+  });
+  root.querySelector("#max-price").addEventListener("change", e => { app.state.maxPrice = num(e.target.value); onChange(); });
+  root.querySelector("#max-hours").addEventListener("change", e => { app.state.maxHours = num(e.target.value); onChange(); });
+
+  root.querySelector("#token-save").addEventListener("click", async () => {
+    app.state.token = root.querySelector("#token-input").value.trim();
+    saveState(app.state);
+    document.getElementById("results").innerHTML = `<div class="loading">Fetching prices...</div>`;
+    await loadFares();
+    refreshResults();
+  });
+
+  document.getElementById("results").addEventListener("click", e => {
+    const btn = e.target.closest(".more-btn");
+    if (!btn) return;
+    const card = btn.closest(".dest-card");
+    if (card) card.classList.toggle("open");
+  });
+}
+
+(async () => {
+  try {
+    render();
+    await loadFares();
+    refreshResults();
+  } catch (e) {
+    document.getElementById("root").innerHTML =
+      `<section class="panel err"><strong>Something broke</strong>${esc(e && e.message || String(e))}</section>`;
+  }
+})();
+</script>
+</body>
+</html>
