@@ -19,17 +19,19 @@
   .panel { border-radius: 1rem; padding: 1rem 1.1rem; background: rgba(15,23,42,.7); border: 1px solid rgba(255,255,255,.05); }
   .panel h2 { margin: 0 0 .75rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; }
   .ctl-dates { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
-  .ctl-dates label { display: flex; flex-direction: column; gap: .3rem; font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; font-weight: 600; }
+  label.fld { display: flex; flex-direction: column; gap: .3rem; font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; font-weight: 600; }
   input[type="date"], input[type="text"], select {
     background: #0f172a; border: 1px solid rgba(255,255,255,.1); color: #f1f5f9; border-radius: .6rem;
     padding: .55rem .65rem; font-size: .9rem; font-family: inherit; width: 100%;
   }
   input:focus, select:focus { outline: 2px solid rgba(125,211,252,.5); outline-offset: 1px; }
-  .chips { display: flex; gap: .375rem; flex-wrap: wrap; margin-top: .85rem; }
+  .chip-group { margin-top: .85rem; }
+  .chip-group .lbl { display: block; font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; font-weight: 600; margin-bottom: .35rem; }
+  .chips { display: flex; gap: .375rem; flex-wrap: wrap; }
   .chip { background: #1e293b; color: #e2e8f0; border: 1px solid transparent; padding: .4rem .8rem; border-radius: 999px; font-size: .82rem; font-weight: 500; cursor: pointer; font-family: inherit; }
   .chip[aria-pressed="true"] { background: rgba(125,211,252,.15); border-color: rgba(125,211,252,.5); color: #bae6fd; }
   .ctl-row { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .85rem; }
-  .ctl-row label { display: flex; flex-direction: column; gap: .3rem; font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; font-weight: 600; }
+  .ctl-row.single { grid-template-columns: 1fr; }
   .status { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; padding: 0 .25rem; font-size: .8rem; color: #94a3b8; }
   .status .pill { background: #1e293b; color: #e2e8f0; padding: .2rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 500; }
   .status .pill.demo { background: rgba(252,211,77,.15); color: #fde68a; }
@@ -40,8 +42,15 @@
   .dest-name { font-size: 1.05rem; font-weight: 600; color: #f8fafc; }
   .dest-name .code { color: #64748b; font-size: .75rem; font-weight: 500; margin-left: .35rem; }
   .dest-price { font-size: 1.15rem; font-weight: 700; color: #6ee7b7; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .dest-price .unit { font-size: .68rem; font-weight: 500; color: #94a3b8; margin-left: .25rem; }
   .dest-meta { margin-top: .3rem; font-size: .82rem; color: #cbd5e1; }
   .dest-meta .dot { color: #475569; padding: 0 .25rem; }
+  .leg-rows { margin-top: .55rem; border-top: 1px solid rgba(255,255,255,.06); }
+  .leg-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: .55rem; align-items: baseline; padding: .4rem 0; font-size: .82rem; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,.04); }
+  .leg-row:last-child { border-bottom: none; }
+  .leg-row .d { color: #94a3b8; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .leg-row .p { color: #e2e8f0; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .leg-row a { color: #7dd3fc; text-decoration: none; }
   .dest-actions { margin-top: .55rem; display: flex; gap: .9rem; align-items: center; font-size: .78rem; }
   .dest-actions a { color: #7dd3fc; text-decoration: none; font-weight: 500; }
   .dest-actions a:hover { text-decoration: underline; }
@@ -92,12 +101,13 @@ const CFG = {
     { key: "week", label: "Week (6-9)", min: 6, max: 9 },
     { key: "any", label: "Any", min: 1, max: 16 },
   ],
-  priceCaps: [0, 200, 300, 400, 600, 800, 1200],
+  priceCaps: [0, 200, 300, 400, 600, 800, 1200, 1600, 2000],
   hourCaps: [0, 3, 5, 8, 12],
   cruiseKmh: 780,
   taxiPadH: 0.7,
   maxOptionsPerDest: 6,
   maxDestsShown: 40,
+  via: { maxOutboundLegs: 30, maxLegsPerDest: 15 },
   tp: { base: "https://api.travelpayouts.com/v2/prices/latest", limit: 1000, pages: 2, periodType: "year" },
   demo: { minLeadDays: 2, maxLeadDays: 85, optionsPerDest: 6, priceJitterLo: 0.82, priceJitterSpan: 0.55 },
   storageKey: "wcig.v1",
@@ -111,12 +121,14 @@ const CITIES = {
   IAD: "Washington", DCA: "Washington", PHL: "Philadelphia", AUS: "Austin", ANC: "Anchorage",
   HNL: "Honolulu", OGG: "Maui", KOA: "Kona", LIH: "Kauai",
   YLW: "Kelowna", YYJ: "Victoria", YYC: "Calgary", YEG: "Edmonton", YXE: "Saskatoon", YQR: "Regina",
-  YWG: "Winnipeg", YYZ: "Toronto", YTO: "Toronto", YUL: "Montreal", YMQ: "Montreal", YOW: "Ottawa", YHZ: "Halifax",
+  YWG: "Winnipeg", YYZ: "Toronto", YTO: "Toronto", YUL: "Montreal", YMQ: "Montreal", YOW: "Ottawa",
+  YHZ: "Halifax", YQB: "Quebec City",
   MEX: "Mexico City", CUN: "Cancun", PVR: "Puerto Vallarta", SJD: "Los Cabos", GDL: "Guadalajara",
-  SJO: "San Jose, CR", PTY: "Panama City", LIM: "Lima", BOG: "Bogota",
+  SJO: "San Jose, CR", PTY: "Panama City", LIM: "Lima", BOG: "Bogota", HAV: "Havana",
+  NAS: "Nassau", BDA: "Bermuda", SJU: "San Juan",
   LHR: "London", LGW: "London", LON: "London", CDG: "Paris", PAR: "Paris", AMS: "Amsterdam",
   FRA: "Frankfurt", MUC: "Munich", ZRH: "Zurich", DUB: "Dublin", MAD: "Madrid", BCN: "Barcelona",
-  LIS: "Lisbon", FCO: "Rome", ROM: "Rome", IST: "Istanbul", ATH: "Athens",
+  LIS: "Lisbon", FCO: "Rome", ROM: "Rome", IST: "Istanbul", ATH: "Athens", KEF: "Reykjavik",
   NRT: "Tokyo", HND: "Tokyo", TYO: "Tokyo", KIX: "Osaka", ICN: "Seoul", SEL: "Seoul", TPE: "Taipei",
   HKG: "Hong Kong", PVG: "Shanghai", SHA: "Shanghai", PEK: "Beijing", BJS: "Beijing", CAN: "Guangzhou",
   MNL: "Manila", BKK: "Bangkok", SGN: "Ho Chi Minh City", SIN: "Singapore", KUL: "Kuala Lumpur",
@@ -169,6 +181,51 @@ function rankDestinations(fares, o) {
   return out.slice(0, CFG.maxDestsShown);
 }
 
+// Open-jaw: origin -> hub (stay hubMin..hubMax nights) -> X (stay awayMin..awayMax nights) -> origin.
+// legsA: origin->hub one-ways. legsB: hub->anywhere. legsC: anywhere->origin.
+// Returns [{dest, best combo, options}] ranked by total price.
+function planVia(legsA, legsB, legsC, o) {
+  const inWin = l => l && l.date >= o.windowStart && l.date <= o.windowEnd && l.price > 0;
+  const A = legsA.filter(inWin).sort((x, y) => x.price - y.price).slice(0, CFG.via.maxOutboundLegs);
+  const byDest = new Map(), toHome = new Map();
+  for (const l of legsB) {
+    if (!inWin(l) || !l.to || l.to === o.hub || l.to === o.origin) continue;
+    if (!byDest.has(l.to)) byDest.set(l.to, []);
+    byDest.get(l.to).push(l);
+  }
+  for (const l of legsC) {
+    if (!inWin(l) || !l.from || l.from === o.hub || l.from === o.origin) continue;
+    if (!toHome.has(l.from)) toHome.set(l.from, []);
+    toHome.get(l.from).push(l);
+  }
+  const out = [];
+  for (const [dest, bList] of byDest) {
+    const cList = toHome.get(dest);
+    if (!cList) continue;
+    const bs = bList.sort((x, y) => x.price - y.price).slice(0, CFG.via.maxLegsPerDest);
+    const cs = cList.sort((x, y) => x.price - y.price).slice(0, CFG.via.maxLegsPerDest);
+    const combos = [];
+    for (const a of A) {
+      for (const b of bs) {
+        const hubN = nightsBetween(a.date, b.date);
+        if (!Number.isFinite(hubN) || hubN < o.hubMin || hubN > o.hubMax) continue;
+        for (const c of cs) {
+          const awayN = nightsBetween(b.date, c.date);
+          if (!Number.isFinite(awayN) || awayN < o.awayMin || awayN > o.awayMax) continue;
+          const total = a.price + b.price + c.price;
+          if (o.maxPrice > 0 && total > o.maxPrice) continue;
+          combos.push({ a, b, c, total, hubNights: hubN, awayNights: awayN });
+        }
+      }
+    }
+    if (!combos.length) continue;
+    combos.sort((x, y) => x.total - y.total);
+    out.push({ dest, best: combos[0], options: combos.slice(0, CFG.maxOptionsPerDest) });
+  }
+  out.sort((x, y) => x.best.total - y.best.total);
+  return out.slice(0, CFG.maxDestsShown);
+}
+
 // ---- Demo data (sample fares so the page works with no token) ----
 
 const DEMO_DESTS = [
@@ -183,6 +240,38 @@ const DEMO_DESTS = [
   { c: "LHR", km: 7580, base: 842 }, { c: "AMS", km: 7830, base: 868 }, { c: "CDG", km: 7900, base: 896 },
   { c: "ICN", km: 8070, base: 1024 }, { c: "TPE", km: 9550, base: 918 }, { c: "HKG", km: 10250, base: 942 },
   { c: "BKK", km: 11800, base: 1088 }, { c: "AKL", km: 11350, base: 1180 }, { c: "SYD", km: 12500, base: 1240 },
+];
+
+// One-way demo tables for via mode. kmB/baseB: hub to dest. kmC/baseC: dest back to YVR.
+const DEMO_VIA_DESTS = [
+  { c: "YUL", kmB: 500, baseB: 120, kmC: 3690, baseC: 260 },
+  { c: "YOW", kmB: 360, baseB: 110, kmC: 3550, baseC: 250 },
+  { c: "YQB", kmB: 720, baseB: 150, kmC: 3830, baseC: 280 },
+  { c: "YHZ", kmB: 1290, baseB: 160, kmC: 4420, baseC: 320 },
+  { c: "NYC", kmB: 570, baseB: 140, kmC: 3910, baseC: 290 },
+  { c: "BOS", kmB: 720, baseB: 150, kmC: 4010, baseC: 300 },
+  { c: "ORD", kmB: 700, baseB: 160, kmC: 2850, baseC: 240 },
+  { c: "DCA", kmB: 570, baseB: 150, kmC: 3790, baseC: 290 },
+  { c: "PHL", kmB: 550, baseB: 150, kmC: 3850, baseC: 300 },
+  { c: "ATL", kmB: 1190, baseB: 180, kmC: 3450, baseC: 280 },
+  { c: "MIA", kmB: 2000, baseB: 210, kmC: 4480, baseC: 330 },
+  { c: "MCO", kmB: 1700, baseB: 190, kmC: 4270, baseC: 310 },
+  { c: "CUN", kmB: 2560, baseB: 280, kmC: 4870, baseC: 380 },
+  { c: "NAS", kmB: 2110, baseB: 290, kmC: 4560, baseC: 450 },
+  { c: "HAV", kmB: 2320, baseB: 300, kmC: 4720, baseC: 460 },
+  { c: "BDA", kmB: 1550, baseB: 320, kmC: 4900, baseC: 520 },
+  { c: "SJU", kmB: 3110, baseB: 330, kmC: 5570, baseC: 540 },
+  { c: "MEX", kmB: 3260, baseB: 350, kmC: 3930, baseC: 340 },
+  { c: "LAS", kmB: 3260, baseB: 180, kmC: 1750, baseC: 160 },
+  { c: "YWG", kmB: 1520, baseB: 140, kmC: 1870, baseC: 180 },
+  { c: "KEF", kmB: 4200, baseB: 380, kmC: 5680, baseC: 480 },
+  { c: "DUB", kmB: 5250, baseB: 420, kmC: 7250, baseC: 560 },
+  { c: "LHR", kmB: 5710, baseB: 460, kmC: 7580, baseC: 620 },
+  { c: "LIS", kmB: 5740, baseB: 440, kmC: 8250, baseC: 680 },
+  { c: "CDG", kmB: 6010, baseB: 480, kmC: 7900, baseC: 650 },
+  { c: "AMS", kmB: 5990, baseB: 470, kmC: 7830, baseC: 640 },
+  { c: "FCO", kmB: 7080, baseB: 540, kmC: 9150, baseC: 750 },
+  { c: "BCN", kmB: 6580, baseB: 500, kmC: 8340, baseC: 700 },
 ];
 
 function hashSeed(s) {
@@ -204,6 +293,7 @@ const addDaysISO = (iso, n) => {
   d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
 };
+const dowISO = iso => new Date(iso + "T12:00:00Z").getUTCDay();
 
 function buildDemoFares(todayISO) {
   const NIGHTS_POOL = [2, 2, 3, 3, 4, 5, 7, 9];
@@ -222,33 +312,86 @@ function buildDemoFares(todayISO) {
   return fares;
 }
 
+// Outbound legs land on Thu/Fri so a weekend at the hub lines up. Onward and
+// homeward legs are anchored to those dates so real combos always exist.
+function buildDemoViaLegs(todayISO, hub) {
+  const A = [], B = [], C = [];
+  const rngA = mulberry32(hashSeed("A" + hub + todayISO.slice(0, 7)));
+  const outDates = [];
+  for (let d = 2; d < CFG.demo.maxLeadDays; d++) {
+    const date = addDaysISO(todayISO, d);
+    const dow = dowISO(date);
+    if (dow === 4 || dow === 5) outDates.push(date);
+  }
+  for (const date of outDates) {
+    A.push({ from: CFG.origin.iata, to: hub, date, price: Math.round(210 * (0.75 + rngA() * 0.6)), changes: rngA() < 0.6 ? 0 : 1, km: 3360 });
+  }
+  const AWAY_POOL = [2, 3, 3, 4, 5, 7];
+  for (const d of DEMO_VIA_DESTS) {
+    const rng = mulberry32(hashSeed(d.c + hub + todayISO.slice(0, 7)));
+    const anchors = 4;
+    for (let i = 0; i < anchors; i++) {
+      const a = A[Math.floor(rng() * A.length)];
+      if (!a) continue;
+      const hubN = rng() < 0.5 ? 2 : 3;
+      const depB = addDaysISO(a.date, hubN);
+      const awayN = AWAY_POOL[Math.floor(rng() * AWAY_POOL.length)];
+      B.push({ from: hub, to: d.c, date: depB, price: Math.round(d.baseB * (0.8 + rng() * 0.5)), changes: d.kmB < 2500 ? 0 : (rng() < 0.5 ? 0 : 1), km: d.kmB });
+      C.push({ from: d.c, to: CFG.origin.iata, date: addDaysISO(depB, awayN), price: Math.round(d.baseC * (0.8 + rng() * 0.5)), changes: d.kmC < 3000 ? 0 : 1, km: d.kmC });
+    }
+    for (let i = 0; i < 2; i++) {
+      const leadB = 4 + Math.floor(rng() * 80), leadC = 6 + Math.floor(rng() * 82);
+      B.push({ from: hub, to: d.c, date: addDaysISO(todayISO, leadB), price: Math.round(d.baseB * (0.8 + rng() * 0.5)), changes: 0, km: d.kmB });
+      C.push({ from: d.c, to: CFG.origin.iata, date: addDaysISO(todayISO, leadC), price: Math.round(d.baseC * (0.8 + rng() * 0.5)), changes: 1, km: d.kmC });
+    }
+  }
+  return { A, B, C };
+}
+
 // ---- Live data: Travelpayouts / Aviasales cached prices ----
 
-async function fetchLiveFares(token) {
+async function tpFetch(extraParams, token) {
   const all = [];
   for (let page = 1; page <= CFG.tp.pages; page++) {
     const params = new URLSearchParams({
-      origin: CFG.origin.iata, currency: CFG.currency, period_type: CFG.tp.periodType,
-      one_way: "false", sorting: "price", limit: String(CFG.tp.limit), page: String(page), token,
+      currency: CFG.currency, period_type: CFG.tp.periodType, sorting: "price",
+      limit: String(CFG.tp.limit), page: String(page), token, ...extraParams,
     });
     const r = await fetch(CFG.tp.base + "?" + params, { cache: "no-store", referrerPolicy: "no-referrer" });
     if (!r.ok) throw new Error(`Travelpayouts ${r.status}`);
     const d = await r.json();
     if (!d || d.success === false) throw new Error(d && d.error ? String(d.error) : "Bad response");
     const rows = Array.isArray(d.data) ? d.data : [];
-    for (const t of rows) {
-      all.push({
-        dest: String(t.destination || ""),
-        departDate: String(t.depart_date || ""),
-        returnDate: String(t.return_date || ""),
-        price: num(t.value),
-        changes: num(t.number_of_changes, -1),
-        distanceKm: num(t.distance),
-      });
-    }
+    all.push(...rows);
     if (rows.length < CFG.tp.limit) break;
   }
-  return all.filter(f => f.dest && f.dest !== CFG.origin.iata);
+  return all;
+}
+
+async function fetchLiveFares(token) {
+  const rows = await tpFetch({ origin: CFG.origin.iata, one_way: "false" }, token);
+  return rows.map(t => ({
+    dest: String(t.destination || ""),
+    departDate: String(t.depart_date || ""),
+    returnDate: String(t.return_date || ""),
+    price: num(t.value),
+    changes: num(t.number_of_changes, -1),
+    distanceKm: num(t.distance),
+  })).filter(f => f.dest && f.dest !== CFG.origin.iata);
+}
+
+async function fetchLiveLegs(token, hub) {
+  const toLeg = t => ({
+    from: String(t.origin || ""), to: String(t.destination || ""),
+    date: String(t.depart_date || ""), price: num(t.value),
+    changes: num(t.number_of_changes, -1), km: num(t.distance),
+  });
+  const [ra, rb, rc] = await Promise.all([
+    tpFetch({ origin: CFG.origin.iata, destination: hub, one_way: "true" }, token),
+    tpFetch({ origin: hub, one_way: "true" }, token),
+    tpFetch({ destination: CFG.origin.iata, one_way: "true" }, token),
+  ]);
+  return { A: ra.map(toLeg), B: rb.map(toLeg), C: rc.map(toLeg) };
 }
 
 // ---- State ----
@@ -258,9 +401,13 @@ const todayISO = () => new Date().toLocaleDateString("en-CA");
 function defaultState() {
   const t = todayISO();
   return {
+    mode: "via",
     windowStart: t,
     windowEnd: addDaysISO(t, CFG.defaultWindowDays),
     preset: "weekend",
+    hub: "YYZ",
+    hubPreset: "weekend",
+    awayPreset: "short",
     maxPrice: 0,
     maxHours: 0,
     token: "",
@@ -276,6 +423,7 @@ function loadState() {
   if (s.windowEnd < todayISO()) { const d = defaultState(); s.windowStart = d.windowStart; s.windowEnd = d.windowEnd; }
   if (s.windowStart < todayISO()) s.windowStart = todayISO();
   if (s.windowEnd < s.windowStart) s.windowEnd = addDaysISO(s.windowStart, CFG.defaultWindowDays);
+  if (!/^[A-Z]{3}$/.test(s.hub)) s.hub = "YYZ";
   return s;
 }
 function saveState(s) {
@@ -289,6 +437,11 @@ function presetOf(key) {
 // ---- Formatting ----
 
 const fmtPrice = p => "$" + Math.round(num(p)).toLocaleString("en-CA");
+function fmtDay(iso) {
+  const d = new Date(iso + "T12:00:00");
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
 function fmtRange(dep, ret) {
   const d1 = new Date(dep + "T12:00:00"), d2 = new Date(ret + "T12:00:00");
   if (isNaN(d1) || isNaN(d2)) return `${dep} to ${ret}`;
@@ -306,42 +459,61 @@ function fmtHours(h) {
   return "~" + (Math.round(h * 2) / 2) + "h flight";
 }
 const cityName = code => CITIES[code] || code;
-const gfLink = (dest, dep, ret) =>
+const gfLink = (from, to, dep, ret) =>
   "https://www.google.com/travel/flights?q=" +
-  encodeURIComponent(`Flights from ${CFG.origin.iata} to ${dest} on ${dep} through ${ret}`);
+  encodeURIComponent(ret ? `Flights from ${from} to ${to} on ${dep} through ${ret}` : `One way flights from ${from} to ${to} on ${dep}`);
 
 // ---- Render ----
 
-function renderControls(s) {
-  const chips = CFG.nightsPresets.map(p =>
-    `<button class="chip" type="button" data-preset="${esc(p.key)}" aria-pressed="${s.preset === p.key ? "true" : "false"}">${esc(p.label)}</button>`
+function chipRow(label, id, presets, activeKey) {
+  const chips = presets.map(p =>
+    `<button class="chip" type="button" data-key="${esc(p.key)}" aria-pressed="${activeKey === p.key ? "true" : "false"}">${esc(p.label)}</button>`
   ).join("");
+  return `<div class="chip-group"><span class="lbl">${esc(label)}</span><div class="chips" id="${esc(id)}">${chips}</div></div>`;
+}
+
+function renderControls(s) {
+  const modeChips = `<div class="chips" id="mode-chips">
+    <button class="chip" type="button" data-key="via" aria-pressed="${s.mode === "via"}">Via a stop</button>
+    <button class="chip" type="button" data-key="simple" aria-pressed="${s.mode === "simple"}">Round trip</button>
+  </div>`;
+  const dates = `<div class="ctl-dates" style="margin-top:.85rem">
+    <label class="fld">Earliest leave<input type="date" id="win-start" value="${esc(s.windowStart)}" min="${esc(todayISO())}"></label>
+    <label class="fld">Back by<input type="date" id="win-end" value="${esc(s.windowEnd)}" min="${esc(s.windowStart)}"></label>
+  </div>`;
   const priceOpts = CFG.priceCaps.map(v =>
     `<option value="${v}" ${v === s.maxPrice ? "selected" : ""}>${v === 0 ? "Any price" : "Under " + fmtPrice(v)}</option>`
   ).join("");
-  const hourOpts = CFG.hourCaps.map(v =>
-    `<option value="${v}" ${v === s.maxHours ? "selected" : ""}>${v === 0 ? "Any length" : "Under ~" + v + "h"}</option>`
-  ).join("");
-  return `<section class="panel">
-    <h2>Trip</h2>
-    <div class="ctl-dates">
-      <label>Earliest leave<input type="date" id="win-start" value="${esc(s.windowStart)}" min="${esc(todayISO())}"></label>
-      <label>Back by<input type="date" id="win-end" value="${esc(s.windowEnd)}" min="${esc(s.windowStart)}"></label>
-    </div>
-    <div class="chips" id="preset-chips">${chips}</div>
-    <div class="ctl-row">
-      <label>Budget<select id="max-price">${priceOpts}</select></label>
-      <label>Flight time<select id="max-hours">${hourOpts}</select></label>
-    </div>
-  </section>`;
+  let body;
+  if (s.mode === "via") {
+    body = `
+      <div class="ctl-row">
+        <label class="fld">First stop<input type="text" id="hub-input" value="${esc(s.hub)}" maxlength="3" autocapitalize="characters" autocomplete="off" spellcheck="false"></label>
+        <label class="fld">Budget (total)<select id="max-price">${priceOpts}</select></label>
+      </div>
+      ${chipRow("Nights in " + cityName(s.hub), "hub-chips", CFG.nightsPresets, s.hubPreset)}
+      ${chipRow("Nights at the next stop", "away-chips", CFG.nightsPresets, s.awayPreset)}`;
+  } else {
+    const hourOpts = CFG.hourCaps.map(v =>
+      `<option value="${v}" ${v === s.maxHours ? "selected" : ""}>${v === 0 ? "Any length" : "Under ~" + v + "h"}</option>`
+    ).join("");
+    body = `
+      ${chipRow("Nights away", "preset-chips", CFG.nightsPresets, s.preset)}
+      <div class="ctl-row">
+        <label class="fld">Budget<select id="max-price">${priceOpts}</select></label>
+        <label class="fld">Flight time<select id="max-hours">${hourOpts}</select></label>
+      </div>`;
+  }
+  return `<section class="panel"><h2>Trip</h2>${modeChips}${dates}${body}</section>`;
 }
 
-function renderStatus(sourceKind, count, error) {
+function renderStatus(s, sourceKind, count, error) {
   const src = sourceKind === "live"
     ? `<span class="pill live">Live cache</span>`
     : `<span class="pill demo">Sample data</span>`;
+  const shape = s.mode === "via" ? `CAD, 3 one-way legs` : `CAD, round trip`;
   const err = error ? ` <span>${esc(error)}</span>` : "";
-  return `<div class="status">${src}<span>${count === 0 ? "No trips fit" : count + (count === 1 ? " place" : " places")}</span><span>CAD, round trip</span>${err}</div>`;
+  return `<div class="status">${src}<span>${count === 0 ? "No trips fit" : count + (count === 1 ? " place" : " places")}</span><span>${esc(shape)}</span>${err}</div>`;
 }
 
 function renderDest(d) {
@@ -350,28 +522,54 @@ function renderDest(d) {
     .filter(Boolean).join(`<span class="dot">·</span>`);
   const alts = d.options.slice(1).map(f => {
     const bits = [fmtRange(f.departDate, f.returnDate), fmtNights(nightsBetween(f.departDate, f.returnDate)), fmtStops(f.changes)].filter(Boolean).join(" · ");
-    return `<div class="alt-row"><span>${esc(bits)}</span><span><a href="${esc(gfLink(d.dest, f.departDate, f.returnDate))}" target="_blank" rel="noopener">open</a> <span class="p">${esc(fmtPrice(f.price))}</span></span></div>`;
+    return `<div class="alt-row"><span>${esc(bits)}</span><span><a href="${esc(gfLink(CFG.origin.iata, d.dest, f.departDate, f.returnDate))}" target="_blank" rel="noopener">open</a> <span class="p">${esc(fmtPrice(f.price))}</span></span></div>`;
   }).join("");
-  const moreBtn = alts ? `<button class="more-btn" type="button" data-more="${esc(d.dest)}">${d.options.length - 1} more date${d.options.length > 2 ? "s" : ""} ›</button>` : "";
-  return `<div class="dest-card" data-dest="${esc(d.dest)}">
+  const moreBtn = alts ? `<button class="more-btn" type="button">${d.options.length - 1} more date${d.options.length > 2 ? "s" : ""} ›</button>` : "";
+  return `<div class="dest-card">
     <div class="dest-top">
       <span class="dest-name">${esc(cityName(d.dest))}<span class="code">${esc(d.dest)}</span></span>
       <span class="dest-price">${esc(fmtPrice(b.price))}</span>
     </div>
     <div class="dest-meta">${meta}</div>
     <div class="dest-actions">
-      <a href="${esc(gfLink(d.dest, b.departDate, b.returnDate))}" target="_blank" rel="noopener">Check on Google Flights</a>
+      <a href="${esc(gfLink(CFG.origin.iata, d.dest, b.departDate, b.returnDate))}" target="_blank" rel="noopener">Check on Google Flights</a>
       ${moreBtn}
     </div>
     ${alts ? `<div class="alt-rows">${alts}</div>` : ""}
   </div>`;
 }
 
-function renderResults(ranked, sourceKind, error) {
+function renderViaDest(d, hub) {
+  const b = d.best;
+  const legRow = l => `<div class="leg-row">
+    <span>${esc(cityName(l.from))} to ${esc(cityName(l.to))}</span>
+    <span class="d">${esc(fmtDay(l.date))}</span>
+    <a href="${esc(gfLink(l.from, l.to, l.date, ""))}" target="_blank" rel="noopener">open</a>
+    <span class="p">${esc(fmtPrice(l.price))}</span>
+  </div>`;
+  const meta = `${esc(fmtNights(b.hubNights))} in ${esc(cityName(hub))}<span class="dot">·</span>${esc(fmtNights(b.awayNights))} in ${esc(cityName(d.dest))}`;
+  const alts = d.options.slice(1).map(x =>
+    `<div class="alt-row"><span>${esc(fmtRange(x.a.date, x.c.date))} · ${x.hubNights}+${x.awayNights} nights</span><span class="p">${esc(fmtPrice(x.total))}</span></div>`
+  ).join("");
+  const moreBtn = alts ? `<button class="more-btn" type="button">${d.options.length - 1} more combo${d.options.length > 2 ? "s" : ""} ›</button>` : "";
+  return `<div class="dest-card">
+    <div class="dest-top">
+      <span class="dest-name">${esc(cityName(d.dest))}<span class="code">${esc(d.dest)}</span></span>
+      <span class="dest-price">${esc(fmtPrice(b.total))}<span class="unit">total</span></span>
+    </div>
+    <div class="dest-meta">${meta}</div>
+    <div class="leg-rows">${legRow(b.a)}${legRow(b.b)}${legRow(b.c)}</div>
+    ${moreBtn ? `<div class="dest-actions">${moreBtn}</div>` : ""}
+    ${alts ? `<div class="alt-rows">${alts}</div>` : ""}
+  </div>`;
+}
+
+function renderResults(s, ranked, sourceKind, error) {
+  const cards = s.mode === "via" ? ranked.map(d => renderViaDest(d, s.hub)) : ranked.map(renderDest);
   const list = ranked.length
-    ? `<div class="dest-list">${ranked.map(renderDest).join("")}</div>`
+    ? `<div class="dest-list">${cards.join("")}</div>`
     : `<div class="panel empty">Nothing fits. Widen the dates, allow more nights, or raise the budget.</div>`;
-  return renderStatus(sourceKind, ranked.length, error) + list;
+  return renderStatus(s, sourceKind, ranked.length, error) + list;
 }
 
 function renderTokenPanel(s) {
@@ -384,7 +582,7 @@ function renderTokenPanel(s) {
           <input type="text" id="token-input" placeholder="API token" value="${esc(s.token)}" autocomplete="off" spellcheck="false">
           <button class="btn" type="button" id="token-save">Save</button>
         </div>
-        <p>Prices come from the Aviasales search cache. Treat them as leads, not quotes.</p>
+        <p>Prices come from the Aviasales search cache. Treat them as leads, not quotes. Multi-stop combos need cached one-ways that line up, so live results can be thin; sample data always works.</p>
       </div>
     </details>
   </section>`;
@@ -394,38 +592,61 @@ function renderTokenPanel(s) {
 
 const app = {
   state: loadState(),
-  fares: [],
+  fares: null,
+  legs: null,
   sourceKind: "demo",
   error: "",
 };
 
 function currentOpts() {
-  const p = presetOf(app.state.preset);
+  const s = app.state;
+  if (s.mode === "via") {
+    const hp = presetOf(s.hubPreset), ap = presetOf(s.awayPreset);
+    return {
+      windowStart: s.windowStart, windowEnd: s.windowEnd,
+      hub: s.hub, origin: CFG.origin.iata,
+      hubMin: hp.min, hubMax: hp.max, awayMin: ap.min, awayMax: ap.max,
+      maxPrice: num(s.maxPrice),
+    };
+  }
+  const p = presetOf(s.preset);
   return {
-    windowStart: app.state.windowStart, windowEnd: app.state.windowEnd,
+    windowStart: s.windowStart, windowEnd: s.windowEnd,
     minNights: p.min, maxNights: p.max,
-    maxPrice: num(app.state.maxPrice), maxHours: num(app.state.maxHours),
+    maxPrice: num(s.maxPrice), maxHours: num(s.maxHours),
   };
 }
 
 function refreshResults() {
-  const ranked = rankDestinations(app.fares, currentOpts());
-  document.getElementById("results").innerHTML = renderResults(ranked, app.sourceKind, app.error);
+  const o = currentOpts();
+  const ranked = app.state.mode === "via"
+    ? (app.legs ? planVia(app.legs.A, app.legs.B, app.legs.C, o) : [])
+    : (app.fares ? rankDestinations(app.fares, o) : []);
+  document.getElementById("results").innerHTML = renderResults(app.state, ranked, app.sourceKind, app.error);
 }
 
-async function loadFares() {
+async function loadData() {
   app.error = "";
-  if (app.state.token) {
+  const s = app.state;
+  if (s.token) {
     try {
-      app.fares = await fetchLiveFares(app.state.token);
+      if (s.mode === "via") app.legs = await fetchLiveLegs(s.token, s.hub);
+      else app.fares = await fetchLiveFares(s.token);
       app.sourceKind = "live";
       return;
     } catch (e) {
       app.error = "Live fetch failed (" + (e && e.message || e) + "). Showing sample data.";
     }
   }
-  app.fares = buildDemoFares(todayISO());
+  if (s.mode === "via") app.legs = buildDemoViaLegs(todayISO(), s.hub);
+  else app.fares = buildDemoFares(todayISO());
   app.sourceKind = "demo";
+}
+
+async function reload() {
+  document.getElementById("results").innerHTML = `<div class="loading">Finding trips...</div>`;
+  await loadData();
+  refreshResults();
 }
 
 function render() {
@@ -439,41 +660,71 @@ function render() {
     ${renderControls(app.state)}
     <div id="results"><div class="loading">Finding trips...</div></div>
     ${renderTokenPanel(app.state)}
-    <div class="footer">Round trips from ${esc(CFG.origin.iata)} . prototype</div>
+    <div class="footer">From ${esc(CFG.origin.iata)} . prototype</div>
   `;
 
+  const q = sel => root.querySelector(sel);
+  const on = (sel, ev, fn) => { const el = q(sel); if (el) el.addEventListener(ev, fn); };
   const onChange = () => { saveState(app.state); refreshResults(); };
-
-  root.querySelector("#win-start").addEventListener("change", e => {
-    app.state.windowStart = e.target.value || todayISO();
-    if (app.state.windowEnd < app.state.windowStart) app.state.windowEnd = app.state.windowStart;
-    root.querySelector("#win-end").min = app.state.windowStart;
-    root.querySelector("#win-end").value = app.state.windowEnd;
+  const chipHandler = (id, fn) => on(id, "click", e => {
+    const btn = e.target.closest(".chip");
+    if (!btn) return;
+    fn(btn.dataset.key);
+    for (const c of q(id).querySelectorAll(".chip")) c.setAttribute("aria-pressed", String(c === btn));
     onChange();
   });
-  root.querySelector("#win-end").addEventListener("change", e => {
+
+  on("#win-start", "change", e => {
+    app.state.windowStart = e.target.value || todayISO();
+    if (app.state.windowEnd < app.state.windowStart) app.state.windowEnd = app.state.windowStart;
+    const end = q("#win-end");
+    if (end) { end.min = app.state.windowStart; end.value = app.state.windowEnd; }
+    onChange();
+  });
+  on("#win-end", "change", e => {
     app.state.windowEnd = e.target.value || app.state.windowStart;
     onChange();
   });
-  root.querySelector("#preset-chips").addEventListener("click", e => {
+
+  on("#mode-chips", "click", e => {
     const btn = e.target.closest(".chip");
-    if (!btn) return;
-    app.state.preset = btn.dataset.preset;
-    for (const c of root.querySelectorAll(".chip")) c.setAttribute("aria-pressed", String(c === btn));
-    onChange();
-  });
-  root.querySelector("#max-price").addEventListener("change", e => { app.state.maxPrice = num(e.target.value); onChange(); });
-  root.querySelector("#max-hours").addEventListener("change", e => { app.state.maxHours = num(e.target.value); onChange(); });
-
-  root.querySelector("#token-save").addEventListener("click", async () => {
-    app.state.token = root.querySelector("#token-input").value.trim();
+    if (!btn || btn.dataset.key === app.state.mode) return;
+    app.state.mode = btn.dataset.key;
     saveState(app.state);
-    document.getElementById("results").innerHTML = `<div class="loading">Fetching prices...</div>`;
-    await loadFares();
-    refreshResults();
+    render();
+    const need = app.state.mode === "via" ? !app.legs : !app.fares;
+    if (need) reload(); else refreshResults();
   });
 
-  document.getElementById("results").addEventListener("click", e => {
+  chipHandler("#preset-chips", k => { app.state.preset = k; });
+  chipHandler("#hub-chips", k => { app.state.hubPreset = k; });
+  chipHandler("#away-chips", k => { app.state.awayPreset = k; });
+
+  on("#max-price", "change", e => { app.state.maxPrice = num(e.target.value); onChange(); });
+  on("#max-hours", "change", e => { app.state.maxHours = num(e.target.value); onChange(); });
+
+  on("#hub-input", "change", e => {
+    const v = String(e.target.value || "").trim().toUpperCase();
+    if (!/^[A-Z]{3}$/.test(v)) { e.target.value = app.state.hub; return; }
+    if (v === app.state.hub) return;
+    app.state.hub = v;
+    e.target.value = v;
+    saveState(app.state);
+    app.legs = null;
+    render();
+    reload();
+  });
+
+  on("#token-save", "click", async () => {
+    app.state.token = q("#token-input").value.trim();
+    saveState(app.state);
+    app.fares = null;
+    app.legs = null;
+    reload();
+  });
+
+  const results = document.getElementById("results");
+  results.addEventListener("click", e => {
     const btn = e.target.closest(".more-btn");
     if (!btn) return;
     const card = btn.closest(".dest-card");
@@ -484,7 +735,7 @@ function render() {
 (async () => {
   try {
     render();
-    await loadFares();
+    await loadData();
     refreshResults();
   } catch (e) {
     document.getElementById("root").innerHTML =
