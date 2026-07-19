@@ -18,7 +18,7 @@
   .hero p { margin: .45rem 0 0; font-size: .85rem; opacity: .85; }
   .panel { border-radius: 1rem; padding: 1rem 1.1rem; background: rgba(15,23,42,.7); border: 1px solid rgba(255,255,255,.05); }
   .panel h2 { margin: 0 0 .75rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .15em; color: #cbd5e1; font-weight: 600; }
-  .ctl-dates { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+  .ctl-dates { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .85rem; }
   label.fld { display: flex; flex-direction: column; gap: .3rem; font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; color: #94a3b8; font-weight: 600; }
   input[type="date"], input[type="text"], select {
     background: #0f172a; border: 1px solid rgba(255,255,255,.1); color: #f1f5f9; border-radius: .6rem;
@@ -31,23 +31,40 @@
   .chip { background: #1e293b; color: #e2e8f0; border: 1px solid transparent; padding: .4rem .8rem; border-radius: 999px; font-size: .82rem; font-weight: 500; cursor: pointer; font-family: inherit; }
   .chip[aria-pressed="true"] { background: rgba(125,211,252,.15); border-color: rgba(125,211,252,.5); color: #bae6fd; }
   .ctl-row { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .85rem; }
-  .ctl-row.single { grid-template-columns: 1fr; }
+  .cand-strip { display: flex; gap: .45rem; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: .1rem .25rem .6rem; margin: 0 -.25rem; }
+  .cand-strip::-webkit-scrollbar { display: none; }
+  .cand-mini { flex: 0 0 auto; min-width: 7.2rem; text-align: left; background: rgba(15,23,42,.7); border: 1px solid rgba(255,255,255,.07); border-radius: .8rem; padding: .55rem .7rem; cursor: pointer; font-family: inherit; display: flex; flex-direction: column; gap: .12rem; }
+  .cand-mini[aria-pressed="true"] { border-color: rgba(125,211,252,.55); background: rgba(125,211,252,.08); }
+  .cand-mini .cl { font-size: .82rem; font-weight: 600; color: #f8fafc; }
+  .cand-mini .cn { font-size: .62rem; color: #94a3b8; }
+  .cand-mini .cb { font-size: .72rem; color: #cbd5e1; font-variant-numeric: tabular-nums; margin-top: .2rem; }
+  .cand-mini .cs { font-size: .72rem; color: #6ee7b7; font-variant-numeric: tabular-nums; }
   .status { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; padding: 0 .25rem; font-size: .8rem; color: #94a3b8; }
   .status .pill { background: #1e293b; color: #e2e8f0; padding: .2rem .6rem; border-radius: 999px; font-size: .72rem; font-weight: 500; }
   .status .pill.demo { background: rgba(252,211,77,.15); color: #fde68a; }
   .status .pill.live { background: rgba(110,231,183,.15); color: #6ee7b7; }
+  .linkish { background: transparent; border: none; color: #7dd3fc; font-size: .78rem; cursor: pointer; padding: 0; font-family: inherit; }
   .dest-list { display: flex; flex-direction: column; gap: .6rem; }
   .dest-card { border-radius: 1rem; padding: .85rem 1rem; background: rgba(15,23,42,.7); border: 1px solid rgba(255,255,255,.05); }
-  .dest-top { display: flex; justify-content: space-between; align-items: baseline; gap: .75rem; }
-  .dest-name { font-size: 1.05rem; font-weight: 600; color: #f8fafc; }
+  .dest-card.baseline { border-color: rgba(125,211,252,.25); }
+  .dest-top { display: flex; justify-content: space-between; align-items: baseline; gap: .6rem; }
+  .dest-name { font-size: 1.05rem; font-weight: 600; color: #f8fafc; flex: 1; }
   .dest-name .code { color: #64748b; font-size: .75rem; font-weight: 500; margin-left: .35rem; }
   .dest-price { font-size: 1.15rem; font-weight: 700; color: #6ee7b7; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .dest-price .unit { font-size: .68rem; font-weight: 500; color: #94a3b8; margin-left: .25rem; }
-  .dest-meta { margin-top: .3rem; font-size: .82rem; color: #cbd5e1; }
-  .dest-meta .dot { color: #475569; padding: 0 .25rem; }
+  .skip-btn { background: transparent; border: none; color: #475569; font-size: .95rem; cursor: pointer; padding: 0 0 0 .3rem; font-family: inherit; line-height: 1; }
+  .skip-btn:hover { color: #fca5a5; }
+  .dest-meta { margin-top: .3rem; font-size: .82rem; color: #cbd5e1; display: flex; flex-wrap: wrap; gap: .25rem .5rem; align-items: baseline; }
+  .dest-meta .dot { color: #475569; }
+  .delta { color: #94a3b8; font-variant-numeric: tabular-nums; }
+  .season { padding: .12rem .5rem; border-radius: 999px; font-size: .68rem; font-weight: 500; }
+  .season.bad { background: rgba(244,63,94,.15); color: #fda4af; }
+  .season.high { background: rgba(252,211,77,.15); color: #fde68a; }
+  .season.good { background: rgba(110,231,183,.15); color: #6ee7b7; }
   .leg-rows { margin-top: .55rem; border-top: 1px solid rgba(255,255,255,.06); }
-  .leg-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: .55rem; align-items: baseline; padding: .4rem 0; font-size: .82rem; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,.04); }
+  .leg-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: .55rem; align-items: baseline; padding: .42rem 0; font-size: .82rem; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,.04); }
   .leg-row:last-child { border-bottom: none; }
+  .leg-row .sub { display: block; color: #64748b; font-size: .7rem; margin-top: .1rem; }
   .leg-row .d { color: #94a3b8; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .leg-row .p { color: #e2e8f0; font-weight: 600; font-variant-numeric: tabular-nums; }
   .leg-row a { color: #7dd3fc; text-decoration: none; }
@@ -101,6 +118,14 @@ const CFG = {
     { key: "week", label: "Week (6-9)", min: 6, max: 9 },
     { key: "any", label: "Any", min: 1, max: 16 },
   ],
+  candidates: [
+    { key: "aug22", sat: "2026-08-22", label: "Aug 22", note: "boat day, conf Aug 20" },
+    { key: "aug29", sat: "2026-08-29", label: "Aug 29", note: "might be moving" },
+    { key: "sep5", sat: "2026-09-05", label: "Sep 5", note: "open" },
+    { key: "custom", sat: "", label: "Custom", note: "any dates" },
+  ],
+  candidateArriveDaysBefore: 3,
+  candidateReturnDays: 16,
   priceCaps: [0, 200, 300, 400, 600, 800, 1200, 1600, 2000],
   hourCaps: [0, 3, 5, 8, 12],
   cruiseKmh: 780,
@@ -108,8 +133,17 @@ const CFG = {
   maxOptionsPerDest: 6,
   maxDestsShown: 40,
   via: { maxOutboundLegs: 30, maxLegsPerDest: 15 },
+  trains: {
+    YYZ: [
+      { c: "YUL", h: 5.2, price: 89, url: "https://www.viarail.ca" },
+      { c: "YOW", h: 4.4, price: 79, url: "https://www.viarail.ca" },
+      { c: "YQB", h: 6.6, price: 115, url: "https://www.viarail.ca" },
+      { c: "NYC", h: 12.8, price: 160, url: "https://www.amtrak.com" },
+    ],
+  },
+  trainHorizonDays: 100,
   tp: { base: "https://api.travelpayouts.com/v2/prices/latest", limit: 1000, pages: 2, periodType: "year" },
-  demo: { minLeadDays: 2, maxLeadDays: 85, optionsPerDest: 6, priceJitterLo: 0.82, priceJitterSpan: 0.55 },
+  demo: { minLeadDays: 2, maxLeadDays: 95, optionsPerDest: 6, priceJitterLo: 0.82, priceJitterSpan: 0.55 },
   storageKey: "wcig.v1",
 };
 
@@ -136,12 +170,43 @@ const CITIES = {
   AKL: "Auckland", NAN: "Fiji", PPT: "Tahiti", DXB: "Dubai", DOH: "Doha", TLV: "Tel Aviv",
 };
 
+const AIRLINES = {
+  AC: "Air Canada", WS: "WestJet", PD: "Porter", F8: "Flair", TS: "Transat",
+  UA: "United", DL: "Delta", AS: "Alaska", B6: "JetBlue", AA: "American",
+};
+
+// Month-based go/no-go ratings. m: months the rule covers.
+const HURRICANE = [{ m: [8, 9, 10], tag: "bad", label: "hurricane season" }];
+const EURO_SEASON = [
+  { m: [7, 8], tag: "high", label: "high season" },
+  { m: [5, 6, 9], tag: "good", label: "shoulder season" },
+];
+const SEASONS = {
+  NAS: HURRICANE, HAV: HURRICANE, SJU: HURRICANE, BDA: HURRICANE,
+  MIA: HURRICANE, MCO: HURRICANE, CUN: HURRICANE,
+  LHR: EURO_SEASON, CDG: EURO_SEASON, AMS: EURO_SEASON, DUB: EURO_SEASON,
+  LIS: EURO_SEASON, FCO: EURO_SEASON, BCN: EURO_SEASON,
+  KEF: [{ m: [6, 7, 8], tag: "good", label: "best months" }],
+  LAS: [{ m: [7, 8], tag: "bad", label: "extreme heat" }],
+  PHX: [{ m: [6, 7, 8], tag: "bad", label: "extreme heat" }],
+  MEX: [{ m: [6, 7, 8, 9], tag: "high", label: "rainy afternoons" }],
+};
+
 // ---- Engine (pure: no DOM, no fetch, no clock) ----
 
 function nightsBetween(depISO, retISO) {
   const a = Date.parse(depISO + "T12:00:00Z"), b = Date.parse(retISO + "T12:00:00Z");
   if (!Number.isFinite(a) || !Number.isFinite(b)) return NaN;
   return Math.round((b - a) / 86400000);
+}
+
+const monthOf = iso => parseInt(String(iso).slice(5, 7), 10);
+
+function seasonInfo(dest, month) {
+  const rules = SEASONS[dest];
+  if (!rules) return null;
+  for (const r of rules) if (r.m.includes(month)) return r;
+  return null;
 }
 
 function estHours(distanceKm) {
@@ -166,9 +231,10 @@ function tripFits(f, o) {
 }
 
 function rankDestinations(fares, o) {
+  const exc = new Set(o.excluded || []);
   const byDest = new Map();
   for (const f of fares) {
-    if (!tripFits(f, o)) continue;
+    if (exc.has(f.dest) || !tripFits(f, o)) continue;
     if (!byDest.has(f.dest)) byDest.set(f.dest, []);
     byDest.get(f.dest).push(f);
   }
@@ -181,34 +247,45 @@ function rankDestinations(fares, o) {
   return out.slice(0, CFG.maxDestsShown);
 }
 
-// Open-jaw: origin -> hub (stay hubMin..hubMax nights) -> X (stay awayMin..awayMax nights) -> origin.
-// legsA: origin->hub one-ways. legsB: hub->anywhere. legsC: anywhere->origin.
-// Returns [{dest, best combo, options}] ranked by total price.
+// Open-jaw: origin -> hub (hubMin..hubMax nights) -> X (awayMin..awayMax nights) -> origin.
+// o.arriveFrom/arriveTo bound the outbound date (defaults: whole window).
 function planVia(legsA, legsB, legsC, o) {
+  const exc = new Set(o.excluded || []);
+  const aFrom = o.arriveFrom || o.windowStart, aTo = o.arriveTo || o.windowEnd;
   const inWin = l => l && l.date >= o.windowStart && l.date <= o.windowEnd && l.price > 0;
-  const A = legsA.filter(inWin).sort((x, y) => x.price - y.price).slice(0, CFG.via.maxOutboundLegs);
+  const A = legsA.filter(l => inWin(l) && l.date >= aFrom && l.date <= aTo)
+    .sort((x, y) => x.price - y.price).slice(0, CFG.via.maxOutboundLegs);
+  if (!A.length) return [];
   const byDest = new Map(), toHome = new Map();
   for (const l of legsB) {
-    if (!inWin(l) || !l.to || l.to === o.hub || l.to === o.origin) continue;
+    if (!inWin(l) || !l.to || l.to === o.hub || l.to === o.origin || exc.has(l.to)) continue;
     if (!byDest.has(l.to)) byDest.set(l.to, []);
     byDest.get(l.to).push(l);
   }
   for (const l of legsC) {
-    if (!inWin(l) || !l.from || l.from === o.hub || l.from === o.origin) continue;
+    if (!inWin(l) || !l.from || l.from === o.hub || l.from === o.origin || exc.has(l.from)) continue;
     if (!toHome.has(l.from)) toHome.set(l.from, []);
     toHome.get(l.from).push(l);
   }
+  const hubOk = b => A.some(a => {
+    const n = nightsBetween(a.date, b.date);
+    return Number.isFinite(n) && n >= o.hubMin && n <= o.hubMax;
+  });
   const out = [];
-  for (const [dest, bList] of byDest) {
-    const cList = toHome.get(dest);
-    if (!cList) continue;
-    const bs = bList.sort((x, y) => x.price - y.price).slice(0, CFG.via.maxLegsPerDest);
-    const cs = cList.sort((x, y) => x.price - y.price).slice(0, CFG.via.maxLegsPerDest);
+  for (const [dest, bAll] of byDest) {
+    const cAll = toHome.get(dest);
+    if (!cAll) continue;
+    const bs = bAll.filter(hubOk).sort((x, y) => x.price - y.price).slice(0, CFG.via.maxLegsPerDest);
+    const cs = cAll.sort((x, y) => x.price - y.price).slice(0, CFG.via.maxLegsPerDest);
     const combos = [];
     for (const a of A) {
       for (const b of bs) {
         const hubN = nightsBetween(a.date, b.date);
         if (!Number.isFinite(hubN) || hubN < o.hubMin || hubN > o.hubMax) continue;
+        if (o.avoidBadSeason) {
+          const se = seasonInfo(dest, monthOf(b.date));
+          if (se && se.tag === "bad") continue;
+        }
         for (const c of cs) {
           const awayN = nightsBetween(b.date, c.date);
           if (!Number.isFinite(awayN) || awayN < o.awayMin || awayN > o.awayMax) continue;
@@ -224,6 +301,24 @@ function planVia(legsA, legsB, legsC, o) {
   }
   out.sort((x, y) => x.best.total - y.best.total);
   return out.slice(0, CFG.maxDestsShown);
+}
+
+// The no-stop comparison: origin -> hub, stay hubMin..hubMax nights, hub -> origin.
+function baselineTrip(legsA, legsHome, o) {
+  const aFrom = o.arriveFrom || o.windowStart, aTo = o.arriveTo || o.windowEnd;
+  const inWin = l => l && l.date >= o.windowStart && l.date <= o.windowEnd && l.price > 0;
+  let best = null;
+  for (const a of legsA) {
+    if (!inWin(a) || a.date < aFrom || a.date > aTo) continue;
+    for (const h of legsHome) {
+      if (!inWin(h)) continue;
+      const n = nightsBetween(a.date, h.date);
+      if (!Number.isFinite(n) || n < o.hubMin || n > o.hubMax) continue;
+      const total = a.price + h.price;
+      if (!best || total < best.total) best = { a, h, total, nights: n };
+    }
+  }
+  return best;
 }
 
 // ---- Demo data (sample fares so the page works with no token) ----
@@ -294,6 +389,7 @@ const addDaysISO = (iso, n) => {
   return d.toISOString().slice(0, 10);
 };
 const dowISO = iso => new Date(iso + "T12:00:00Z").getUTCDay();
+const pick = (rng, arr) => arr[Math.floor(rng() * arr.length)];
 
 function buildDemoFares(todayISO) {
   const NIGHTS_POOL = [2, 2, 3, 3, 4, 5, 7, 9];
@@ -306,46 +402,58 @@ function buildDemoFares(todayISO) {
       const price = Math.round(d.base * (CFG.demo.priceJitterLo + rng() * CFG.demo.priceJitterSpan));
       const changes = d.km < 2500 ? (rng() < 0.7 ? 0 : 1) : (rng() < 0.35 ? 0 : 1);
       const dep = addDaysISO(todayISO, lead);
-      fares.push({ dest: d.c, departDate: dep, returnDate: addDaysISO(dep, nights), price, changes, distanceKm: d.km });
+      fares.push({ dest: d.c, departDate: dep, returnDate: addDaysISO(dep, nights), price, changes, distanceKm: d.km, airline: pick(rng, ["AC", "WS", "F8", "PD"]) });
     }
   }
   return fares;
 }
 
-// Outbound legs land on Thu/Fri so a weekend at the hub lines up. Onward and
+// Outbound legs land Wed-Sat so a weekend at the hub lines up. Onward and
 // homeward legs are anchored to those dates so real combos always exist.
 function buildDemoViaLegs(todayISO, hub) {
   const A = [], B = [], C = [];
   const rngA = mulberry32(hashSeed("A" + hub + todayISO.slice(0, 7)));
-  const outDates = [];
   for (let d = 2; d < CFG.demo.maxLeadDays; d++) {
     const date = addDaysISO(todayISO, d);
     const dow = dowISO(date);
-    if (dow === 4 || dow === 5) outDates.push(date);
-  }
-  for (const date of outDates) {
-    A.push({ from: CFG.origin.iata, to: hub, date, price: Math.round(210 * (0.75 + rngA() * 0.6)), changes: rngA() < 0.6 ? 0 : 1, km: 3360 });
+    if (dow >= 3 && dow <= 6) {
+      A.push({ from: CFG.origin.iata, to: hub, date, price: Math.round(210 * (0.75 + rngA() * 0.6)), changes: rngA() < 0.6 ? 0 : 1, km: 3360, airline: pick(rngA, ["AC", "WS", "F8", "PD"]) });
+    }
+    if (dow === 0 || dow === 1 || dow === 2) {
+      C.push({ from: hub, to: CFG.origin.iata, date, price: Math.round(215 * (0.75 + rngA() * 0.6)), changes: rngA() < 0.6 ? 0 : 1, km: 3360, airline: pick(rngA, ["AC", "WS", "PD"]) });
+    }
   }
   const AWAY_POOL = [2, 3, 3, 4, 5, 7];
+  const anchorDates = CFG.candidates.filter(c => c.sat && c.sat > todayISO).map(c => c.sat);
+  if (!anchorDates.length) anchorDates.push(...A.slice(0, 4).map(l => l.date));
   for (const d of DEMO_VIA_DESTS) {
     const rng = mulberry32(hashSeed(d.c + hub + todayISO.slice(0, 7)));
-    const anchors = 4;
-    for (let i = 0; i < anchors; i++) {
-      const a = A[Math.floor(rng() * A.length)];
-      if (!a) continue;
+    for (const sat of anchorDates) {
+      const arrive = addDaysISO(sat, -(1 + Math.floor(rng() * 2)));
       const hubN = rng() < 0.5 ? 2 : 3;
-      const depB = addDaysISO(a.date, hubN);
-      const awayN = AWAY_POOL[Math.floor(rng() * AWAY_POOL.length)];
-      B.push({ from: hub, to: d.c, date: depB, price: Math.round(d.baseB * (0.8 + rng() * 0.5)), changes: d.kmB < 2500 ? 0 : (rng() < 0.5 ? 0 : 1), km: d.kmB });
-      C.push({ from: d.c, to: CFG.origin.iata, date: addDaysISO(depB, awayN), price: Math.round(d.baseC * (0.8 + rng() * 0.5)), changes: d.kmC < 3000 ? 0 : 1, km: d.kmC });
+      const depB = addDaysISO(arrive, hubN);
+      const awayN = pick(rng, AWAY_POOL);
+      B.push({ from: hub, to: d.c, date: depB, price: Math.round(d.baseB * (0.8 + rng() * 0.5)), changes: d.kmB < 2500 ? 0 : (rng() < 0.5 ? 0 : 1), km: d.kmB, airline: pick(rng, ["AC", "PD", "WS", "UA", "DL"]) });
+      C.push({ from: d.c, to: CFG.origin.iata, date: addDaysISO(depB, awayN), price: Math.round(d.baseC * (0.8 + rng() * 0.5)), changes: d.kmC < 3000 ? 0 : 1, km: d.kmC, airline: pick(rng, ["AC", "WS", "UA", "AS", "DL"]) });
     }
     for (let i = 0; i < 2; i++) {
-      const leadB = 4 + Math.floor(rng() * 80), leadC = 6 + Math.floor(rng() * 82);
-      B.push({ from: hub, to: d.c, date: addDaysISO(todayISO, leadB), price: Math.round(d.baseB * (0.8 + rng() * 0.5)), changes: 0, km: d.kmB });
-      C.push({ from: d.c, to: CFG.origin.iata, date: addDaysISO(todayISO, leadC), price: Math.round(d.baseC * (0.8 + rng() * 0.5)), changes: 1, km: d.kmC });
+      B.push({ from: hub, to: d.c, date: addDaysISO(todayISO, 4 + Math.floor(rng() * 85)), price: Math.round(d.baseB * (0.8 + rng() * 0.5)), changes: 0, km: d.kmB, airline: pick(rng, ["AC", "PD", "WS"]) });
+      C.push({ from: d.c, to: CFG.origin.iata, date: addDaysISO(todayISO, 6 + Math.floor(rng() * 87)), price: Math.round(d.baseC * (0.8 + rng() * 0.5)), changes: 1, km: d.kmC, airline: pick(rng, ["AC", "WS", "UA"]) });
     }
   }
   return { A, B, C };
+}
+
+// Trains run daily, so every date in the horizon gets a leg.
+function buildTrainLegs(todayISO, hub) {
+  const routes = CFG.trains[hub] || [];
+  const legs = [];
+  for (const r of routes) {
+    for (let d = 1; d <= CFG.trainHorizonDays; d++) {
+      legs.push({ from: hub, to: r.c, date: addDaysISO(todayISO, d), price: r.price, changes: 0, km: 0, mode: "train", trainH: r.h, url: r.url });
+    }
+  }
+  return legs;
 }
 
 // ---- Live data: Travelpayouts / Aviasales cached prices ----
@@ -377,6 +485,7 @@ async function fetchLiveFares(token) {
     price: num(t.value),
     changes: num(t.number_of_changes, -1),
     distanceKm: num(t.distance),
+    airline: t.airline ? String(t.airline) : "",
   })).filter(f => f.dest && f.dest !== CFG.origin.iata);
 }
 
@@ -385,6 +494,7 @@ async function fetchLiveLegs(token, hub) {
     from: String(t.origin || ""), to: String(t.destination || ""),
     date: String(t.depart_date || ""), price: num(t.value),
     changes: num(t.number_of_changes, -1), km: num(t.distance),
+    airline: t.airline ? String(t.airline) : "",
   });
   const [ra, rb, rc] = await Promise.all([
     tpFetch({ origin: CFG.origin.iata, destination: hub, one_way: "true" }, token),
@@ -402,12 +512,15 @@ function defaultState() {
   const t = todayISO();
   return {
     mode: "via",
+    candidate: "sep5",
     windowStart: t,
     windowEnd: addDaysISO(t, CFG.defaultWindowDays),
     preset: "weekend",
     hub: "YYZ",
     hubPreset: "weekend",
     awayPreset: "short",
+    avoidBad: true,
+    excluded: ["YQB", "YHZ"],
     maxPrice: 0,
     maxHours: 0,
     token: "",
@@ -424,6 +537,11 @@ function loadState() {
   if (s.windowStart < todayISO()) s.windowStart = todayISO();
   if (s.windowEnd < s.windowStart) s.windowEnd = addDaysISO(s.windowStart, CFG.defaultWindowDays);
   if (!/^[A-Z]{3}$/.test(s.hub)) s.hub = "YYZ";
+  if (!CFG.candidates.some(c => c.key === s.candidate)) s.candidate = defaultState().candidate;
+  if (!Array.isArray(s.excluded)) s.excluded = [];
+  s.excluded = s.excluded.filter(x => /^[A-Z]{3}$/.test(String(x)));
+  const cand = CFG.candidates.find(c => c.key === s.candidate);
+  if (cand && cand.sat && addDaysISO(cand.sat, CFG.candidateReturnDays) < todayISO()) s.candidate = "custom";
   return s;
 }
 function saveState(s) {
@@ -440,7 +558,7 @@ const fmtPrice = p => "$" + Math.round(num(p)).toLocaleString("en-CA");
 function fmtDay(iso) {
   const d = new Date(iso + "T12:00:00");
   if (isNaN(d)) return iso;
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 }
 function fmtRange(dep, ret) {
   const d1 = new Date(dep + "T12:00:00"), d2 = new Date(ret + "T12:00:00");
@@ -456,12 +574,35 @@ function fmtStops(c) {
 }
 function fmtHours(h) {
   if (h === null) return "";
-  return "~" + (Math.round(h * 2) / 2) + "h flight";
+  return "~" + (Math.round(h * 2) / 2) + "h";
 }
 const cityName = code => CITIES[code] || code;
 const gfLink = (from, to, dep, ret) =>
   "https://www.google.com/travel/flights?q=" +
   encodeURIComponent(ret ? `Flights from ${from} to ${to} on ${dep} through ${ret}` : `One way flights from ${from} to ${to} on ${dep}`);
+
+// ---- Options ----
+
+function optsForCandidate(candKey, s) {
+  const base = {
+    hub: s.hub, origin: CFG.origin.iata,
+    hubMin: presetOf(s.hubPreset).min, hubMax: presetOf(s.hubPreset).max,
+    awayMin: presetOf(s.awayPreset).min, awayMax: presetOf(s.awayPreset).max,
+    maxPrice: num(s.maxPrice), excluded: s.excluded, avoidBadSeason: !!s.avoidBad,
+  };
+  const cand = CFG.candidates.find(c => c.key === candKey);
+  if (!cand || !cand.sat) {
+    return { ...base, windowStart: s.windowStart, windowEnd: s.windowEnd };
+  }
+  const arriveFrom = addDaysISO(cand.sat, -CFG.candidateArriveDaysBefore);
+  return {
+    ...base,
+    windowStart: arriveFrom,
+    windowEnd: addDaysISO(cand.sat, CFG.candidateReturnDays),
+    arriveFrom,
+    arriveTo: cand.sat,
+  };
+}
 
 // ---- Render ----
 
@@ -477,7 +618,7 @@ function renderControls(s) {
     <button class="chip" type="button" data-key="via" aria-pressed="${s.mode === "via"}">Via a stop</button>
     <button class="chip" type="button" data-key="simple" aria-pressed="${s.mode === "simple"}">Round trip</button>
   </div>`;
-  const dates = `<div class="ctl-dates" style="margin-top:.85rem">
+  const dates = `<div class="ctl-dates">
     <label class="fld">Earliest leave<input type="date" id="win-start" value="${esc(s.windowStart)}" min="${esc(todayISO())}"></label>
     <label class="fld">Back by<input type="date" id="win-end" value="${esc(s.windowEnd)}" min="${esc(s.windowStart)}"></label>
   </div>`;
@@ -486,76 +627,104 @@ function renderControls(s) {
   ).join("");
   let body;
   if (s.mode === "via") {
+    const candChips = CFG.candidates.map(c =>
+      `<button class="chip" type="button" data-key="${esc(c.key)}" aria-pressed="${s.candidate === c.key ? "true" : "false"}">${esc(c.label)}${c.note ? " · " + esc(c.note) : ""}</button>`
+    ).join("");
     body = `
+      <div class="chip-group"><span class="lbl">${esc(cityName(s.hub))} weekend</span><div class="chips" id="cand-chips">${candChips}</div></div>
+      ${s.candidate === "custom" ? dates : ""}
       <div class="ctl-row">
         <label class="fld">First stop<input type="text" id="hub-input" value="${esc(s.hub)}" maxlength="3" autocapitalize="characters" autocomplete="off" spellcheck="false"></label>
         <label class="fld">Budget (total)<select id="max-price">${priceOpts}</select></label>
       </div>
       ${chipRow("Nights in " + cityName(s.hub), "hub-chips", CFG.nightsPresets, s.hubPreset)}
-      ${chipRow("Nights at the next stop", "away-chips", CFG.nightsPresets, s.awayPreset)}`;
+      ${chipRow("Nights at the next stop", "away-chips", CFG.nightsPresets, s.awayPreset)}
+      <div class="chip-group"><span class="lbl">Filters</span><div class="chips">
+        <button class="chip" type="button" id="season-chip" aria-pressed="${s.avoidBad ? "true" : "false"}">Skip bad-season spots</button>
+      </div></div>`;
   } else {
     const hourOpts = CFG.hourCaps.map(v =>
       `<option value="${v}" ${v === s.maxHours ? "selected" : ""}>${v === 0 ? "Any length" : "Under ~" + v + "h"}</option>`
     ).join("");
     body = `
+      ${dates}
       ${chipRow("Nights away", "preset-chips", CFG.nightsPresets, s.preset)}
       <div class="ctl-row">
         <label class="fld">Budget<select id="max-price">${priceOpts}</select></label>
         <label class="fld">Flight time<select id="max-hours">${hourOpts}</select></label>
       </div>`;
   }
-  return `<section class="panel"><h2>Trip</h2>${modeChips}${dates}${body}</section>`;
+  return `<section class="panel"><h2>Trip</h2>${modeChips}${body}</section>`;
+}
+
+function renderCandStrip(sums, activeKey, hub) {
+  const cards = sums.map(x => `<button class="cand-mini" type="button" data-cand="${esc(x.key)}" aria-pressed="${x.key === activeKey ? "true" : "false"}">
+    <span class="cl">${esc(x.label)}</span>
+    <span class="cn">${esc(x.note)}</span>
+    <span class="cb">${x.base ? esc(cityName(hub)) + " " + esc(fmtPrice(x.base)) : "no fare found"}</span>
+    <span class="cs">${x.best ? "+stop from " + esc(fmtPrice(x.best)) : ""}</span>
+  </button>`).join("");
+  return `<div class="cand-strip">${cards}</div>`;
 }
 
 function renderStatus(s, sourceKind, count, error) {
   const src = sourceKind === "live"
     ? `<span class="pill live">Live cache</span>`
     : `<span class="pill demo">Sample data</span>`;
-  const shape = s.mode === "via" ? `CAD, 3 one-way legs` : `CAD, round trip`;
+  const shape = s.mode === "via" ? `CAD, 3 legs total` : `CAD, round trip`;
+  const skips = s.excluded.length
+    ? `<button class="linkish" type="button" data-reset-skips>skipped ${s.excluded.length}, reset</button>` : "";
   const err = error ? ` <span>${esc(error)}</span>` : "";
-  return `<div class="status">${src}<span>${count === 0 ? "No trips fit" : count + (count === 1 ? " place" : " places")}</span><span>${esc(shape)}</span>${err}</div>`;
+  return `<div class="status">${src}<span>${count === 0 ? "No trips fit" : count + (count === 1 ? " place" : " places")}</span><span>${esc(shape)}</span>${skips}${err}</div>`;
 }
 
-function renderDest(d) {
-  const b = d.best;
-  const meta = [fmtRange(b.departDate, b.returnDate), fmtNights(nightsBetween(b.departDate, b.returnDate)), fmtStops(b.changes), fmtHours(estHours(b.distanceKm))]
-    .filter(Boolean).join(`<span class="dot">·</span>`);
-  const alts = d.options.slice(1).map(f => {
-    const bits = [fmtRange(f.departDate, f.returnDate), fmtNights(nightsBetween(f.departDate, f.returnDate)), fmtStops(f.changes)].filter(Boolean).join(" · ");
-    return `<div class="alt-row"><span>${esc(bits)}</span><span><a href="${esc(gfLink(CFG.origin.iata, d.dest, f.departDate, f.returnDate))}" target="_blank" rel="noopener">open</a> <span class="p">${esc(fmtPrice(f.price))}</span></span></div>`;
-  }).join("");
-  const moreBtn = alts ? `<button class="more-btn" type="button">${d.options.length - 1} more date${d.options.length > 2 ? "s" : ""} ›</button>` : "";
-  return `<div class="dest-card">
-    <div class="dest-top">
-      <span class="dest-name">${esc(cityName(d.dest))}<span class="code">${esc(d.dest)}</span></span>
-      <span class="dest-price">${esc(fmtPrice(b.price))}</span>
-    </div>
-    <div class="dest-meta">${meta}</div>
-    <div class="dest-actions">
-      <a href="${esc(gfLink(CFG.origin.iata, d.dest, b.departDate, b.returnDate))}" target="_blank" rel="noopener">Check on Google Flights</a>
-      ${moreBtn}
-    </div>
-    ${alts ? `<div class="alt-rows">${alts}</div>` : ""}
-  </div>`;
-}
-
-function renderViaDest(d, hub) {
-  const b = d.best;
-  const legRow = l => `<div class="leg-row">
-    <span>${esc(cityName(l.from))} to ${esc(cityName(l.to))}</span>
+function legRow(l) {
+  const isTrain = l.mode === "train";
+  const dur = isTrain ? l.trainH + "h train" : fmtHours(estHours(l.km)) && (fmtHours(estHours(l.km)) + " flight");
+  const sub = [AIRLINES[l.airline] || l.airline, isTrain ? "" : fmtStops(l.changes), dur].filter(Boolean).join(" · ");
+  const href = isTrain ? l.url : gfLink(l.from, l.to, l.date, "");
+  return `<div class="leg-row">
+    <span>${esc(cityName(l.from))} to ${esc(cityName(l.to))}${isTrain ? " 🚆" : ""}${sub ? `<span class="sub">${esc(sub)}</span>` : ""}</span>
     <span class="d">${esc(fmtDay(l.date))}</span>
-    <a href="${esc(gfLink(l.from, l.to, l.date, ""))}" target="_blank" rel="noopener">open</a>
+    <a href="${esc(href)}" target="_blank" rel="noopener">open</a>
     <span class="p">${esc(fmtPrice(l.price))}</span>
   </div>`;
-  const meta = `${esc(fmtNights(b.hubNights))} in ${esc(cityName(hub))}<span class="dot">·</span>${esc(fmtNights(b.awayNights))} in ${esc(cityName(d.dest))}`;
+}
+
+function seasonPill(dest, month) {
+  const se = seasonInfo(dest, month);
+  if (!se) return "";
+  const ic = se.tag === "bad" ? "🌀 " : se.tag === "high" ? "☀️ " : "✨ ";
+  return `<span class="season ${esc(se.tag)}">${ic}${esc(se.label)}</span>`;
+}
+
+function renderBaselineCard(base, hub) {
+  if (!base) return "";
+  return `<div class="dest-card baseline">
+    <div class="dest-top">
+      <span class="dest-name">${esc(cityName(hub))} only, no stop</span>
+      <span class="dest-price">${esc(fmtPrice(base.total))}<span class="unit">total</span></span>
+    </div>
+    <div class="dest-meta">${esc(fmtRange(base.a.date, base.h.date))}<span class="dot">·</span>${esc(fmtNights(base.nights))}</div>
+    <div class="leg-rows">${legRow(base.a)}${legRow(base.h)}</div>
+  </div>`;
+}
+
+function renderViaDest(d, hub, baseTotal) {
+  const b = d.best;
+  const delta = baseTotal ? b.total - baseTotal : null;
+  const deltaHtml = delta === null ? "" :
+    `<span class="dot">·</span><span class="delta">${delta >= 0 ? "+" : "-"}${esc(fmtPrice(Math.abs(delta)))} vs ${esc(cityName(hub))} only</span>`;
+  const meta = `${esc(fmtNights(b.hubNights))} in ${esc(cityName(hub))}<span class="dot">·</span>${esc(fmtNights(b.awayNights))} in ${esc(cityName(d.dest))}${deltaHtml}${seasonPill(d.dest, monthOf(b.b.date))}`;
   const alts = d.options.slice(1).map(x =>
-    `<div class="alt-row"><span>${esc(fmtRange(x.a.date, x.c.date))} · ${x.hubNights}+${x.awayNights} nights</span><span class="p">${esc(fmtPrice(x.total))}</span></div>`
+    `<div class="alt-row"><span>${esc(fmtRange(x.a.date, x.c.date))} · ${x.hubNights}+${x.awayNights} nights${x.b.mode === "train" ? " · 🚆" : ""}</span><span class="p">${esc(fmtPrice(x.total))}</span></div>`
   ).join("");
   const moreBtn = alts ? `<button class="more-btn" type="button">${d.options.length - 1} more combo${d.options.length > 2 ? "s" : ""} ›</button>` : "";
   return `<div class="dest-card">
     <div class="dest-top">
       <span class="dest-name">${esc(cityName(d.dest))}<span class="code">${esc(d.dest)}</span></span>
       <span class="dest-price">${esc(fmtPrice(b.total))}<span class="unit">total</span></span>
+      <button class="skip-btn" type="button" data-skip="${esc(d.dest)}" aria-label="skip ${esc(cityName(d.dest))}">✕</button>
     </div>
     <div class="dest-meta">${meta}</div>
     <div class="leg-rows">${legRow(b.a)}${legRow(b.b)}${legRow(b.c)}</div>
@@ -564,12 +733,30 @@ function renderViaDest(d, hub) {
   </div>`;
 }
 
-function renderResults(s, ranked, sourceKind, error) {
-  const cards = s.mode === "via" ? ranked.map(d => renderViaDest(d, s.hub)) : ranked.map(renderDest);
-  const list = ranked.length
-    ? `<div class="dest-list">${cards.join("")}</div>`
-    : `<div class="panel empty">Nothing fits. Widen the dates, allow more nights, or raise the budget.</div>`;
-  return renderStatus(s, sourceKind, ranked.length, error) + list;
+function renderDest(d) {
+  const b = d.best;
+  const airline = AIRLINES[b.airline] || b.airline || "";
+  const flightBits = [airline, fmtStops(b.changes), fmtHours(estHours(b.distanceKm)) && (fmtHours(estHours(b.distanceKm)) + " flight")].filter(Boolean).join(" · ");
+  const meta = [fmtRange(b.departDate, b.returnDate), fmtNights(nightsBetween(b.departDate, b.returnDate)), flightBits]
+    .filter(Boolean).map(esc).join(`<span class="dot">·</span>`) + seasonPill(d.dest, monthOf(b.departDate));
+  const alts = d.options.slice(1).map(f => {
+    const bits = [fmtRange(f.departDate, f.returnDate), fmtNights(nightsBetween(f.departDate, f.returnDate)), fmtStops(f.changes)].filter(Boolean).join(" · ");
+    return `<div class="alt-row"><span>${esc(bits)}</span><span><a href="${esc(gfLink(CFG.origin.iata, f.dest || d.dest, f.departDate, f.returnDate))}" target="_blank" rel="noopener">open</a> <span class="p">${esc(fmtPrice(f.price))}</span></span></div>`;
+  }).join("");
+  const moreBtn = alts ? `<button class="more-btn" type="button">${d.options.length - 1} more date${d.options.length > 2 ? "s" : ""} ›</button>` : "";
+  return `<div class="dest-card">
+    <div class="dest-top">
+      <span class="dest-name">${esc(cityName(d.dest))}<span class="code">${esc(d.dest)}</span></span>
+      <span class="dest-price">${esc(fmtPrice(b.price))}</span>
+      <button class="skip-btn" type="button" data-skip="${esc(d.dest)}" aria-label="skip ${esc(cityName(d.dest))}">✕</button>
+    </div>
+    <div class="dest-meta">${meta}</div>
+    <div class="dest-actions">
+      <a href="${esc(gfLink(CFG.origin.iata, d.dest, b.departDate, b.returnDate))}" target="_blank" rel="noopener">Check on Google Flights</a>
+      ${moreBtn}
+    </div>
+    ${alts ? `<div class="alt-rows">${alts}</div>` : ""}
+  </div>`;
 }
 
 function renderTokenPanel(s) {
@@ -582,7 +769,7 @@ function renderTokenPanel(s) {
           <input type="text" id="token-input" placeholder="API token" value="${esc(s.token)}" autocomplete="off" spellcheck="false">
           <button class="btn" type="button" id="token-save">Save</button>
         </div>
-        <p>Prices come from the Aviasales search cache. Treat them as leads, not quotes. Multi-stop combos need cached one-ways that line up, so live results can be thin; sample data always works.</p>
+        <p>Prices come from the Aviasales search cache. Treat them as leads, not quotes. Train prices and flight times are rough estimates. Multi-stop combos need cached one-ways that line up, so live results can be thin; sample data always works.</p>
       </div>
     </details>
   </section>`;
@@ -598,31 +785,42 @@ const app = {
   error: "",
 };
 
-function currentOpts() {
-  const s = app.state;
-  if (s.mode === "via") {
-    const hp = presetOf(s.hubPreset), ap = presetOf(s.awayPreset);
-    return {
-      windowStart: s.windowStart, windowEnd: s.windowEnd,
-      hub: s.hub, origin: CFG.origin.iata,
-      hubMin: hp.min, hubMax: hp.max, awayMin: ap.min, awayMax: ap.max,
-      maxPrice: num(s.maxPrice),
-    };
-  }
-  const p = presetOf(s.preset);
-  return {
-    windowStart: s.windowStart, windowEnd: s.windowEnd,
-    minNights: p.min, maxNights: p.max,
-    maxPrice: num(s.maxPrice), maxHours: num(s.maxHours),
-  };
-}
-
 function refreshResults() {
-  const o = currentOpts();
-  const ranked = app.state.mode === "via"
-    ? (app.legs ? planVia(app.legs.A, app.legs.B, app.legs.C, o) : [])
-    : (app.fares ? rankDestinations(app.fares, o) : []);
-  document.getElementById("results").innerHTML = renderResults(app.state, ranked, app.sourceKind, app.error);
+  const s = app.state;
+  let html;
+  if (s.mode === "via") {
+    if (!app.legs) { html = renderStatus(s, app.sourceKind, 0, app.error); }
+    else {
+      const home = app.legs.C.filter(l => l.from === s.hub);
+      const sums = CFG.candidates.filter(c => c.sat).map(c => {
+        const o = optsForCandidate(c.key, s);
+        const b = baselineTrip(app.legs.A, home, o);
+        const plan = planVia(app.legs.A, app.legs.B, app.legs.C, o);
+        return { key: c.key, label: c.label, note: c.note, base: b ? b.total : 0, best: plan.length ? plan[0].best.total : 0 };
+      });
+      const o = optsForCandidate(s.candidate, s);
+      const base = baselineTrip(app.legs.A, home, o);
+      const ranked = planVia(app.legs.A, app.legs.B, app.legs.C, o);
+      const cards = ranked.map(d => renderViaDest(d, s.hub, base ? base.total : 0)).join("");
+      html = renderCandStrip(sums, s.candidate, s.hub)
+        + renderStatus(s, app.sourceKind, ranked.length, app.error)
+        + renderBaselineCard(base, s.hub)
+        + (ranked.length ? `<div class="dest-list">${cards}</div>`
+          : `<div class="panel empty">Nothing fits. Try more nights, another weekend, or a bigger budget.</div>`);
+    }
+  } else {
+    const p = presetOf(s.preset);
+    const o = {
+      windowStart: s.windowStart, windowEnd: s.windowEnd,
+      minNights: p.min, maxNights: p.max,
+      maxPrice: num(s.maxPrice), maxHours: num(s.maxHours), excluded: s.excluded,
+    };
+    const ranked = app.fares ? rankDestinations(app.fares, o) : [];
+    html = renderStatus(s, app.sourceKind, ranked.length, app.error)
+      + (ranked.length ? `<div class="dest-list">${ranked.map(renderDest).join("")}</div>`
+        : `<div class="panel empty">Nothing fits. Widen the dates, allow more nights, or raise the budget.</div>`);
+  }
+  document.getElementById("results").innerHTML = html;
 }
 
 async function loadData() {
@@ -630,16 +828,24 @@ async function loadData() {
   const s = app.state;
   if (s.token) {
     try {
-      if (s.mode === "via") app.legs = await fetchLiveLegs(s.token, s.hub);
-      else app.fares = await fetchLiveFares(s.token);
+      if (s.mode === "via") {
+        app.legs = await fetchLiveLegs(s.token, s.hub);
+        app.legs.B.push(...buildTrainLegs(todayISO(), s.hub));
+      } else {
+        app.fares = await fetchLiveFares(s.token);
+      }
       app.sourceKind = "live";
       return;
     } catch (e) {
       app.error = "Live fetch failed (" + (e && e.message || e) + "). Showing sample data.";
     }
   }
-  if (s.mode === "via") app.legs = buildDemoViaLegs(todayISO(), s.hub);
-  else app.fares = buildDemoFares(todayISO());
+  if (s.mode === "via") {
+    app.legs = buildDemoViaLegs(todayISO(), s.hub);
+    app.legs.B.push(...buildTrainLegs(todayISO(), s.hub));
+  } else {
+    app.fares = buildDemoFares(todayISO());
+  }
   app.sourceKind = "demo";
 }
 
@@ -655,7 +861,7 @@ function render() {
     <section class="hero">
       <div class="hero-head">From ${esc(CFG.origin.city)} (${esc(CFG.origin.iata)})</div>
       <h1>Where can I go?</h1>
-      <p>Pick your window and how long you can be gone. Cheapest trips that fit, ranked.</p>
+      <p>Pick a ${esc(cityName(app.state.hub))} weekend, see the cheapest ways to bolt on one more stop.</p>
     </section>
     ${renderControls(app.state)}
     <div id="results"><div class="loading">Finding trips...</div></div>
@@ -696,9 +902,24 @@ function render() {
     if (need) reload(); else refreshResults();
   });
 
+  on("#cand-chips", "click", e => {
+    const btn = e.target.closest(".chip");
+    if (!btn || btn.dataset.key === app.state.candidate) return;
+    app.state.candidate = btn.dataset.key;
+    saveState(app.state);
+    render();
+    refreshResults();
+  });
+
   chipHandler("#preset-chips", k => { app.state.preset = k; });
   chipHandler("#hub-chips", k => { app.state.hubPreset = k; });
   chipHandler("#away-chips", k => { app.state.awayPreset = k; });
+
+  on("#season-chip", "click", e => {
+    app.state.avoidBad = !app.state.avoidBad;
+    e.currentTarget.setAttribute("aria-pressed", String(app.state.avoidBad));
+    onChange();
+  });
 
   on("#max-price", "change", e => { app.state.maxPrice = num(e.target.value); onChange(); });
   on("#max-hours", "change", e => { app.state.maxHours = num(e.target.value); onChange(); });
@@ -708,14 +929,13 @@ function render() {
     if (!/^[A-Z]{3}$/.test(v)) { e.target.value = app.state.hub; return; }
     if (v === app.state.hub) return;
     app.state.hub = v;
-    e.target.value = v;
     saveState(app.state);
     app.legs = null;
     render();
     reload();
   });
 
-  on("#token-save", "click", async () => {
+  on("#token-save", "click", () => {
     app.state.token = q("#token-input").value.trim();
     saveState(app.state);
     app.fares = null;
@@ -723,12 +943,37 @@ function render() {
     reload();
   });
 
-  const results = document.getElementById("results");
-  results.addEventListener("click", e => {
+  document.getElementById("results").addEventListener("click", e => {
+    const skip = e.target.closest("[data-skip]");
+    if (skip) {
+      const code = skip.getAttribute("data-skip");
+      if (code && !app.state.excluded.includes(code)) app.state.excluded.push(code);
+      saveState(app.state);
+      refreshResults();
+      return;
+    }
+    if (e.target.closest("[data-reset-skips]")) {
+      app.state.excluded = [];
+      saveState(app.state);
+      refreshResults();
+      return;
+    }
+    const mini = e.target.closest(".cand-mini");
+    if (mini) {
+      const key = mini.getAttribute("data-cand");
+      if (key && key !== app.state.candidate) {
+        app.state.candidate = key;
+        saveState(app.state);
+        render();
+        refreshResults();
+      }
+      return;
+    }
     const btn = e.target.closest(".more-btn");
-    if (!btn) return;
-    const card = btn.closest(".dest-card");
-    if (card) card.classList.toggle("open");
+    if (btn) {
+      const card = btn.closest(".dest-card");
+      if (card) card.classList.toggle("open");
+    }
   });
 }
 
