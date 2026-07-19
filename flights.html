@@ -34,7 +34,13 @@
   .cal-month { margin-top: .85rem; }
   .cal-month:first-of-type { margin-top: 0; }
   .cal-month h3 { margin: 0 0 .4rem; font-size: .72rem; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; font-weight: 600; }
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: .25rem; }
+  .cal-row { display: grid; grid-template-columns: 4.2rem 1fr 4.2rem; gap: .35rem; align-items: center; margin-bottom: .25rem; }
+  .cal-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: .25rem; }
+  .cal-side { font-size: .58rem; line-height: 1.25; color: #64748b; }
+  .cal-side.left { text-align: right; }
+  .cal-side.st-yes { color: #6ee7b7; }
+  .cal-side.st-maybe { color: #fde68a; }
+  .cal-side.st-no { color: #f87171; }
   .cal-dow { text-align: center; font-size: .6rem; color: #475569; font-weight: 600; padding-bottom: .15rem; }
   .cal-cell { aspect-ratio: 1; border: 1px solid transparent; border-radius: .5rem; background: rgba(15,23,42,.5); color: #64748b; font-size: .78rem; font-family: inherit; font-variant-numeric: tabular-nums; cursor: pointer; padding: 0; }
   .cal-cell.st-yes { background: rgba(110,231,183,.16); color: #6ee7b7; }
@@ -135,28 +141,29 @@ const CFG = {
   ],
   calMonths: ["2026-07", "2026-08", "2026-09"],
   availability: [
-    { from: "2026-07-19", to: "2026-07-20", status: "no", note: "too soon" },
-    { from: "2026-07-21", to: "2026-07-26", status: "no", note: "Aileen away, alone time + couch delivery" },
-    { from: "2026-07-27", to: "2026-07-30", status: "maybe", note: "no plans, couch still pending" },
-    { from: "2026-07-31", to: "2026-08-03", status: "no", note: "Pride weekend" },
-    { from: "2026-08-04", to: "2026-08-06", status: "maybe", note: "post-Pride recovery, midweek option" },
-    { from: "2026-08-07", to: "2026-08-09", status: "maybe", note: "free, but no break after Pride" },
-    { from: "2026-08-10", to: "2026-08-13", status: "maybe", note: "midweek gap before the wedding" },
-    { from: "2026-08-14", to: "2026-08-16", status: "no", note: "Tim and Ash's wedding" },
-    { from: "2026-08-17", to: "2026-08-19", status: "maybe", note: "short midweek gap, back before the conference" },
-    { from: "2026-08-20", to: "2026-08-20", status: "no", note: "conference" },
-    { from: "2026-08-21", to: "2026-08-23", status: "maybe", note: "magazine party Aug 21, boat day Aug 22, hungover risk" },
-    { from: "2026-08-24", to: "2026-08-27", status: "yes", note: "clear midweek" },
-    { from: "2026-08-28", to: "2026-08-30", status: "maybe", note: "free weekend, might be moving" },
-    { from: "2026-08-31", to: "2026-09-03", status: "yes", note: "clear midweek" },
-    { from: "2026-09-04", to: "2026-09-06", status: "yes", note: "best weekend option, Jordan's dates TBD" },
-    { from: "2026-09-07", to: "2026-09-10", status: "maybe", note: "works if back before Priya leaves Sep 11" },
-    { from: "2026-09-11", to: "2026-09-13", status: "no", note: "Priya away" },
-    { from: "2026-09-14", to: "2026-09-17", status: "maybe", note: "gap before wedding weekend" },
-    { from: "2026-09-18", to: "2026-09-20", status: "no", note: "wedding events" },
-    { from: "2026-09-21", to: "2026-09-30", status: "no", note: "Priya visits Vancouver soon after, not worth it" },
+    { from: "2026-07-19", to: "2026-07-20", status: "no", note: "too soon", short: "too soon" },
+    { from: "2026-07-21", to: "2026-07-26", status: "no", note: "Aileen away, alone time + couch delivery", short: "alone time + couch" },
+    { from: "2026-07-27", to: "2026-07-30", status: "maybe", note: "no plans, couch still pending", short: "couch pending" },
+    { from: "2026-07-31", to: "2026-08-03", status: "no", note: "Pride weekend", short: "Pride" },
+    { from: "2026-08-04", to: "2026-08-05", status: "no", note: "Priya away, Toronto out (somewhere else would work)", short: "Priya away" },
+    { from: "2026-08-06", to: "2026-08-06", status: "maybe", note: "post-Pride recovery, midweek option", short: "post-Pride" },
+    { from: "2026-08-07", to: "2026-08-09", status: "maybe", note: "free, but no break after Pride", short: "no break after Pride" },
+    { from: "2026-08-10", to: "2026-08-13", status: "maybe", note: "midweek gap before the wedding", short: "midweek gap" },
+    { from: "2026-08-14", to: "2026-08-16", status: "no", note: "Tim and Ash's wedding", short: "Tim + Ash wedding" },
+    { from: "2026-08-17", to: "2026-08-19", status: "maybe", note: "short midweek gap, back before the conference", short: "midweek gap" },
+    { from: "2026-08-20", to: "2026-08-20", status: "no", note: "conference + Founders Day", short: "conference" },
+    { from: "2026-08-21", to: "2026-08-23", status: "maybe", note: "party Aug 21, boat day Aug 22 (they may still be out when you land), hungover risk", short: "party + boat day" },
+    { from: "2026-08-24", to: "2026-08-27", status: "yes", note: "clear midweek", short: "clear" },
+    { from: "2026-08-28", to: "2026-08-30", status: "maybe", note: "free weekend, might be moving", short: "might be moving" },
+    { from: "2026-08-31", to: "2026-09-03", status: "yes", note: "clear midweek", short: "clear" },
+    { from: "2026-09-04", to: "2026-09-06", status: "yes", note: "best weekend option, Jordan's dates TBD", short: "best bet" },
+    { from: "2026-09-07", to: "2026-09-10", status: "maybe", note: "midweek option", short: "midweek" },
+    { from: "2026-09-11", to: "2026-09-13", status: "yes", note: "confirmed works", short: "works" },
+    { from: "2026-09-14", to: "2026-09-17", status: "maybe", note: "gap before wedding weekend", short: "gap" },
+    { from: "2026-09-18", to: "2026-09-20", status: "no", note: "wedding events", short: "wedding" },
+    { from: "2026-09-21", to: "2026-09-30", status: "no", note: "Priya visits Vancouver soon after, not worth it", short: "Priya comes here" },
   ],
-  suggestions: ["2026-08-22", "2026-08-29", "2026-09-05"],
+  suggestions: ["2026-08-22", "2026-08-29", "2026-09-05", "2026-09-12"],
   candidateArriveDaysBefore: 3,
   candidateReturnDays: 16,
   priceCaps: [0, 200, 300, 400, 600, 800, 1200, 1600, 2000],
@@ -558,7 +565,7 @@ function defaultState() {
     hubPreset: "weekend",
     awayPreset: "short",
     avoidBad: true,
-    excluded: ["YQB", "YHZ"],
+    excluded: ["YQB", "YHZ", "YUL"],
     maxPrice: 0,
     maxHours: 0,
     token: "",
@@ -577,7 +584,7 @@ function loadState() {
   if (!/^[A-Z]{3}$/.test(s.hub)) s.hub = "YYZ";
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s.anchor)) || s.anchor < todayISO()) s.anchor = defaultState().anchor;
   if (!Array.isArray(s.excluded)) s.excluded = [];
-  s.excluded = s.excluded.filter(x => /^[A-Z]{3}$/.test(String(x)));
+  s.excluded = [...new Set([...s.excluded.filter(x => /^[A-Z]{3}$/.test(String(x))), ...defaultState().excluded])];
   return s;
 }
 function saveState(s) {
@@ -701,17 +708,45 @@ function renderCalendar(s) {
   const months = CFG.calMonths.map(ym => {
     const firstDow = dowISO(ym + "-01");
     const dcount = new Date(Date.UTC(+ym.slice(0, 4), +ym.slice(5, 7), 0)).getUTCDate();
-    const cells = DOW.map(d => `<span class="cal-dow">${d}</span>`);
-    for (let i = 0; i < firstDow; i++) cells.push(`<span class="cal-cell blank"></span>`);
+    const weeks = [];
+    let cur = { cells: [], start: "", end: "" };
+    for (let i = 0; i < firstDow; i++) cur.cells.push(`<span class="cal-cell blank"></span>`);
     for (let day = 1; day <= dcount; day++) {
       const iso = ym + "-" + String(day).padStart(2, "0");
+      if (!cur.start) cur.start = iso;
+      cur.end = iso;
       const st = dayStatus(iso);
       const cls = ["cal-cell"];
       if (st) cls.push("st-" + st.status);
       if (iso < today) cls.push("past");
-      cells.push(`<button type="button" class="${cls.join(" ")}" data-date="${iso}" aria-pressed="${iso === s.anchor ? "true" : "false"}">${day}</button>`);
+      cur.cells.push(`<button type="button" class="${cls.join(" ")}" data-date="${iso}" aria-pressed="${iso === s.anchor ? "true" : "false"}">${day}</button>`);
+      if (cur.cells.length === 7) { weeks.push(cur); cur = { cells: [], start: "", end: "" }; }
     }
-    return `<div class="cal-month"><h3>${esc(monthTitle(ym))}</h3><div class="cal-grid">${cells.join("")}</div></div>`;
+    if (cur.cells.length) {
+      while (cur.cells.length < 7) cur.cells.push(`<span class="cal-cell blank"></span>`);
+      weeks.push(cur);
+    }
+    // Each range's reason sits in a gutter beside the week where it starts,
+    // spilling to the next free left/right slot when a week is crowded.
+    const slots = weeks.map(() => ({ left: null, right: null }));
+    const monthStart = ym + "-01", monthEnd = ym + "-" + String(dcount).padStart(2, "0");
+    for (const r of CFG.availability) {
+      if (r.to < monthStart || r.from > monthEnd) continue;
+      const key = r.from > monthStart ? r.from : monthStart;
+      let wi = weeks.findIndex(w => key >= w.start && key <= w.end);
+      if (wi < 0) continue;
+      while (wi < weeks.length) {
+        if (!slots[wi].left) { slots[wi].left = r; break; }
+        if (!slots[wi].right) { slots[wi].right = r; break; }
+        wi++;
+      }
+    }
+    const side = (r, cls) => `<span class="cal-side ${cls}${r ? " st-" + r.status : ""}">${r ? esc(r.short || r.note) : ""}</span>`;
+    const dowRow = `<div class="cal-row"><span class="cal-side left"></span><div class="cal-week">${DOW.map(d => `<span class="cal-dow">${d}</span>`).join("")}</div><span class="cal-side right"></span></div>`;
+    const rows = weeks.map((w, i) =>
+      `<div class="cal-row">${side(slots[i].left, "left")}<div class="cal-week">${w.cells.join("")}</div>${side(slots[i].right, "right")}</div>`
+    ).join("");
+    return `<div class="cal-month"><h3>${esc(monthTitle(ym))}</h3>${dowRow}${rows}</div>`;
   }).join("");
   const st = dayStatus(s.anchor);
   return `<section class="panel" id="cal-panel"><h2>When</h2>${months}
