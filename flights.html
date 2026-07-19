@@ -31,6 +31,21 @@
   .chip { background: #1e293b; color: #e2e8f0; border: 1px solid transparent; padding: .4rem .8rem; border-radius: 999px; font-size: .82rem; font-weight: 500; cursor: pointer; font-family: inherit; }
   .chip[aria-pressed="true"] { background: rgba(125,211,252,.15); border-color: rgba(125,211,252,.5); color: #bae6fd; }
   .ctl-row { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .85rem; }
+  .cal-month { margin-top: .85rem; }
+  .cal-month:first-of-type { margin-top: 0; }
+  .cal-month h3 { margin: 0 0 .4rem; font-size: .72rem; text-transform: uppercase; letter-spacing: .12em; color: #94a3b8; font-weight: 600; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: .25rem; }
+  .cal-dow { text-align: center; font-size: .6rem; color: #475569; font-weight: 600; padding-bottom: .15rem; }
+  .cal-cell { aspect-ratio: 1; border: 1px solid transparent; border-radius: .5rem; background: rgba(15,23,42,.5); color: #64748b; font-size: .78rem; font-family: inherit; font-variant-numeric: tabular-nums; cursor: pointer; padding: 0; }
+  .cal-cell.st-yes { background: rgba(110,231,183,.16); color: #6ee7b7; }
+  .cal-cell.st-maybe { background: rgba(252,211,77,.14); color: #fde68a; }
+  .cal-cell.st-no { background: rgba(244,63,94,.1); color: #f87171; }
+  .cal-cell.past { opacity: .3; cursor: default; }
+  .cal-cell.blank { background: transparent; cursor: default; }
+  .cal-cell[aria-pressed="true"] { border-color: #7dd3fc; box-shadow: 0 0 0 1px #7dd3fc inset; }
+  .cal-legend { display: flex; gap: .75rem; margin-top: .7rem; font-size: .68rem; color: #94a3b8; flex-wrap: wrap; }
+  .cal-legend .sw { display: inline-block; width: .7rem; height: .7rem; border-radius: .25rem; margin-right: .3rem; vertical-align: -1px; }
+  .cal-note { margin-top: .6rem; font-size: .8rem; color: #cbd5e1; min-height: 1.2em; }
   .cand-strip { display: flex; gap: .45rem; overflow-x: auto; -webkit-overflow-scrolling: touch; padding: .1rem .25rem .6rem; margin: 0 -.25rem; }
   .cand-strip::-webkit-scrollbar { display: none; }
   .cand-mini { flex: 0 0 auto; min-width: 7.2rem; text-align: left; background: rgba(15,23,42,.7); border: 1px solid rgba(255,255,255,.07); border-radius: .8rem; padding: .55rem .7rem; cursor: pointer; font-family: inherit; display: flex; flex-direction: column; gap: .12rem; }
@@ -118,12 +133,30 @@ const CFG = {
     { key: "week", label: "Week (6-9)", min: 6, max: 9 },
     { key: "any", label: "Any", min: 1, max: 16 },
   ],
-  candidates: [
-    { key: "aug22", sat: "2026-08-22", label: "Aug 22", note: "boat day, conf Aug 20" },
-    { key: "aug29", sat: "2026-08-29", label: "Aug 29", note: "might be moving" },
-    { key: "sep5", sat: "2026-09-05", label: "Sep 5", note: "open" },
-    { key: "custom", sat: "", label: "Custom", note: "any dates" },
+  calMonths: ["2026-07", "2026-08", "2026-09"],
+  availability: [
+    { from: "2026-07-19", to: "2026-07-20", status: "no", note: "too soon" },
+    { from: "2026-07-21", to: "2026-07-26", status: "no", note: "Aileen away, alone time + couch delivery" },
+    { from: "2026-07-27", to: "2026-07-30", status: "maybe", note: "no plans, couch still pending" },
+    { from: "2026-07-31", to: "2026-08-03", status: "no", note: "Pride weekend" },
+    { from: "2026-08-04", to: "2026-08-06", status: "maybe", note: "post-Pride recovery, midweek option" },
+    { from: "2026-08-07", to: "2026-08-09", status: "maybe", note: "free, but no break after Pride" },
+    { from: "2026-08-10", to: "2026-08-13", status: "maybe", note: "midweek gap before the wedding" },
+    { from: "2026-08-14", to: "2026-08-16", status: "no", note: "Tim and Ash's wedding" },
+    { from: "2026-08-17", to: "2026-08-19", status: "maybe", note: "short midweek gap, back before the conference" },
+    { from: "2026-08-20", to: "2026-08-20", status: "no", note: "conference" },
+    { from: "2026-08-21", to: "2026-08-23", status: "maybe", note: "magazine party Aug 21, boat day Aug 22, hungover risk" },
+    { from: "2026-08-24", to: "2026-08-27", status: "yes", note: "clear midweek" },
+    { from: "2026-08-28", to: "2026-08-30", status: "maybe", note: "free weekend, might be moving" },
+    { from: "2026-08-31", to: "2026-09-03", status: "yes", note: "clear midweek" },
+    { from: "2026-09-04", to: "2026-09-06", status: "yes", note: "best weekend option, Jordan's dates TBD" },
+    { from: "2026-09-07", to: "2026-09-10", status: "maybe", note: "works if back before Priya leaves Sep 11" },
+    { from: "2026-09-11", to: "2026-09-13", status: "no", note: "Priya away" },
+    { from: "2026-09-14", to: "2026-09-17", status: "maybe", note: "gap before wedding weekend" },
+    { from: "2026-09-18", to: "2026-09-20", status: "no", note: "wedding events" },
+    { from: "2026-09-21", to: "2026-09-30", status: "no", note: "Priya visits Vancouver soon after, not worth it" },
   ],
+  suggestions: ["2026-08-22", "2026-08-29", "2026-09-05"],
   candidateArriveDaysBefore: 3,
   candidateReturnDays: 16,
   priceCaps: [0, 200, 300, 400, 600, 800, 1200, 1600, 2000],
@@ -206,6 +239,11 @@ function seasonInfo(dest, month) {
   const rules = SEASONS[dest];
   if (!rules) return null;
   for (const r of rules) if (r.m.includes(month)) return r;
+  return null;
+}
+
+function dayStatus(iso) {
+  for (const r of CFG.availability) if (iso >= r.from && iso <= r.to) return r;
   return null;
 }
 
@@ -424,7 +462,7 @@ function buildDemoViaLegs(todayISO, hub) {
     }
   }
   const AWAY_POOL = [2, 3, 3, 4, 5, 7];
-  const anchorDates = CFG.candidates.filter(c => c.sat && c.sat > todayISO).map(c => c.sat);
+  const anchorDates = CFG.suggestions.filter(d => d > todayISO);
   if (!anchorDates.length) anchorDates.push(...A.slice(0, 4).map(l => l.date));
   for (const d of DEMO_VIA_DESTS) {
     const rng = mulberry32(hashSeed(d.c + hub + todayISO.slice(0, 7)));
@@ -512,7 +550,7 @@ function defaultState() {
   const t = todayISO();
   return {
     mode: "via",
-    candidate: "sep5",
+    anchor: CFG.suggestions.find(d => d >= t) || addDaysISO(t, 14),
     windowStart: t,
     windowEnd: addDaysISO(t, CFG.defaultWindowDays),
     preset: "weekend",
@@ -537,11 +575,9 @@ function loadState() {
   if (s.windowStart < todayISO()) s.windowStart = todayISO();
   if (s.windowEnd < s.windowStart) s.windowEnd = addDaysISO(s.windowStart, CFG.defaultWindowDays);
   if (!/^[A-Z]{3}$/.test(s.hub)) s.hub = "YYZ";
-  if (!CFG.candidates.some(c => c.key === s.candidate)) s.candidate = defaultState().candidate;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s.anchor)) || s.anchor < todayISO()) s.anchor = defaultState().anchor;
   if (!Array.isArray(s.excluded)) s.excluded = [];
   s.excluded = s.excluded.filter(x => /^[A-Z]{3}$/.test(String(x)));
-  const cand = CFG.candidates.find(c => c.key === s.candidate);
-  if (cand && cand.sat && addDaysISO(cand.sat, CFG.candidateReturnDays) < todayISO()) s.candidate = "custom";
   return s;
 }
 function saveState(s) {
@@ -583,24 +619,21 @@ const gfLink = (from, to, dep, ret) =>
 
 // ---- Options ----
 
-function optsForCandidate(candKey, s) {
+function optsForAnchor(anchorISO, s) {
   const base = {
     hub: s.hub, origin: CFG.origin.iata,
     hubMin: presetOf(s.hubPreset).min, hubMax: presetOf(s.hubPreset).max,
     awayMin: presetOf(s.awayPreset).min, awayMax: presetOf(s.awayPreset).max,
     maxPrice: num(s.maxPrice), excluded: s.excluded, avoidBadSeason: !!s.avoidBad,
   };
-  const cand = CFG.candidates.find(c => c.key === candKey);
-  if (!cand || !cand.sat) {
-    return { ...base, windowStart: s.windowStart, windowEnd: s.windowEnd };
-  }
-  const arriveFrom = addDaysISO(cand.sat, -CFG.candidateArriveDaysBefore);
+  if (!anchorISO) return { ...base, windowStart: s.windowStart, windowEnd: s.windowEnd };
+  const arriveFrom = addDaysISO(anchorISO, -CFG.candidateArriveDaysBefore);
   return {
     ...base,
     windowStart: arriveFrom,
-    windowEnd: addDaysISO(cand.sat, CFG.candidateReturnDays),
+    windowEnd: addDaysISO(anchorISO, CFG.candidateReturnDays),
     arriveFrom,
-    arriveTo: cand.sat,
+    arriveTo: anchorISO,
   };
 }
 
@@ -627,12 +660,7 @@ function renderControls(s) {
   ).join("");
   let body;
   if (s.mode === "via") {
-    const candChips = CFG.candidates.map(c =>
-      `<button class="chip" type="button" data-key="${esc(c.key)}" aria-pressed="${s.candidate === c.key ? "true" : "false"}">${esc(c.label)}${c.note ? " · " + esc(c.note) : ""}</button>`
-    ).join("");
     body = `
-      <div class="chip-group"><span class="lbl">${esc(cityName(s.hub))} weekend</span><div class="chips" id="cand-chips">${candChips}</div></div>
-      ${s.candidate === "custom" ? dates : ""}
       <div class="ctl-row">
         <label class="fld">First stop<input type="text" id="hub-input" value="${esc(s.hub)}" maxlength="3" autocapitalize="characters" autocomplete="off" spellcheck="false"></label>
         <label class="fld">Budget (total)<select id="max-price">${priceOpts}</select></label>
@@ -655,6 +683,45 @@ function renderControls(s) {
       </div>`;
   }
   return `<section class="panel"><h2>Trip</h2>${modeChips}${body}</section>`;
+}
+
+const fmtMD = iso => {
+  const d = new Date(iso + "T12:00:00");
+  return isNaN(d) ? iso : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+};
+
+function monthTitle(ym) {
+  const d = new Date(ym + "-01T12:00:00Z");
+  return isNaN(d) ? ym : d.toLocaleDateString("en-US", { month: "long", timeZone: "UTC" });
+}
+
+function renderCalendar(s) {
+  const today = todayISO();
+  const DOW = ["S", "M", "T", "W", "T", "F", "S"];
+  const months = CFG.calMonths.map(ym => {
+    const firstDow = dowISO(ym + "-01");
+    const dcount = new Date(Date.UTC(+ym.slice(0, 4), +ym.slice(5, 7), 0)).getUTCDate();
+    const cells = DOW.map(d => `<span class="cal-dow">${d}</span>`);
+    for (let i = 0; i < firstDow; i++) cells.push(`<span class="cal-cell blank"></span>`);
+    for (let day = 1; day <= dcount; day++) {
+      const iso = ym + "-" + String(day).padStart(2, "0");
+      const st = dayStatus(iso);
+      const cls = ["cal-cell"];
+      if (st) cls.push("st-" + st.status);
+      if (iso < today) cls.push("past");
+      cells.push(`<button type="button" class="${cls.join(" ")}" data-date="${iso}" aria-pressed="${iso === s.anchor ? "true" : "false"}">${day}</button>`);
+    }
+    return `<div class="cal-month"><h3>${esc(monthTitle(ym))}</h3><div class="cal-grid">${cells.join("")}</div></div>`;
+  }).join("");
+  const st = dayStatus(s.anchor);
+  return `<section class="panel" id="cal-panel"><h2>When</h2>${months}
+    <div class="cal-legend">
+      <span><span class="sw" style="background:rgba(110,231,183,.5)"></span>works</span>
+      <span><span class="sw" style="background:rgba(252,211,77,.5)"></span>could work</span>
+      <span><span class="sw" style="background:rgba(244,63,94,.4)"></span>no</span>
+    </div>
+    <div class="cal-note" id="cal-note">${esc(fmtDay(s.anchor))}: ${esc(st ? st.note : "no notes")}</div>
+  </section>`;
 }
 
 function renderCandStrip(sums, activeKey, hub) {
@@ -792,17 +859,19 @@ function refreshResults() {
     if (!app.legs) { html = renderStatus(s, app.sourceKind, 0, app.error); }
     else {
       const home = app.legs.C.filter(l => l.from === s.hub);
-      const sums = CFG.candidates.filter(c => c.sat).map(c => {
-        const o = optsForCandidate(c.key, s);
+      const stripDates = CFG.suggestions.includes(s.anchor) ? CFG.suggestions : [...CFG.suggestions, s.anchor].sort();
+      const sums = stripDates.map(iso => {
+        const o = optsForAnchor(iso, s);
         const b = baselineTrip(app.legs.A, home, o);
         const plan = planVia(app.legs.A, app.legs.B, app.legs.C, o);
-        return { key: c.key, label: c.label, note: c.note, base: b ? b.total : 0, best: plan.length ? plan[0].best.total : 0 };
+        const st = dayStatus(iso);
+        return { key: iso, label: fmtMD(iso), note: st ? st.note : "", base: b ? b.total : 0, best: plan.length ? plan[0].best.total : 0 };
       });
-      const o = optsForCandidate(s.candidate, s);
+      const o = optsForAnchor(s.anchor, s);
       const base = baselineTrip(app.legs.A, home, o);
       const ranked = planVia(app.legs.A, app.legs.B, app.legs.C, o);
       const cards = ranked.map(d => renderViaDest(d, s.hub, base ? base.total : 0)).join("");
-      html = renderCandStrip(sums, s.candidate, s.hub)
+      html = renderCandStrip(sums, s.anchor, s.hub)
         + renderStatus(s, app.sourceKind, ranked.length, app.error)
         + renderBaselineCard(base, s.hub)
         + (ranked.length ? `<div class="dest-list">${cards}</div>`
@@ -861,8 +930,9 @@ function render() {
     <section class="hero">
       <div class="hero-head">From ${esc(CFG.origin.city)} (${esc(CFG.origin.iata)})</div>
       <h1>Where can I go?</h1>
-      <p>Pick a ${esc(cityName(app.state.hub))} weekend, see the cheapest ways to bolt on one more stop.</p>
+      <p>Tap a day that works, see the cheapest ways to bolt on one more stop.</p>
     </section>
+    ${app.state.mode === "via" ? renderCalendar(app.state) : ""}
     ${renderControls(app.state)}
     <div id="results"><div class="loading">Finding trips...</div></div>
     ${renderTokenPanel(app.state)}
@@ -902,12 +972,18 @@ function render() {
     if (need) reload(); else refreshResults();
   });
 
-  on("#cand-chips", "click", e => {
-    const btn = e.target.closest(".chip");
-    if (!btn || btn.dataset.key === app.state.candidate) return;
-    app.state.candidate = btn.dataset.key;
+  on("#cal-panel", "click", e => {
+    const cell = e.target.closest(".cal-cell[data-date]");
+    if (!cell) return;
+    const iso = cell.getAttribute("data-date");
+    const st = dayStatus(iso);
+    const noteEl = q("#cal-note");
+    if (noteEl) noteEl.textContent = fmtDay(iso) + ": " + (st ? st.note : "no notes");
+    if (iso < todayISO() || (st && st.status === "no")) return;
+    if (iso === app.state.anchor) return;
+    app.state.anchor = iso;
+    for (const c of q("#cal-panel").querySelectorAll(".cal-cell[data-date]")) c.setAttribute("aria-pressed", String(c === cell));
     saveState(app.state);
-    render();
     refreshResults();
   });
 
@@ -961,8 +1037,8 @@ function render() {
     const mini = e.target.closest(".cand-mini");
     if (mini) {
       const key = mini.getAttribute("data-cand");
-      if (key && key !== app.state.candidate) {
-        app.state.candidate = key;
+      if (key && key !== app.state.anchor) {
+        app.state.anchor = key;
         saveState(app.state);
         render();
         refreshResults();
