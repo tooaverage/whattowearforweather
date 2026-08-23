@@ -288,3 +288,12 @@ article.page h1 {
   font-weight: 800;
 }
 .crumb { font-size: 0.9rem; margin: 0 0 24px; }
+
+.photo-band { margin: 28px 0 0; }
+.photo-band img,
+img.hero-art {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  display: block;
+}
