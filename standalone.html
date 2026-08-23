@@ -90,6 +90,7 @@
   details li { margin-bottom: .375rem; }
   .src { margin: .75rem 0 0; font-size: .65rem; color: #64748b; }
   .footer { text-align: center; font-size: .65rem; color: #64748b; padding-top: .5rem; }
+  .footer a { color: #7dd3fc; text-decoration: none; }
   .err { background: rgba(244,63,94,.1); border-color: rgba(244,63,94,.3); color: #fecaca; }
   .err strong { color: #fca5a5; display: block; margin-bottom: .25rem; }
   .loading { padding: 5rem 0; text-align: center; color: #94a3b8; font-size: .9rem; }
@@ -598,9 +599,10 @@ function render(weather) {
       ${renderHeadsUp(weather)}
       ${renderComing(weather)}
       ${renderWhy(rec, "Open-Meteo")}
-      <div class="footer">Vancouver, BC . v1</div>
+      <div class="footer">Vancouver, BC . v1 &middot; <a data-int="islands/index.html" href="islands/index.html">Pacific islands guide</a></div>
     `;
     attachToggleHandler(root);
+  fixInternalLinks(root);
     return;
   }
 
@@ -617,7 +619,7 @@ function render(weather) {
     ${renderHeadsUp(weather)}
     ${renderComing(weather)}
     ${renderWhy(rec, "Open-Meteo")}
-    <div class="footer">Vancouver, BC . v1</div>
+    <div class="footer">Vancouver, BC . v1 &middot; <a data-int="islands/index.html" href="islands/index.html">Pacific islands guide</a></div>
   `;
 
   const strip = root.querySelector("#hour-strip");
@@ -645,6 +647,17 @@ function render(weather) {
   });
 
   attachToggleHandler(root);
+  fixInternalLinks(root);
+}
+
+function fixInternalLinks(root) {
+  if (location.hostname.indexOf("htmlpreview") === -1) return;
+  const src = decodeURIComponent(location.search.replace(/^\?(url=)?/, ""));
+  if (!/^https?:/.test(src)) return;
+  const base = src.slice(0, src.lastIndexOf("/") + 1);
+  for (const a of root.querySelectorAll("a[data-int]")) {
+    a.href = "https://htmlpreview.github.io/?" + base + a.getAttribute("data-int");
+  }
 }
 
 function attachToggleHandler(root) {
