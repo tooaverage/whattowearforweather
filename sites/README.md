@@ -46,3 +46,13 @@ Weekly readout per site: visits, form_start, form_submit, photo rate (photo_atta
 
 - Google Business Profile (needs real business verification)
 - Published price ranges on the cost pages, once there's real quote data
+
+## Deployment architecture
+
+Two Vercel projects serve the live sites today from manual deploys:
+`burrard-boat-seats` and `deep-cove-mobile-marine`. Two git-linked
+projects (`burrard-boat-seats-site`, `deep-cove-mobile-marine-site`,
+root directories `sites/upholstery` and `sites/mechanic`) are set up to
+build automatically from this repo on every push, photos included. If a
+project shows as not connected in the Vercel dashboard, connect it to
+tooaverage/whattowearforweather in its Git settings.
