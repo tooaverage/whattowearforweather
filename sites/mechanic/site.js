@@ -6,6 +6,12 @@
     try { window.plausible(name, props ? { props: props } : undefined); } catch (e) {}
   }
 
+  // The core test metric: clicks on any book/estimate button, tagged by placement.
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('a.btn') : null;
+    if (a) track('cta_click', { source: a.getAttribute('data-cta') || 'link' });
+  });
+
   var form = document.getElementById('estimate-form');
   if (!form) return;
 

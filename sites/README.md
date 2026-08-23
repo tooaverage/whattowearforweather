@@ -1,6 +1,6 @@
 # Fake-door demand test: Burrard Inlet boat services
 
-Two static sites, one demand test. We measure visits, form starts, submissions, and submissions with photos over a 4-week window. No prices published, no payments collected, no fake proof anywhere.
+Two static sites, one demand test. The funnel we measure over a 4-week window: visits, CTA clicks (`cta_click`, tagged header/hero/page), form starts, submissions. Photo attachments and waitlist opt-ins are tracked as bonus intent signals, not pushed in the copy. No prices published, no payments collected, no fake proof anywhere.
 
 - `upholstery/` = **Burrard Boat Seats** (boat seat and cushion redo, mobile pickup)
 - `mechanic/` = **Deep Cove Mobile Marine** (mobile marine mechanic, winterization at the dock)
@@ -10,7 +10,7 @@ Plain HTML and CSS, one small JS file per site for the form. No build step. Each
 ## Launch checklist (in order)
 
 1. **Forms (FormSubmit.co, no account needed).** Both forms post to `https://formsubmit.co/tooaveragejay@gmail.com`, which emails each submission (with photo attachments) to that inbox. The first submission triggers a one-time activation email: click the confirm link and everything after that flows. After activating, FormSubmit shows a random alias for the address; swap the form `action` to the alias URL so the raw email isn't sitting in the page source. Spam is handled by a honeypot field (`_honey`); captcha is off to keep the test frictionless.
-2. **Plausible.** Add `burrardboatseats.ca` and `deepcovemobilemarine.ca` as sites in Plausible. The tracking script and the four custom events (`form_start`, `form_submit`, `photo_attached`, `waitlist_opt_in`) are already wired: the first three fire from input handlers, and `form_submit` fires on the thanks page (which FormSubmit redirects to). Add each event as a Goal so they show in the dashboard. If you test before the domains are live, temporarily change `data-domain` to the vercel.app hostname.
+2. **Plausible.** Add `burrardboatseats.ca` and `deepcovemobilemarine.ca` as sites in Plausible. The tracking script and the five custom events (`cta_click`, `form_start`, `form_submit`, `photo_attached`, `waitlist_opt_in`) are already wired: `cta_click` fires on button clicks, `form_start`, `photo_attached` and `waitlist_opt_in` from the form inputs, and `form_submit` on the thanks page (which FormSubmit redirects to). Add each event as a Goal so they show in the dashboard. If you test before the domains are live, temporarily change `data-domain` to the vercel.app hostname.
 3. **Domains.** All six candidates were available on 2026-08-22 at $16.99 USD/yr via Vercel. The sites are built against `burrardboatseats.ca` and `deepcovemobilemarine.ca` (canonicals, sitemaps, emails). If you pick different domains, search-and-replace the domain in each site folder.
 4. **Email.** Set up `hello@` on each domain via the registrar or Google Workspace, forwarding to the shared inbox. The reply-within-24h promise on the sites is real; keep it.
 5. **Deploy.** Each folder is a self-contained static site. On Vercel: two projects, root directory `sites/upholstery` and `sites/mechanic`, no build command, output directory `.`.
